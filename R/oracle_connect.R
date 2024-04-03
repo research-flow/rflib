@@ -1,8 +1,6 @@
 #' @title Connect to RF Oracle schemes
 #'
 #'
-#' @
-#'
 #' @description
 #' `oracle_connect()` connects to RF schemes, with host, scheme name and password.
 #'
