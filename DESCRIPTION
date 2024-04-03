@@ -1,0 +1,10 @@
+Package: rflib
+Title: RF utilities
+Version: 0.0.0.9000
+Authors@R: 
+    person("Balint", "Mazzag", , "mazzag.balint@researchflow.hu", role = c("aut", "cre"))
+Description: Package contains functions and utils for internal use.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
