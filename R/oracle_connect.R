@@ -1,5 +1,8 @@
 #' @title Connect to RF Oracle schemes
 #'
+#'
+#' @
+#'
 #' @description
 #' `oracle_connect()` connects to RF schemes, with host, scheme name and password.
 #'
@@ -27,6 +30,10 @@ oracle_connect <- function(scheme, pwd, host, setLocale = F){
     "(DESCRIPTION=",
     "(ADDRESS=(PROTOCOL=tcp)(HOST=", host_val, ")(PORT=", port, "))",
     "(CONNECT_DATA=(SERVICE_NAME=", svc, ")))", sep = "")
+
+  if (!requireNamespace("ROracle", quietly = TRUE)){
+    stop("Please install ROracle package!", call. = T)
+  }
 
   ROracle::dbConnect(drv,
                      username = scheme,

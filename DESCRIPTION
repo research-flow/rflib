@@ -5,6 +5,10 @@ Authors@R:
     person("Balint", "Mazzag", , "mazzag.balint@researchflow.hu", role = c("aut", "cre"))
 Description: Package contains functions and utils for internal use.
 License: MIT + file LICENSE
+Imports: 
+    DBI (>= 1.1.3)
+Suggests: 
+    ROracle (>= 1.3.1.1)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
