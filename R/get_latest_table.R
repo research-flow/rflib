@@ -1,12 +1,5 @@
 #' @title Get latest tables from an Oracle scheme
 #'
-#' @import dplyr
-#' @importFrom tidyr unnest
-#' @importFrom ROracle dbGetInfo
-#' @importFrom ROracle dbListTables
-#' @importFrom purrr map
-#' @importFrom purrr map_chr
-#'
 #' @description
 #' `get_latest_table()` gets latest table lists from Oracle connections.
 #'
