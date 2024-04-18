@@ -44,7 +44,7 @@ addPackageSnippets <- function() {
 
     # Try to get template, if template is not found skip it
     #
-    pckgSnippetsFilesPath <- system.file("rstudio", pckgSnippetsFiles[i], package = "rflib")
+    pckgSnippetsFilesPath <- system.file(pckgSnippetsFiles[i], package = "rflib")
     if (pckgSnippetsFilesPath == "") {
       next()
     }
