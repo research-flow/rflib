@@ -11,6 +11,8 @@ oracle_connect(scheme, pwd, host, setLocale = F)
 
 \item{pwd}{Character string. Password connected to the scheme.}
 
+\item{host}{Character string. Existing host where the RF Oracle system is run.}
+
 \item{setLocale}{Boolean. If sys.setenv should be run tto set adequate Hungarian language options.}
 }
 \value{

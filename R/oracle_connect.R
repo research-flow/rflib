@@ -1,11 +1,11 @@
 #' @title Connect to RF Oracle schemes
 #'
-#'
 #' @description
 #' `oracle_connect()` connects to RF schemes, with host, scheme name and password.
 #'
 #' @param scheme Character string. Existing scheme in the RF Oracle system
 #' @param pwd Character string. Password connected to the scheme.
+#' @param host Character string. Existing host where the RF Oracle system is run.
 #' @param setLocale Boolean. If sys.setenv should be run tto set adequate Hungarian language options.
 #' @returns An ROracle connection OraConnection object.
 #'

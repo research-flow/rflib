@@ -1,0 +1,2 @@
+snippet lib
+	library(${1:packages})
