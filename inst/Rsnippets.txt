@@ -1,2 +1,16 @@
-snippet lib
-	library(${1:packages})
+snippet shiny_mod
+	mod_lp_ui <- function(id){
+    ns <- NS(id)
+
+    nav_panel("Kezdőlap", value = "lp",
+            # uiOutput(ns('markdown'))
+            # shiny::includeHTML("www/document_lp.html")
+            shiny::includeMarkdown("www/document_lp.md")
+  )
+}
+
+
+  mod_lp_server <- function(id, parent_input) {
+    moduleServer(id, function(input, output, session){})
+  }
+
