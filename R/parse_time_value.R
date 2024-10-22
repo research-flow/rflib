@@ -10,33 +10,38 @@
 #' @export
 
 parse_time_value <- function(time_type, time_value) {
-  if (time_type == "Éves") {
-    return(as.Date(paste0(stringr::str_sub(time_value, 1, 4), "-01-01")))
-  } else if (time_type == "QTR") {
-    year <- substr(time_value, 1, 4)
-    quarter <- substr(time_value, 6, 6)
-    month <- (as.numeric(quarter) - 1) * 3 + 1
-    return(as.Date(paste0(year, "-", sprintf("%02d", month), "-01")))
-  } else if (time_type == "Havi") {
-    if (grepl("M", time_value)) {
+
+  dplyr::case_when(
+    # Case for "Éves"
+    time_type == "Éves" ~ as.Date(paste0(substr(time_value, 1, 4), "-01-01")),
+
+    # Case for "QTR"
+    time_type == "QTR" ~ {
       year <- substr(time_value, 1, 4)
-      month <- substr(time_value, 6, 7)
-    } else {
-      year <- substr(time_value, 1, 4)
-      month <- substr(time_value, 5, 6)
-    }
-    return(as.Date(paste0(year, "-", sprintf("%02d", as.numeric(month)), "-01")))
-  } else if (time_type == "Mozgó negyedév") {
-    time_value_last  <- stringr::str_extract(time_value, "[0-9]+$")
-    if (grepl("M", time_value_last)) {
-      year <- substr(time_value_last, 1, 4)
-      month <- substr(time_value_last, 6, 7)
-    } else {
-      year <- substr(time_value_last, 1, 4)
-      month <- substr(time_value_last, 5, 6)
-    }
-    return(as.Date(paste0(year, "-", sprintf("%02d", as.numeric(month)), "-01")))
-  } else if (time_type == "*Teljes időszak" && time_value == "*Teljes időszak") {
-    return(as.Date("1900-01-01"))  # Arbitrary fixed date for total timeframe
-  }
+      quarter <- as.numeric(substr(time_value, 6, 6))
+      month <- (quarter - 1) * 3 + 1
+      as.Date(paste0(year, "-", sprintf("%02d", month), "-01"))
+    },
+
+    # Case for "Havi"
+    time_type == "Havi" ~ {
+      year <- ifelse(grepl("M", time_value), substr(time_value, 1, 4), substr(time_value, 1, 4))
+      month <- ifelse(grepl("M", time_value), substr(time_value, 6, 7), substr(time_value, 5, 6))
+      as.Date(paste0(year, "-", sprintf("%02d", as.numeric(month)), "-01"))
+    },
+
+    # Case for "Mozgó negyedév"
+    time_type == "Mozgó negyedév" ~ {
+      time_value_last <- stringr::str_extract(time_value, "[0-9]+$")
+      year <- ifelse(grepl("M", time_value_last), substr(time_value_last, 1, 4), substr(time_value_last, 1, 4))
+      month <- ifelse(grepl("M", time_value_last), substr(time_value_last, 6, 7), substr(time_value_last, 5, 6))
+      as.Date(paste0(year, "-", sprintf("%02d", as.numeric(month)), "-01"))
+    },
+
+    # Case for "*Teljes időszak"
+    time_type == "*Teljes időszak" & time_value == "*Teljes időszak" ~ as.Date("1900-01-01"),
+
+    # Default case: NA if none match
+    TRUE ~ NA_Date_
+  )
 }
