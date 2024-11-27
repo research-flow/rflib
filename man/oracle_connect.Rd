@@ -4,14 +4,10 @@
 \alias{oracle_connect}
 \title{Connect to RF Oracle schemes}
 \usage{
-oracle_connect(scheme, pwd, host, setLocale = F)
+oracle_connect(schema, setLocale = T)
 }
 \arguments{
-\item{scheme}{Character string. Existing scheme in the RF Oracle system}
-
-\item{pwd}{Character string. Password connected to the scheme.}
-
-\item{host}{Character string. Existing host where the RF Oracle system is run.}
+\item{schema}{Character string. Existing scheme in the RF Oracle system}
 
 \item{setLocale}{Boolean. If sys.setenv should be run tto set adequate Hungarian language options.}
 }
