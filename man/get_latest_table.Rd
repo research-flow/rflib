@@ -6,17 +6,25 @@
 \usage{
 get_latest_table(
   table_name_val,
-  connection_val,
-  tibble_of_tables = NULL,
-  list_tables = F
+  sema_name_val,
+  tibble_of_tables,
+  min_date = NULL,
+  max_date = NULL,
+  append = ""
 )
 }
 \arguments{
 \item{table_name_val}{Character string. Filtering string to table names}
 
-\item{connection_val}{List of OraConnection objects. In which we search for table names.}
+\item{sema_name_val}{Character string. Filtering string to schema names}
 
 \item{tibble_of_tables}{Tibble. If previously all possible names are extracted, they can be set as default.}
+
+\item{min_date}{Date string (YYMMDD), will be converted into date. Gives the minimum date for the search.}
+
+\item{max_date}{Date string (YYMMDD), will be converted into date. Gives the maximum date for the search.}
+
+\item{connection_val}{List of OraConnection objects. In which we search for table names.}
 
 \item{list_tables}{Boolean. If return should be total table names or only the latest ones.}
 }
