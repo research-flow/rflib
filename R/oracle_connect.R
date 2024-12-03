@@ -25,7 +25,7 @@ oracle_connect <- function(schema, driverName = "Oracle in instantclient_21_15",
   port_val = Sys.getenv("OCI_PORT")
   svc_val = Sys.getenv("OCI_SVC")
 
-  connect.string <- paste0(
+  connect_string <- paste0(
     "(DESCRIPTION=",
     "(ADDRESS=(PROTOCOL=tcp)(HOST=", host_val, ")(PORT=", port_val, "))",
     "(CONNECT_DATA=(SERVICE_NAME=", svc_val, ")))")
