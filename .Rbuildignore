@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^rflib\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
