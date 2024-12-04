@@ -36,6 +36,6 @@ oracle_connect <- function(schema, driverName = "Oracle in instantclient_21_15",
     DBQ = connect_string,
     UID = schema,
     PWD = Sys.getenv(paste0("OCI_", schema, "_PW")),
-    encoding = "windows-1250"
+    encoding = ""
   )
 }

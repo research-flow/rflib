@@ -24,9 +24,7 @@ get_latest_table(
 
 \item{max_date}{Date string (YYMMDD), will be converted into date. Gives the maximum date for the search.}
 
-\item{connection_val}{List of OraConnection objects. In which we search for table names.}
-
-\item{list_tables}{Boolean. If return should be total table names or only the latest ones.}
+\item{append}{append a text after the table}
 }
 \value{
 A tibble with given table name patterns and their latest table names in an Oracle scheme.

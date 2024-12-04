@@ -5,11 +5,10 @@
 #'
 #' @param table_name_val Character string. Filtering string to table names
 #' @param sema_name_val Character string. Filtering string to schema names
-#' @param connection_val List of OraConnection objects. In which we search for table names.
 #' @param tibble_of_tables Tibble. If previously all possible names are extracted, they can be set as default.
-#' @param list_tables Boolean. If return should be total table names or only the latest ones.
 #' @param min_date Date string (YYMMDD), will be converted into date. Gives the minimum date for the search.
 #' @param max_date Date string (YYMMDD), will be converted into date. Gives the maximum date for the search.
+#' @param append append a text after the table
 #' @returns A tibble with given table name patterns and their latest table names in an Oracle scheme.
 #'
 #' @export
