@@ -27,9 +27,6 @@ devtools::install_github("research-flow/rflib")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(ROracle)
-#> Loading required package: DBI
-library(rflib)
 
 # rflib::oracle_connect("SCHEME", "PWD", F)
 ## basic example code

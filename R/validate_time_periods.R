@@ -1,4 +1,3 @@
-
 #' @title Validate time periods in tables
 #'
 #' @description
@@ -49,14 +48,6 @@ validate_time_periods <- function(idoszak_ertek, idoszak_bontas, min_date, max_d
   min_quarter <- lubridate::quarter(min_date)
   max_quarter <- lubridate::quarter(max_date)
 
-
-  # Generate valid labels for each type
-  all_quarters <- unlist(lapply(min_year:max_year, function(year) paste0(year, "Q", 1:4)))
-  invalid_quarters <- c(paste0(min_year, "Q", 1:(min_quarter-1)),paste0(max_year, "Q", (max_quarter+1):4))
-  valid_quarters <- setdiff(all_quarters, invalid_quarters)
-  valid_months <- format(seq(min_date, max_date, by = "month"), "%Y") %>%
-    paste0("M", stringr::str_pad(lubridate::month(seq(min_date, max_date, by = "month")), 2, pad = "0"))
-
   # Generate valid yearly labels
   valid_years <- c()
   for (year in min_year:max_year) {
@@ -68,8 +59,22 @@ validate_time_periods <- function(idoszak_ertek, idoszak_bontas, min_date, max_d
       valid_years <- c(valid_years, as.character(year))
     }
   }
-
   valid_years <- stringr::str_replace_all(valid_years, relabel_list)
+
+  # Generate valid yearly labels
+  valid_quarters <- c()
+  for (year in min_year:max_year) {
+    if (year == min_year) {
+      valid_quarters <- c(valid_quarters, paste0(year, "Q", min_quarter:4))
+    } else if (year == max_year) {
+      valid_quarters <- c(valid_quarters, paste0(year, "Q", 1:max_quarter))
+    } else {
+      valid_quarters <- c(valid_quarters, paste0(year, "Q", 1:4))
+    }
+  }
+
+  valid_months <- format(seq(min_date, max_date, by = "month"), "%Y") %>%
+    paste0("M", stringr::str_pad(lubridate::month(seq(min_date, max_date, by = "month")), 2, pad = "0"))
 
   # Handle "Éves" corrections
   yearly_indices <- which(idoszak_bontas == "Éves")

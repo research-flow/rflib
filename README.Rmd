@@ -35,8 +35,6 @@ devtools::install_github("research-flow/rflib")
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-library(ROracle)
-library(rflib)
 
 # rflib::oracle_connect("SCHEME", "PWD", F)
 ## basic example code
