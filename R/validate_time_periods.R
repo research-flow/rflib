@@ -8,15 +8,27 @@
 #' @param idoszak_bontas Character vector with values as: "Éves", "Havi", "QTR", "*Teljes időszak"
 #' @param min_date Date string (YYYY.MM.DD.), will be converted into date. Gives the minimum date for the search.
 #' @param max_date Date string (YYYY.MM.DD.), will be converted into date. Gives the maximum date for the search.
+#' @param output_boolean Boolean if just checking should be done or relabelling as well. TRUE = relabelling, FALSE = checking
 #' @returns A vector with correct labels and NA for out of date range values.
 #'
 #' @export
 
 # Function to validate labels based on idoszak_bontas
-validate_time_periods <- function(idoszak_ertek, idoszak_bontas, min_date, max_date) {
+validate_time_periods <- function(idoszak_ertek, idoszak_bontas, min_date, max_date, output_boolean = F) {
   # Ensure min_date and max_date are Date objects
   min_date <- as.Date(min_date)
   max_date <- as.Date(max_date)
+
+  relabel_list <-
+    c(
+      "Q1-Q4" = "",
+      "Q1-Q2" = "H1",
+      "Q3-Q4" = "H2",
+      "Q1-Q1" = "Q1",
+      "Q2-Q2" = "Q2",
+      "Q3-Q3" = "Q3",
+      "Q4-Q4" = "Q4"
+      )
 
   # Check if lengths match
   if (length(idoszak_ertek) != length(idoszak_bontas)) {
@@ -25,7 +37,7 @@ validate_time_periods <- function(idoszak_ertek, idoszak_bontas, min_date, max_d
 
   # Define valid quarter start and end dates
   quarter_starts <- seq(as.Date("1900-01-01"), as.Date("2100-01-01"), by = "quarter")
-  quarter_ends <- quarter_starts + months(3) - days(1)
+  quarter_ends <- quarter_starts + months(3) - lubridate::days(1)
 
   # Validate min_date and max_date
   if (!(min_date %in% quarter_starts)) stop(sprintf("Error: min_date (%s) is not the start of a quarter.", min_date))
@@ -37,6 +49,7 @@ validate_time_periods <- function(idoszak_ertek, idoszak_bontas, min_date, max_d
   min_quarter <- lubridate::quarter(min_date)
   max_quarter <- lubridate::quarter(max_date)
 
+
   # Generate valid labels for each type
   all_quarters <- unlist(lapply(min_year:max_year, function(year) paste0(year, "Q", 1:4)))
   invalid_quarters <- c(paste0(min_year, "Q", 1:(min_quarter-1)),paste0(max_year, "Q", (max_quarter+1):4))
@@ -44,10 +57,25 @@ validate_time_periods <- function(idoszak_ertek, idoszak_bontas, min_date, max_d
   valid_months <- format(seq(min_date, max_date, by = "month"), "%Y") %>%
     paste0("M", stringr::str_pad(lubridate::month(seq(min_date, max_date, by = "month")), 2, pad = "0"))
 
+  # Generate valid yearly labels
+  valid_years <- c()
+  for (year in min_year:max_year) {
+    if (year == min_year) {
+      valid_years <- c(valid_years, as.character(year), paste0(year, "Q", min_quarter, "-Q4"))
+    } else if (year == max_year) {
+      valid_years <- c(valid_years, as.character(year), paste0(year, "Q1-Q", max_quarter))
+    } else {
+      valid_years <- c(valid_years, as.character(year))
+    }
+  }
+
+  valid_years <- stringr::str_replace_all(valid_years, relabel_list)
+
   # Handle "Éves" corrections
   yearly_indices <- which(idoszak_bontas == "Éves")
-  yearly_labels <- as.numeric(idoszak_ertek[yearly_indices])
-  yearly_flags <- yearly_labels >= min_year & yearly_labels <= max_year
+  yearly_labels <- idoszak_ertek[yearly_indices]
+  yearly_flags <- yearly_labels %in% valid_years
+  yearly_corrected <- ifelse(yearly_flags, yearly_labels, NA_character_)
 
   yearly_corrected <- ifelse(
     yearly_flags & yearly_labels == min_year & min_quarter > 1,
@@ -59,14 +87,7 @@ validate_time_periods <- function(idoszak_ertek, idoszak_bontas, min_date, max_d
     )
   )
 
-  pattern <- "(Q1-Q1|Q2-Q2|Q3-Q3|Q4-Q4)"
-
-  yearly_corrected <- ifelse(
-    grepl(pattern, yearly_corrected),
-    gsub("-Q([1-4])$", "", yearly_corrected),
-    yearly_corrected
-  )
-
+  yearly_corrected <- stringr::str_replace_all(yearly_corrected, relabel_list)
 
   # Handle "QTR" corrections
   quarter_indices <- which(idoszak_bontas == "QTR")
@@ -96,6 +117,12 @@ validate_time_periods <- function(idoszak_ertek, idoszak_bontas, min_date, max_d
     warning(sprintf("Relabelled %s results", relabel_count))
   }
 
+  if(output_boolean){
   # Return results
     return(corrected_labels)
+
+  } else {
+  # Return input
+    return(idoszak_ertek)
+  }
 }

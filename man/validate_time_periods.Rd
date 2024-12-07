@@ -4,7 +4,13 @@
 \alias{validate_time_periods}
 \title{Validate time periods in tables}
 \usage{
-validate_time_periods(idoszak_ertek, idoszak_bontas, min_date, max_date)
+validate_time_periods(
+  idoszak_ertek,
+  idoszak_bontas,
+  min_date,
+  max_date,
+  output_boolean = F
+)
 }
 \arguments{
 \item{idoszak_ertek}{Character vector. Tiem period values to analyse}
@@ -14,6 +20,8 @@ validate_time_periods(idoszak_ertek, idoszak_bontas, min_date, max_date)
 \item{min_date}{Date string (YYYY.MM.DD.), will be converted into date. Gives the minimum date for the search.}
 
 \item{max_date}{Date string (YYYY.MM.DD.), will be converted into date. Gives the maximum date for the search.}
+
+\item{output_boolean}{Boolean if just checking should be done or relabelling as well. TRUE = relabelling, FALSE = checking}
 }
 \value{
 A vector with correct labels and NA for out of date range values.
