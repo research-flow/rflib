@@ -41,13 +41,13 @@ get_latest_table <- function(table_name_val, sema_name_val, tibble_of_tables, mi
     latest_table <- tibble_of_tables %>%
       filter(str_detect(list, str_c(table_name_val_final, "_(\\d{6})$")) & (con_val_keszlet == sema_name_val)) %>%
       mutate(date_suffix = as.Date(sub('.*_(\\d{6})$', '\\1', list, perl = TRUE), "%y%m%d")) %>%
-      (\(x) {if(!is.null(min_date_val))
-        filter(x, ((date_suffix == max(date_suffix)) & (max(date_suffix) <= max_date_val)) | is.na(date_suffix))
+      {if(!is.null(min_date_val))
+        filter(., ((date_suffix == max(date_suffix)) & (max(date_suffix) <= max_date_val)) | is.na(date_suffix))
         else  if(!is.null(max_date_val))
-          filter(x, ((date_suffix == max(date_suffix)) & (max(date_suffix) >= min_date_val)) | is.na(date_suffix))
+          filter(., ((date_suffix == max(date_suffix)) & (max(date_suffix) >= min_date_val)) | is.na(date_suffix))
         else
-          filter(x, ((date_suffix == max(date_suffix))) | is.na(date_suffix))
-      })() %>%
+          filter(., ((date_suffix == max(date_suffix))) | is.na(date_suffix))
+      } %>%
       pull(list)
     if (length(latest_table) > 0) {
       return(first(latest_table))
