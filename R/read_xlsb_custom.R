@@ -21,7 +21,7 @@ read_xlsb <- function(path, sheet){
   if(!(sheet %in% sheets)){
     stop(paste0("Sheet name must in the file sheet name!", paste0(sheets, collapse = ", ")))
   } else {
-  data <- RODBC::sqlFetch(con2, sheet) |> dplyr::tibble() # Provide name of sheet
+  data <- RODBC::sqlFetch(con2, sheet) %>% dplyr::tibble() # Provide name of sheet
   return(data)
   }
   }

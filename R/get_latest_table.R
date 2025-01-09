@@ -15,7 +15,7 @@
 
 get_latest_table <- function(table_name_val, sema_name_val, tibble_of_tables, min_date = NULL,max_date = NULL, append = "") {
 
-  aval_tables <- tibble_of_tables |> filter(con_val_keszlet == sema_name_val) |> pull(list)
+  aval_tables <- tibble_of_tables %>% filter(con_val_keszlet == sema_name_val) %>% pull(list)
   min_date_val <-
     if(!is.null(min_date)){
       as.Date(min_date, "%y%m%d")
@@ -39,15 +39,15 @@ get_latest_table <- function(table_name_val, sema_name_val, tibble_of_tables, mi
     return(table_name_val_final)
   } else {
     latest_table <- tibble_of_tables %>%
-      filter(str_detect(list, str_c(table_name_val_final, "_(\\d{6})$")) & (con_val_keszlet == sema_name_val)) |>
-      mutate(date_suffix = as.Date(sub('.*_(\\d{6})$', '\\1', list, perl = TRUE), "%y%m%d")) |>
+      filter(str_detect(list, str_c(table_name_val_final, "_(\\d{6})$")) & (con_val_keszlet == sema_name_val)) %>%
+      mutate(date_suffix = as.Date(sub('.*_(\\d{6})$', '\\1', list, perl = TRUE), "%y%m%d")) %>%
       (\(x) {if(!is.null(min_date_val))
         filter(x, ((date_suffix == max(date_suffix)) & (max(date_suffix) <= max_date_val)) | is.na(date_suffix))
         else  if(!is.null(max_date_val))
           filter(x, ((date_suffix == max(date_suffix)) & (max(date_suffix) >= min_date_val)) | is.na(date_suffix))
         else
           filter(x, ((date_suffix == max(date_suffix))) | is.na(date_suffix))
-      })() |>
+      })() %>%
       pull(list)
     if (length(latest_table) > 0) {
       return(first(latest_table))
