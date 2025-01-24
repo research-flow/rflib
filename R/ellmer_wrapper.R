@@ -1,5 +1,5 @@
-#' Process Excel File with ChatGPT (Ellmer Wrapper)
-#'
+#' @title Process Excel File with ChatGPT (Ellmer Wrapper)
+#' @description
 #' This function wraps around the Ellmer library to process textual columns in an input Excel file
 #' using ChatGPT. It categorizes textual data in each column based on the corresponding labels and
 #' cleans the data accordingly.
@@ -9,6 +9,8 @@
 #' @param api_key Your OpenAI API key for Ellmer.
 #' @param num_categories Number of categories to create for each textual column (default: 5).
 #' @return A modified dataframe with the categorized data.
+#' @export
+
 
 process_excel_with_ellmer <- function(file_path, output_path = NULL, api_key = Sys.getenv("OPENAPI_KEY_MR"), num_categories = 5) {
   # Load the input Excel file

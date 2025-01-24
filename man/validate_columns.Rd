@@ -2,7 +2,7 @@
 % Please edit documentation in R/eloszlasPlots.R
 \name{validate_columns}
 \alias{validate_columns}
-\title{Validate Required Columns}
+\title{Validate Required Column}
 \usage{
 validate_columns(data, required_columns)
 }
@@ -15,5 +15,5 @@ validate_columns(data, required_columns)
 None. Stops with an error if required columns are missing.
 }
 \description{
-Validate Required Columns
+Validate Required Column
 }

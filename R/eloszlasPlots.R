@@ -1,9 +1,10 @@
-#' Validate Required Columns
-#'
+#' @title Validate Required Column
 #' @param data A data frame to validate.
 #' @param required_columns A vector of column names that must be present in the data frame.
 #' @return None. Stops with an error if required columns are missing.
 #'
+#' @export
+
 validate_columns <- function(data, required_columns) {
   missing_columns <- setdiff(required_columns, colnames(data))
   if (length(missing_columns) > 0) {
