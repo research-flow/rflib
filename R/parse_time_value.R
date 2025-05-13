@@ -10,7 +10,6 @@
 #' @export
 
 parse_time_value <- function(time_type, time_value) {
-
   dplyr::case_when(
     # Case for "Éves"
     time_type == "Éves" ~ as.Date(paste0(substr(time_value, 1, 4), "-01-01")),

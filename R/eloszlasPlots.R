@@ -12,11 +12,13 @@ validate_columns <- function(data, required_columns) {
   }
 }
 
-#' Generate Plot 1
+#' @export
 generate_plot1 <- function(data, x_felirat, caption_to_plot, is_limited, is_oszlop) {
   ggplot(data, aes(x = value)) +
     geom_histogram(aes(alpha = ..count.., fill = valasz_szovege), color = "black", bins = 7) +
-    {if (is_limited) facet_wrap(~NiceName(valasz_szovege), scales = "free_y") else facet_wrap(~NiceName(valasz_szovege), scales = "free")} +
+    {
+      if (is_limited) facet_wrap(~ NiceName(valasz_szovege), scales = "free_y") else facet_wrap(~ NiceName(valasz_szovege), scales = "free")
+    } +
     scale_x_continuous(breaks = integer_breaks(), labels = scales::label_comma()) +
     scale_y_continuous(breaks = integer_breaks(), labels = scales::label_comma()) +
     labs(
@@ -31,18 +33,19 @@ generate_plot1 <- function(data, x_felirat, caption_to_plot, is_limited, is_oszl
     guides(alpha = "none", fill = "none")
 }
 
-#' Generate Plot 2
+#' @export
 generate_plot2 <- function(data, fill_felirat) {
   ggplot(data, aes(y = kerdes, x = value, fill = NiceName(valasz_szovege))) +
     geom_col(color = "black") +
     geom_text(aes(
       label = ifelse(value <= 0.1,
-                     format(round(value, 2), nsmall = 2),
-                     format(round(value, 1), nsmall = 1)),
+        format(round(value, 2), nsmall = 2),
+        format(round(value, 1), nsmall = 1)
+      ),
       x = value
     ), hjust = "inward", show.legend = FALSE, size = 6, fontface = "bold") +
     scale_fill_manual(values = labels) +
-    facet_wrap(~NiceName(name), ncol = 1) +
+    facet_wrap(~ NiceName(name), ncol = 1) +
     guides(fill = guide_legend(ncol = 3)) +
     labs(
       y = "Válaszok középértékei",
@@ -52,18 +55,17 @@ generate_plot2 <- function(data, fill_felirat) {
     theme_minimal()
 }
 
-#' Create Discrete Eloszlas Plot
+#' @export
 create_discrete_eloszlas_plot <- function(
-  data_to_plot,
-  title_to_plot,
-  caption_to_plot,
-  plot_params = list(
-    x_felirat = "X-axis",
-    fill_felirat = "Fill Legend",
-    fig.height = 6,
-    fig.width = 13
-  )
-) {
+    data_to_plot,
+    title_to_plot,
+    caption_to_plot,
+    plot_params = list(
+      x_felirat = "X-axis",
+      fill_felirat = "Fill Legend",
+      fig.height = 6,
+      fig.width = 13
+    )) {
   validate_columns(data_to_plot, c("value", "valasz_szovege", "kerdes", "mean", "median"))
 
   x_felirat <- plot_params$x_felirat
@@ -82,19 +84,19 @@ create_discrete_eloszlas_plot <- function(
   return(combined_plot)
 }
 
-#' Create Plot
+
+#' @export
 create_plot <- function(
-  plot_type,
-  data_to_plot,
-  title_to_plot,
-  caption_to_plot,
-  plot_params = list(
-    x_felirat = "X-axis",
-    fill_felirat = "Fill Legend",
-    fig.height = 6,
-    fig.width = 13
-  )
-) {
+    plot_type,
+    data_to_plot,
+    title_to_plot,
+    caption_to_plot,
+    plot_params = list(
+      x_felirat = "X-axis",
+      fill_felirat = "Fill Legend",
+      fig.height = 6,
+      fig.width = 13
+    )) {
   plot_functions <- list(
     discrete_eloszlas = create_discrete_eloszlas_plot
   )

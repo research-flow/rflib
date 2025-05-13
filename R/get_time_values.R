@@ -18,11 +18,16 @@ get_time_values <- function(df, time_type_out, time_type_col = "Időszak bontás
                             from_start = TRUE) {
   # Parse time values
   altered_df <- df %>%
-    dplyr::filter( !!sym(time_type_col) == time_type_out) %>%
-    dplyr::select(!!sym(time_type_col), !!sym(time_value_col)) %>% unique() %>%
-    dplyr::mutate(parsed_time_value = purrr::map2_dbl(!!sym(time_type_col), !!sym(time_value_col),
-                                        parse_time_value),
-           parsed_time_value = as.Date(parsed_time_value, origin = as.Date("1970-01-01"))) %>%
+    dplyr::filter(!!sym(time_type_col) == time_type_out) %>%
+    dplyr::select(!!sym(time_type_col), !!sym(time_value_col)) %>%
+    unique() %>%
+    dplyr::mutate(
+      parsed_time_value = purrr::map2_dbl(
+        !!sym(time_type_col), !!sym(time_value_col),
+        parse_time_value
+      ),
+      parsed_time_value = as.Date(parsed_time_value, origin = as.Date("1970-01-01"))
+    ) %>%
     dplyr::arrange(parsed_time_value)
 
   # Determine the reference date
@@ -42,7 +47,8 @@ get_time_values <- function(df, time_type_out, time_type_col = "Időszak bontás
   filtered_values <- filtered_df %>%
     dplyr::filter(!!sym(time_type_col) == time_type_out) %>%
     dplyr::select(-parsed_time_value) %>%
-    dplyr::pull(!!sym(time_value_col)) %>% unique()
+    dplyr::pull(!!sym(time_value_col)) %>%
+    unique()
 
   return(filtered_values)
 }

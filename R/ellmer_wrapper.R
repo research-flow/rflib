@@ -54,7 +54,8 @@ process_excel_with_ellmer <- function(file_path, output_path = NULL, api_key = S
 
     chat <- ellmer::chat_openai(
       model = "gpt-4o-mini",
-      api_key = api_key)
+      api_key = api_key
+    )
     #> Using model = "gpt-4o".
     data <- chat$extract_data(prompt, type = category)
 

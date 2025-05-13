@@ -27,7 +27,7 @@ validate_time_periods <- function(idoszak_ertek, idoszak_bontas, min_date, max_d
       "Q2-Q2" = "Q2",
       "Q3-Q3" = "Q3",
       "Q4-Q4" = "Q4"
-      )
+    )
 
   # Check if lengths match
   if (length(idoszak_ertek) != length(idoszak_bontas)) {
@@ -118,16 +118,15 @@ validate_time_periods <- function(idoszak_ertek, idoszak_bontas, min_date, max_d
   # Count relabeled values
   relabel_count <- sum(idoszak_ertek != corrected_labels | is.na(corrected_labels))
 
-  if(relabel_count >0){
+  if (relabel_count > 0) {
     warning(sprintf("Relabelled %s results", relabel_count))
   }
 
-  if(output_boolean){
-  # Return results
+  if (output_boolean) {
+    # Return results
     return(corrected_labels)
-
   } else {
-  # Return input
+    # Return input
     return(idoszak_ertek)
   }
 }

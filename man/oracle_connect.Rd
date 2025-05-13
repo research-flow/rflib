@@ -4,16 +4,10 @@
 \alias{oracle_connect}
 \title{Connect to RF Oracle schemes}
 \usage{
-oracle_connect(
-  schema,
-  driverName = "Oracle in instantclient_21_15",
-  setLocale = T
-)
+oracle_connect(schema, setLocale = T)
 }
 \arguments{
 \item{schema}{Character string. Existing scheme in the RF Oracle system}
-
-\item{driverName}{Character string. Driver name}
 
 \item{setLocale}{Boolean. If sys.setenv should be run tto set adequate Hungarian language options.}
 }

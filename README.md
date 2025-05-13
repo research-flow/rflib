@@ -27,7 +27,6 @@ devtools::install_github("research-flow/rflib")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-
-# rflib::oracle_connect("SCHEME", "PWD", F)
+# rflib::oracle_connect("SCHEME",F)
 ## basic example code
 ```
