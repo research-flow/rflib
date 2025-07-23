@@ -102,3 +102,15 @@
 #     expect_type(title, "character")
 #     expect_true(nchar(title) > 0)
 # })
+
+
+
+
+Survey <- rflib::survey_init("inst/extdata/mock_raw.xlsx")
+Survey <- rflib::survey_add_definition(Survey, "inst/extdata/mock_seged.xlsx",
+    rewrangle = TRUE, replot = TRUE
+)
+
+Survey <- survey_add_type(Survey, question_id = 1, tipus = "year_eloszlas", rewrangle = TRUE)
+survey_plot_dispatch("ggplot", Survey$questions[[1]])
+Survey$questions[[1]]$tipus

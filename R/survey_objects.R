@@ -4,7 +4,6 @@
 #' @param tipus Type of the question (e.g., "likert_scale")
 #' @param data Tibble with respondent_id and answer
 #' @param label Optional question label (from df_labels)
-#' @param color_scale Optional color scale for the question
 #' @return A SurveyQuestion object (S3)
 #' @export
 survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
@@ -16,7 +15,9 @@ survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
       wrangled = tryCatch(survey_wrangle_dispatch(tipus, data), error = function(e) NULL),
       label = label,
       group = "Teljes minta", # TODO when we have groups, this will be dynamic
-      color_scale = color_scale
+      color_scale = color_scale,
+      ggplot = NULL,
+      echarts = NULL
     ),
     class = "SurveyQuestion"
   )
@@ -110,7 +111,8 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
 
     if (replot) {
       question <- survey_obj$questions[[qid]]
-      question$plot <- tryCatch(survey_plot_dispatch(tp, question$wrangled), error = function(e) NULL)
+      question$ggplot <- tryCatch(survey_plot_dispatch("ggplot", question), error = function(e) NULL)
+      question$echarts <- tryCatch(survey_plot_dispatch("echarts", question), error = function(e) NULL)
       survey_obj$questions[[qid]] <- question
     }
   }

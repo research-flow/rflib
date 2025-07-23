@@ -307,7 +307,7 @@ survey_ggplot_year_eloszlas_unscale <- function(question) {
                     } else {
                         ggplot2::stat_bin(
                             bins = length(unique(.$answer)),
-                            fill = rflib::long_palette()[], alpha = 0.8, color = "black",
+                            fill = rflib::long_palette()[2], alpha = 0.8, color = "black",
                             binwidth = 0.75,
                             boundary = 0.5,
                         )
@@ -397,7 +397,7 @@ survey_ggplot_year_eloszlas <- function(question) {
                     } else {
                         ggplot2::stat_bin(
                             bins = length(unique(.$answer)),
-                            fill = rflib::long_palette()[], alpha = 0.8, color = "black",
+                            fill = rflib::long_palette()[2], alpha = 0.8, color = "black",
                             binwidth = 0.75,
                             boundary = 0.5,
                         )

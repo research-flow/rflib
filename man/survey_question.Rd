@@ -14,8 +14,6 @@ survey_question(id, tipus, data, label = NULL, color_scale = NULL)
 \item{data}{Tibble with respondent_id and answer}
 
 \item{label}{Optional question label (from df_labels)}
-
-\item{color_scale}{Optional color scale for the question}
 }
 \value{
 A SurveyQuestion object (S3)

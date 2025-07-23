@@ -1,3 +1,74 @@
+#' Dispatch plot function based on plot type and question type
+#'
+#' @param plottype A string: "ggplot" or "echarts"
+#' @param question A SurveyQuestion object
+#' @return A plot object (ggplot or echarts4r)
+#' @export
+survey_plot_dispatch <- function(plottype, question) {
+  type <- as.character(question$tipus)[1]
+  if (plottype == "ggplot") {
+    switch(type,
+      "resz_egesz_total" = survey_ggplot_resz_egesz_total(question),
+      "resz_egesz_multiple" = survey_ggplot_resz_egesz_multiple(question),
+      "likert_scale" = survey_ggplot_likert_scale(question),
+      "col_eloszlas_total" = survey_ggplot_col_eloszlas_total(question),
+      "col_eloszlas_multiple" = survey_ggplot_col_eloszlas_multiple(question),
+      "year_eloszlas_unscale" = survey_ggplot_year_eloszlas_unscale(question),
+      "regio_eloszlas" = survey_ggplot_regio_eloszlas(question),
+      "szoveg_col_egyeb" = survey_ggplot_szoveg_col_egyeb(question),
+      "year_eloszlas" = survey_ggplot_year_eloszlas(question),
+      "table" = survey_ggplot_table(question),
+      "szoveg_buborek" = survey_ggplot_szoveg_buborek(question),
+      "table_atlag" = survey_ggplot_table_atlag(question),
+      "likert_scale_rev" = survey_ggplot_likert_scale_rev(question),
+      "szoveg_col_egyeb_new" = survey_ggplot_szoveg_col_egyeb_new(question),
+      "szoveg_buborek_multiple" = survey_ggplot_szoveg_buborek_multiple(question),
+      "hoterkep" = survey_ggplot_hoterkep(question),
+      "terulet_eloszlas" = survey_ggplot_terulet_eloszlas(question),
+      "likert_scale_table" = survey_ggplot_likert_scale_table(question),
+      "likert_scale_ref" = survey_ggplot_likert_scale_ref(question),
+      "table_sor" = survey_ggplot_table_sor(question),
+      "table_rev" = survey_ggplot_table_rev(question),
+      "szam_col_egyeb" = survey_ggplot_szam_col_egyeb(question),
+      "table_oszlop" = survey_ggplot_table_oszlop(question),
+      "diszkret_eloszlas" = survey_ggplot_diszkret_eloszlas(question),
+      "table_egyeb" = survey_ggplot_table_egyeb(question),
+      stop(paste("Unknown ggplot question type:", type))
+    )
+  } else if (plottype == "echarts") {
+    switch(type,
+      "resz_egesz_total" = survey_echarts_resz_egesz_total(question),
+      "resz_egesz_multiple" = survey_echarts_resz_egesz_multiple(question),
+      "likert_scale" = survey_echarts_likert_scale(question),
+      "col_eloszlas_total" = survey_echarts_col_eloszlas_total(question),
+      "col_eloszlas_multiple" = survey_echarts_col_eloszlas_multiple(question),
+      "year_eloszlas_unscale" = survey_echarts_year_eloszlas_unscale(question),
+      "regio_eloszlas" = survey_echarts_regio_eloszlas(question),
+      "szoveg_col_egyeb" = survey_echarts_szoveg_col_egyeb(question),
+      "year_eloszlas" = survey_echarts_year_eloszlas(question),
+      "table" = survey_echarts_table(question),
+      "szoveg_buborek" = survey_echarts_szoveg_buborek(question),
+      "table_atlag" = survey_echarts_table_atlag(question),
+      "likert_scale_rev" = survey_echarts_likert_scale_rev(question),
+      "szoveg_col_egyeb_new" = survey_echarts_szoveg_col_egyeb_new(question),
+      "szoveg_buborek_multiple" = survey_echarts_szoveg_buborek_multiple(question),
+      "hoterkep" = survey_echarts_hoterkep(question),
+      "terulet_eloszlas" = survey_echarts_terulet_eloszlas(question),
+      "likert_scale_table" = survey_echarts_likert_scale_table(question),
+      "likert_scale_ref" = survey_echarts_likert_scale_ref(question),
+      "table_sor" = survey_echarts_table_sor(question),
+      "table_rev" = survey_echarts_table_rev(question),
+      "szam_col_egyeb" = survey_echarts_szam_col_egyeb(question),
+      "table_oszlop" = survey_echarts_table_oszlop(question),
+      "diszkret_eloszlas" = survey_echarts_diszkret_eloszlas(question),
+      "table_egyeb" = survey_echarts_table_egyeb(question),
+      stop(paste("Unknown echarts question type:", type))
+    )
+  } else {
+    stop(paste("Unknown plot type:", plottype))
+  }
+}
+
 #' Dispatch wrangling function based on question type
 #'
 #' @param tipus A string defining the question type
