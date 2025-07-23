@@ -1,3 +1,9 @@
+# TODO
+# 1. ChatGPT cleaans textual answers
+# 2. ChatGPT analyses the question outputs in Hungarian
+# 3. Grouping the RFAZONs and reiterating the plots
+
+
 # # Load all R files from ../R (for environments without devtools)
 # files <- list.files(path = "R", full.names = TRUE, pattern = "survey_.*\\.[Rr]$|integer_.*\\.[Rr]$")
 # for (f in files) source(f)
@@ -106,11 +112,16 @@
 
 
 
-Survey <- rflib::survey_init("inst/extdata/mock_raw.xlsx")
-Survey <- rflib::survey_add_definition(Survey, "inst/extdata/mock_seged.xlsx",
+
+
+survey_obj <- survey_init("inst/extdata/mock_raw.xlsx")
+
+survey_obj <- survey_add_definition(survey_obj,
+    definition_path = "inst/extdata/mock_seged.xlsx",
     rewrangle = TRUE, replot = TRUE
 )
 
-Survey <- survey_add_type(Survey, question_id = 1, tipus = "year_eloszlas", rewrangle = TRUE)
-survey_plot_dispatch("ggplot", Survey$questions[[1]])
-Survey$questions[[1]]$tipus
+survey_obj <- survey_add_type(survey_obj, question_id = 1, tipus = "year_eloszlas", rewrangle = TRUE)
+survey_plot_dispatch("ggplot", survey_obj$questions[[1]])
+survey_obj$questions[[8]]$color_scale
+question <- survey_obj$questions[[8]]

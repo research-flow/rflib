@@ -164,11 +164,19 @@ survey_ggplot_likert_scale <- function(question) {
             na.value = 0,
             limits = c(0, first(as.numeric(question$label$ig)) + 1.3),
             breaks = seq(1, first(as.numeric(question$label$ig))),
-            labels =
-                str_wrap(
-                    seq(1, first(as.numeric(question$label$ig))),
-                    20
-                )
+            labels = {
+                if (!is.null(question$likert_labeller)) {
+                    labels <- seq(1, first(as.numeric(question$label$ig)))
+                    labels[1] <- question$likert_labeller$first_label
+                    labels[length(labels)] <- question$likert_labeller$last_label
+                    stringr::str_wrap(labels, 20)
+                } else {
+                    stringr::str_wrap(
+                        seq(1, first(as.numeric(question$label$ig))),
+                        20
+                    )
+                }
+            }
         ) +
         ggplot2::guides(color = "none", alpha = "none", fill = "none") +
         ggplot2::theme_minimal() +

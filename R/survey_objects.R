@@ -14,8 +14,9 @@ survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
       data = data,
       wrangled = tryCatch(survey_wrangle_dispatch(tipus, data), error = function(e) NULL),
       label = label,
-      group = "Teljes minta", # TODO when we have groups, this will be dynamic
+      group = "Teljes minta",
       color_scale = color_scale,
+      likert_labeller = NULL, # For likert_scale questions, this will hold the labels
       ggplot = NULL,
       echarts = NULL
     ),
@@ -98,6 +99,77 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
     dplyr::rename_with(janitor::make_clean_names) %>%
     dplyr::select(kerdes_szam, tipus)
 
+  # Check for Likert sheet
+  if ("Likert" %in% readxl::excel_sheets(definition_path)) {
+    likert_labels <- readxl::read_excel(definition_path, sheet = "Likert") %>%
+      dplyr::rename_with(janitor::make_clean_names) %>%
+      dplyr::select(question_id, first_label, last_label) %>%
+      dplyr::group_by(question_id) %>%
+      dplyr::filter(dplyr::row_number() == 1) %>%
+      dplyr::ungroup()
+
+    duplicate_questions <- readxl::read_excel(definition_path, sheet = "Likert") %>%
+      dplyr::rename_with(janitor::make_clean_names) %>%
+      dplyr::count(question_id) %>%
+      dplyr::filter(n > 1)
+
+    if (nrow(duplicate_questions) > 0) {
+      warning(
+        "The following questions have multiple rows in the 'Likert' sheet. Only the first row will be used:",
+        paste(duplicate_questions$question_id, collapse = ", ")
+      )
+    }
+
+    message("'Likert' sheet found. Processing Likert labels.")
+  } else {
+    message("'Likert' sheet not found. Proceeding with numeric values.")
+    likert_labels <- NULL
+  }
+
+  # Check for AnswerGroups sheet
+  if ("AnswerGroups" %in% readxl::excel_sheets(definition_path)) {
+    answer_groups <- readxl::read_excel(definition_path, sheet = "AnswerGroups") %>%
+      dplyr::rename_with(janitor::make_clean_names)
+
+    for (group_col in colnames(answer_groups)) {
+      group_questions <- answer_groups[[group_col]] %>%
+        na.omit() %>%
+        unique()
+      if (length(group_questions) > 0) {
+        # Collect unique values from valasz_szovege and oszlop_szovege across the group
+        group_values <- purrr::map(group_questions, function(qid) {
+          if (qid %in% names(survey_obj$questions)) {
+            question <- survey_obj$questions[[qid]]
+            dplyr::bind_rows(
+              question$label %>% dplyr::select(values = valasz_szovege),
+              question$label %>% dplyr::select(values = oszlop_szovege)
+            ) %>%
+              tidyr::drop_na() %>%
+              dplyr::distinct()
+          } else {
+            NULL
+          }
+        }) %>%
+          dplyr::bind_rows() %>%
+          dplyr::distinct()
+
+        # Assign color scale to all questions in the group
+        color_scale <- setNames(rflib::long_palette()[seq_len(nrow(group_values))], group_values$values)
+
+        for (qid in group_questions) {
+          if (qid %in% names(survey_obj$questions)) {
+            survey_obj$questions[[qid]]$color_scale <- color_scale
+          }
+          message(paste("Color scales assigned for group:", qid))
+        }
+      }
+    }
+
+    message("'AnswerGroups' sheet found. Color scales aligned for grouped questions.")
+  } else {
+    message("'AnswerGroups' sheet not found. Using standard color scales.")
+  }
+
   for (i in seq_len(nrow(def))) {
     qid <- as.character(def$kerdes_szam[i])
     tp <- def$tipus[i]
@@ -107,7 +179,39 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
       next
     }
 
+    base_color_scale <- survey_obj$questions[[qid]]$color_scale
+
+    # Extend color scale for str_wrap(20), str_wrap(30), and str_wrap(50)
+    extended_color_scale <- c(
+      base_color_scale,
+      setNames(base_color_scale, stringr::str_wrap(names(base_color_scale), 20)),
+      setNames(base_color_scale, stringr::str_wrap(names(base_color_scale), 30)),
+      setNames(base_color_scale, stringr::str_wrap(names(base_color_scale), 50))
+    )
+
+    survey_obj$questions[[qid]]$color_scale <- extended_color_scale
+
     survey_obj <- survey_add_type(survey_obj, question_id = qid, tipus = tp, rewrangle = rewrangle)
+
+    if (!is.null(likert_labels)) {
+      if (stringr::str_detect(tp, "likert")) {
+        question_labels <- likert_labels %>%
+          dplyr::filter(question_id == qid)
+
+        if (nrow(question_labels) == 0) {
+          message(paste("Likert question", qid, "has no labels in the 'Likert' sheet. Proceeding without labels."))
+        } else {
+          question <- survey_obj$questions[[qid]]
+          question$likert_labeller <- question_labels %>%
+            dplyr::select(first_label, last_label)
+          survey_obj$questions[[qid]] <- question
+        }
+      } else {
+        if (qid %in% likert_labels$question_id) {
+          message(paste("Non-Likert question", qid, "has labels in the 'Likert' sheet. Discarding these labels."))
+        }
+      }
+    }
 
     if (replot) {
       question <- survey_obj$questions[[qid]]

@@ -13,7 +13,8 @@ long_palette <- function(n = NULL) {
     palette <- c(
         ggsci::pal_jco()(10),
         "green4",
-        ggsci::pal_aaas()(10)
+        ggsci::pal_aaas()(10),
+        viridis::viridis(100)
     )
     if (is.null(n)) {
         return(palette)

@@ -19,7 +19,7 @@ survey_echarts_resz_egesz_total <- function(question) {
     dplyr::distinct(kerdes, valasz_szovege, mean, mean_perc) %>%
     dplyr::mutate(
       x = "x",
-      color = question$color_scale[valasz_szovege],
+      color = question$color_scale[labels(valasz_szovege)],
       mean_perc = round(mean_perc, 2)
     ) %>%
     echarts4r::e_charts(x = x) %>%
@@ -50,7 +50,7 @@ survey_echarts_resz_egesz_multiple <- function(question) {
   question$wrangled %>%
     dplyr::distinct(kerdes, valasz_szovege, mean) %>%
     dplyr::mutate(
-      color = question$color_scale[valasz_szovege],
+      color = question$color_scale[labels(valasz_szovege)],
       mean = round(mean, 2)
     ) |>
     dplyr::arrange(mean) %>%
@@ -79,10 +79,16 @@ survey_echarts_resz_egesz_multiple <- function(question) {
 #' @importFrom echarts4r e_charts e_bar e_scatter e_add_nested e_x_axis e_flip_coords e_legend
 #' @export
 survey_echarts_likert_scale <- function(question) {
-  question$wrangle |>
+  if (is.null(question$likert_labeller)) {
+    stop("Likert labeller is missing for this question.")
+  }
+
+  question$data <- likert_labeller(question$data, question$likert_labeller)
+
+  question$data <- question$wrangled %>%
     dplyr::mutate(
       value_mod = 1,
-      color = alpha(question$color_scale[valasz_szovege], alpha)
+      color = alpha(question$color_scale[labels(valasz_szovege)], alpha)
     ) |>
     dplyr::group_by(answer) |>
     echarts4r::e_charts(valasz_szovege) |>
@@ -118,7 +124,7 @@ survey_echarts_likert_scale <- function(question) {
 survey_echarts_col_eloszlas_total <- function(question) {
   question$wrangled |>
     dplyr::mutate(
-      color = question$color_scale[valasz_szovege],
+      color = question$color_scale[labels(valasz_szovege)],
       percentage = round(percentage * 100, 2)
     ) |>
     echarts4r::e_charts(valasz_szovege, reorder = FALSE) |>
@@ -150,7 +156,7 @@ survey_echarts_col_eloszlas_total <- function(question) {
 survey_echarts_col_eloszlas_multiple <- function(question) {
   question$wrangled |>
     dplyr::mutate(
-      color = question$color_scale[valasz_szovege],
+      color = question$color_scale[labels(valasz_szovege)],
       percentage = round(percentage * 100, 2)
     ) |>
     echarts4r::e_charts(valasz_szovege, reorder = FALSE) |>
@@ -292,7 +298,7 @@ survey_echarts_szoveg_buborek_multiple <- function(question) {
       answer_label = stringr::str_wrap(stringr::str_c(
         "\"", answer, "\""
       ), 50),
-      color = question$color_scale[valasz_szovege],
+      color = question$color_scale[labels(valasz_szovege)],
       size = log(count)
     ) |>
     dplyr::arrange(kerdesbetu) |>

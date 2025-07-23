@@ -5,7 +5,7 @@
 #' @return A plot object (ggplot or echarts4r)
 #' @export
 survey_plot_dispatch <- function(plottype, question) {
-  type <- as.character(question$tipus)[1]
+  type <- question$tipus
   if (plottype == "ggplot") {
     switch(type,
       "resz_egesz_total" = survey_ggplot_resz_egesz_total(question),
@@ -176,8 +176,8 @@ survey_wrangle_likert_scale <- function(df, labels) {
     dplyr::group_modify(~ {
       df <- .x %>% dplyr::mutate(answer = as.numeric(answer))
       # Expand possible values
-      if (!is.na(labels$tol[1]) && labels$tol[1] == 0) {
-        vals <- seq(1, max(labels$ig, na.rm = TRUE))
+      if (!is.na(labels$tol[1]) && labels$tol[1] <= 0) {
+        vals <- seq(labels$tol[1] + 1, max(labels$ig, na.rm = TRUE))
       } else {
         vals <- seq(min(labels$tol, na.rm = TRUE), max(labels$ig, na.rm = TRUE))
       }
@@ -510,4 +510,19 @@ survey_wrangle_diszkret_eloszlas <- function(df, labels) {
 
 survey_wrangle_table_egyeb <- function(df, labels) {
   stop("Not implemented")
+}
+
+likert_labeller <- function(df, likert_labels) {
+  if (is.null(likert_labels)) {
+    stop("Likert labels are missing.")
+  }
+
+  df %>%
+    dplyr::mutate(
+      x_axis_label = dplyr::case_when(
+        !is.na(likert_labels$first_label) ~ likert_labels$first_label,
+        !is.na(likert_labels$last_label) ~ likert_labels$last_label,
+        TRUE ~ as.character(answer)
+      )
+    )
 }
