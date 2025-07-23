@@ -15,8 +15,8 @@
 
 get_latest_table <- function(table_name_val, sema_name_val, tibble_of_tables, min_date = NULL, max_date = NULL, append = "") {
   aval_tables <- tibble_of_tables %>%
-    filter(con_val_keszlet == sema_name_val) %>%
-    pull(list)
+    dplyr::filter(con_val_keszlet == sema_name_val) %>%
+    dplyr::pull(list)
   min_date_val <-
     if (!is.null(min_date)) {
       as.Date(min_date, "%y%m%d")
@@ -30,8 +30,8 @@ get_latest_table <- function(table_name_val, sema_name_val, tibble_of_tables, mi
       max_date
     }
 
-  if ((sum(str_detect(aval_tables, table_name_val))) == 0) {
-    table_name_val_final <- str_replace(table_name_val, "OUT", "P")
+  if ((sum(stringr::str_detect(aval_tables, table_name_val))) == 0) {
+    table_name_val_final <- stringr::str_replace(table_name_val, "OUT", "P")
   } else {
     table_name_val_final <- table_name_val
   }
@@ -40,20 +40,20 @@ get_latest_table <- function(table_name_val, sema_name_val, tibble_of_tables, mi
     return(table_name_val_final)
   } else {
     latest_table <- tibble_of_tables %>%
-      filter(str_detect(list, str_c(table_name_val_final, "_(\\d{6})$")) & (con_val_keszlet == sema_name_val)) %>%
-      mutate(date_suffix = as.Date(sub(".*_(\\d{6})$", "\\1", list, perl = TRUE), "%y%m%d")) %>%
+      dplyr::filter(stringr::str_detect(list, stringr::str_c(table_name_val_final, "_(\\d{6})$")) & (con_val_keszlet == sema_name_val)) %>%
+      dplyr::mutate(date_suffix = as.Date(sub(".*_(\\d{6})$", "\\1", list, perl = TRUE), "%y%m%d")) %>%
       {
         if (!is.null(min_date_val)) {
-          filter(., ((date_suffix == max(date_suffix)) & (max(date_suffix) <= max_date_val)) | is.na(date_suffix))
+          dplyr::filter(., ((date_suffix == max(date_suffix)) & (max(date_suffix) <= max_date_val)) | is.na(date_suffix))
         } else if (!is.null(max_date_val)) {
-          filter(., ((date_suffix == max(date_suffix)) & (max(date_suffix) >= min_date_val)) | is.na(date_suffix))
+          dplyr::filter(., ((date_suffix == max(date_suffix)) & (max(date_suffix) >= min_date_val)) | is.na(date_suffix))
         } else {
-          filter(., ((date_suffix == max(date_suffix))) | is.na(date_suffix))
+          dplyr::filter(., ((date_suffix == max(date_suffix))) | is.na(date_suffix))
         }
       } %>%
-      pull(list)
+      dplyr::pull(list)
     if (length(latest_table) > 0) {
-      return(first(latest_table))
+      return(dplyr::first(latest_table))
     } else {
       return(NA)
     }
