@@ -377,16 +377,7 @@ survey_echarts_likert_scale_rev <- function(question) {
 survey_echarts_szoveg_col_egyeb_new <- function(question) {
   # TODO: fill in ECharts code
 }
-#' @title ECharts template for new text bubble multiple survey question
-#' @description Creates a plot for new text bubble multiple survey questions using echarts4r.
-#'
-#' @param question A list containing wrangled data and plot parameters
-#' @return An echarts4r object
-#' @importFrom echarts4r e_charts
-#' @export
-survey_echarts_szoveg_buborek_multiple <- function(question) {
-  # TODO: fill in ECharts code
-}
+
 #' @title ECharts template for heatmap survey question
 #' @description Creates a heatmap for survey questions using echarts4r.
 #'

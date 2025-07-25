@@ -5,19 +5,13 @@
 \title{ECharts template for text bubble multiple survey question}
 \usage{
 survey_echarts_szoveg_buborek_multiple(question)
-
-survey_echarts_szoveg_buborek_multiple(question)
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
 }
 \value{
 An echarts4r object
-
-An echarts4r object
 }
 \description{
 Creates a word cloud for text bubble multiple survey questions using echarts4r.
-
-Creates a plot for new text bubble multiple survey questions using echarts4r.
 }

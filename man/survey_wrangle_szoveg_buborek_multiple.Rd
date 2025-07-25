@@ -5,8 +5,6 @@
 \title{Wrangle text bubble multiple question}
 \usage{
 survey_wrangle_szoveg_buborek_multiple(df, labels)
-
-survey_wrangle_szoveg_buborek_multiple(df, labels)
 }
 \arguments{
 \item{df}{A tibble with columns respondent_id, answer, kerdes}
@@ -15,11 +13,7 @@ survey_wrangle_szoveg_buborek_multiple(df, labels)
 }
 \value{
 A tibble with processed text bubble multiple answers
-
-Not implemented
 }
 \description{
 Wrangle text bubble multiple question
-
-Wrangle text bubble multiple question (new)
 }

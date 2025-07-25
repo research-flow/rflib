@@ -552,13 +552,7 @@ survey_ggplot_likert_scale_rev <- function(question) {
 survey_ggplot_szoveg_col_egyeb_new <- function(question) {
     # TODO: fill in ggplot code
 }
-#' GGPlot template for new text bubble multiple survey question
-#'
-#' @param question A list containing wrangled data and plot parameters
-#' @return A ggplot object
-survey_ggplot_szoveg_buborek_multiple <- function(question) {
-    # TODO: fill in ggplot code
-}
+
 #' GGPlot template for heatmap survey question
 #'
 #' @param question A list containing wrangled data and plot parameters

@@ -412,15 +412,7 @@ survey_wrangle_likert_scale_rev <- function(df, labels) {
 survey_wrangle_szoveg_col_egyeb_new <- function(df, labels) {
   stop("Not implemented")
 }
-#' Wrangle text bubble multiple question (new)
-#'
-#' @param df A tibble with columns respondent_id, answer, kerdes
-#' @param labels A tibble with question labels
-#' @return Not implemented
 
-survey_wrangle_szoveg_buborek_multiple <- function(df, labels) {
-  stop("Not implemented")
-}
 #' Wrangle heatmap question
 #'
 #' @param df A tibble with columns respondent_id, answer, kerdes

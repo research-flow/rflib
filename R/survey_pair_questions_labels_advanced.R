@@ -59,7 +59,9 @@ survey_prepare_label <- function(df_labels) {
         dplyr::mutate(
             kerdes = stringr::str_c(valasz_szamjele),
             kerdes = stringr::str_replace_all(kerdes, "\\.", "_"),
-            kerdesbetu = as.numeric(stringr::str_remove(kerdes, stringr::str_c(kerdesszam, "_")))
+            kerdesbetu = as.numeric(stringr::str_remove(kerdes, stringr::str_c(kerdesszam, "_"))),
+            tol = as.numeric(tol),
+            ig = as.numeric(ig)
         )
 }
 
