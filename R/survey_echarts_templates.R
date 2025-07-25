@@ -281,6 +281,7 @@ survey_echarts_table <- function(question) {
       ),
       formatter = htmlwidgets::JS("value => value + '%'")
     ) |>
+    echarts4r::e_y_axis(inverse = TRUE) |>
     echarts4r::e_tooltip()
 }
 
@@ -444,7 +445,28 @@ survey_echarts_table_sor <- function(question) {
 #' @importFrom echarts4r e_charts
 #' @export
 survey_echarts_table_rev <- function(question) {
-  # TODO: fill in ECharts code
+  question$wrangled |>
+    dplyr::mutate(perc = round(perc * 100, 1)) |>
+    echarts4r::e_charts(oszlop_szovege) |>
+    echarts4r::e_heatmap(valasz_szovege, perc,
+      itemStyle = list(emphasis = list(shadowBlur = 3)),
+      label = list(
+        show = TRUE,
+        formatter = htmlwidgets::JS("
+      function(params){
+      return(params.value[2] + '%')
+      }
+    ")
+      )
+    ) |>
+    echarts4r::e_visual_map(perc,
+      inRange = list(
+        color = c("#FFFAFA", rflib::long_palette()[2])
+      ),
+      formatter = htmlwidgets::JS("value => value + '%'")
+    ) |>
+    echarts4r::e_y_axis(inverse = TRUE) |>
+    echarts4r::e_tooltip()
 }
 #' @title ECharts template for other numeric column survey question
 #' @description Creates a plot for other numeric column survey questions using echarts4r.

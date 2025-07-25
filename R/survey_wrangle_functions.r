@@ -305,7 +305,7 @@ survey_wrangle_table <- function(df, labels) {
     # dplyr::filter(sum(n) > 0) |>
     # dplyr::ungroup() |>
     dplyr::mutate(
-      oszlop_szovege = stringr::str_wrap(oszlop_szovege, 40),
+      oszlop_szovege = stringr::str_wrap(oszlop_szovege, 30),
       oszlop_szovege = forcats::fct_inorder(oszlop_szovege),
       valasz_szovege = stringr::str_wrap(valasz_szovege, 20),
       valasz_szovege = forcats::fct_inorder(valasz_szovege),
@@ -357,7 +357,7 @@ survey_wrangle_szoveg_buborek_multiple <- function(df, labels) {
             valasz_szovege, " ", oszlop_szovege
           )
         ),
-      total_szoveg = stringr::str_wrap(total_szoveg, 45),
+      total_szoveg = stringr::str_wrap(total_szoveg, 30),
       total_szoveg = forcats::fct_inorder(total_szoveg)
     )
   # filter(count > 1)
@@ -470,10 +470,30 @@ survey_wrangle_table_sor <- function(df, labels) {
 #'
 #' @param df A tibble with columns respondent_id, answer, kerdes
 #' @param labels A tibble with question labels
-#' @return Not implemented
+#' @return A tibble with summary statistics for table questions
 
 survey_wrangle_table_rev <- function(df, labels) {
-  stop("Not implemented")
+  df |>
+    dplyr::group_by(kerdes) %>%
+    dplyr::mutate(n = sum(!is.na(answer))) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(orvos_db = dplyr::n_distinct(respondent_id)) %>%
+    dplyr::select(-respondent_id, -answer) %>%
+    unique() %>%
+    dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
+    tidyr::replace_na(list(n = 0)) |>
+    dplyr::mutate(orvos_db = max(orvos_db, na.rm = TRUE)) %>%
+    dplyr::mutate(perc = n / orvos_db) |>
+    dplyr::arrange(kerdesbetu) |>
+    # dplyr::group_by(oszlop_szovege) |>
+    # dplyr::filter(sum(n) > 0) |>
+    # dplyr::ungroup() |>
+    dplyr::mutate(
+      oszlop_szovege = stringr::str_wrap(oszlop_szovege, 30),
+      oszlop_szovege = forcats::fct_inorder(oszlop_szovege),
+      valasz_szovege = stringr::str_wrap(valasz_szovege, 20),
+      valasz_szovege = forcats::fct_inorder(valasz_szovege),
+    )
 }
 #' Wrangle other numeric column question
 #'

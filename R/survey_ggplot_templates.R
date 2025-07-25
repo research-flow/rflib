@@ -56,10 +56,6 @@ survey_ggplot_resz_egesz_total <- function(question) {
             nrow = 1, widths = c(4, 2)
         )
     )
-    grid::grid.rect(
-        width = 1, height = 1, gp = grid::gpar(lwd = 1, col = "black", fill = NA),
-        draw = T
-    )
 }
 #' GGPlot template for multiple part-whole survey question
 #'
@@ -130,10 +126,6 @@ survey_ggplot_resz_egesz_multiple <- function(question) {
                 ),
             nrow = 1, widths = c(4, 2)
         )
-    )
-    grid::grid.rect(
-        width = 1, height = 1, gp = grid::gpar(lwd = 1, col = "black", fill = NA),
-        draw = T
     )
 }
 #' GGPlot template for Likert scale survey question
@@ -471,7 +463,7 @@ survey_ggplot_table <- function(question) {
             plot.subtitle = ggplot2::element_text(size = 18),
             plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1),
         ) +
-        ggplot2::scale_y_discrete() +
+        ggplot2::scale_y_discrete(limits = rev) +
         ggplot2::scale_fill_gradient2(
             labels = scales::percent,
             mid = "#FFFAFA",
@@ -607,7 +599,35 @@ survey_ggplot_table_sor <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
 survey_ggplot_table_rev <- function(question) {
-    # TODO: fill in ggplot code
+    question$wrangled %>%
+        ggplot2::ggplot(ggplot2::aes(y = valasz_szovege, x = oszlop_szovege, fill = perc)) +
+        ggplot2::geom_tile(color = "black") +
+        ggplot2::geom_text(ggplot2::aes(
+            label =
+                scales::percent(perc, accuracy = 0.1)
+        ), size = 6) +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(
+            axis.text.x = ggplot2::element_text(angle = 45, size = 9, vjust = 1, hjust = 1),
+            axis.text.y = ggplot2::element_text(size = 9),
+            panel.grid = ggplot2::element_blank(),
+            axis.title = ggplot2::element_text(size = 14),
+            legend.title = ggplot2::element_text(size = 14),
+            legend.text = ggplot2::element_text(size = 12),
+            plot.subtitle = ggplot2::element_text(size = 18),
+            plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1),
+        ) +
+        ggplot2::scale_y_discrete(limits = rev) +
+        ggplot2::scale_fill_gradient2(
+            labels = scales::percent,
+            mid = "#FFFAFA",
+            high = rflib::long_palette()[2],
+            na.value = alpha(rflib::long_palette()[3], 0.35)
+        ) +
+        ggplot2::labs(
+            x = NULL, y = NULL, fill = "Válaszok száma",
+            subtitle = question$group
+        )
 }
 #' GGPlot template for other numeric column survey question
 #'

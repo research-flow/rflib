@@ -12,7 +12,7 @@ survey_wrangle_table_rev(df, labels)
 \item{labels}{A tibble with question labels}
 }
 \value{
-Not implemented
+A tibble with summary statistics for table questions
 }
 \description{
 Wrangle table reversed question

@@ -22,10 +22,15 @@ survey_init <- function(path, clean_text = TRUE, save_output = FALSE) {
   for (qid in unique_questions) {
     q_data <- df_answers %>% dplyr::filter(kerdesszam == qid)
     q_labels <- df_labels %>% dplyr::filter(kerdesszam == qid)
-    tipus <- unique(q_data$kerdes_tipusa)
+    tipus <- NULL
 
-    unique_vals <- q_labels %>%
-      dplyr::pull(valasz_szovege) %>%
+    unique_vals <-
+      c(
+        q_labels %>%
+          dplyr::pull(valasz_szovege),
+        q_labels %>%
+          dplyr::pull(oszlop_szovege)
+      ) %>%
       unique() %>%
       sort()
     assigned_palette <- setNames(rflib::long_palette()[seq_along(unique_vals)], stringr::str_wrap(unique_vals, 30))
