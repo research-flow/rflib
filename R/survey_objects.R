@@ -358,11 +358,11 @@ plot.SurveyQuestion <- function(x, type = "ggplot", ...) {
 #' @importFrom ggpubr as_ggplot
 #' @export
 get_ggplot <- function(question, ...) {
-  UseMethod("get_ggplot")
-}
+  # Check if it's a SurveyQuestion object
+  if (!inherits(question, "SurveyQuestion")) {
+    stop("Input must be a SurveyQuestion object")
+  }
 
-#' @export
-get_ggplot.SurveyQuestion <- function(question, ...) {
   if (is.null(question$ggplot_fn) || is.null(question$tipus)) {
     stop("No ggplot function available for this question. Make sure the question type is properly set.")
   }
@@ -386,14 +386,15 @@ get_ggplot.SurveyQuestion <- function(question, ...) {
 #' @return An echarts object
 #' @export
 get_echarts <- function(question, ...) {
-  UseMethod("get_echarts")
-}
+  # Check if it's a SurveyQuestion object
+  if (!inherits(question, "SurveyQuestion")) {
+    stop("Input must be a SurveyQuestion object")
+  }
 
-#' @export
-get_echarts.SurveyQuestion <- function(question, ...) {
   if (is.null(question$echarts_fn) || is.null(question$tipus)) {
     stop("No echarts function available for this question. Make sure the question type is properly set.")
   }
+
   tryCatch(survey_plot_dispatch("echarts", question), error = function(e) {
     stop(paste("Error creating echarts:", e$message))
   })
