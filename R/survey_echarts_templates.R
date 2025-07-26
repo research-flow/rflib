@@ -95,16 +95,17 @@ survey_echarts_likert_scale <- function(question) {
     )
   }
 
-  question$data <- question$wrangled %>%
+  question$wrangled %>%
     dplyr::mutate(
       value_mod = 1,
-      color = alpha(question$color_scale[labels(valasz_szovege)], alpha)
+      color = alpha(question$color_scale[valasz_szovege], alpha)
     ) |>
     dplyr::group_by(answer) |>
     echarts4r::e_charts(valasz_szovege) |>
     echarts4r::e_bar(value_mod,
       stack = "grp",
-      itemStyle = list(borderColor = "black")
+      itemStyle = list(borderColor = "black"),
+      bind = count
     ) |>
     echarts4r::e_scatter(mean,
       symbol_size = 10, color = "black",
@@ -122,8 +123,30 @@ survey_echarts_likert_scale <- function(question) {
     echarts4r::e_add_nested("itemStyle", color) |>
     echarts4r::e_x_axis(inverse = TRUE) |>
     echarts4r::e_flip_coords() |>
+    echarts4r::e_tooltip(
+      formatter = htmlwidgets::JS("
+        function(params) {
+          var result = '<div style=\"padding: 10px; font-size: 14px;\">';
+
+          if (params.componentType === 'series') {
+            if (params.seriesType === 'bar') {
+              // For bar charts (stacked bars)
+              var answer = params.seriesName;
+              var category = params.name;
+
+              result += '<strong>' + answer + '</strong> - N =' + category + '<br/>'
+
+            }
+          }
+
+          result += '</div>';
+          return result;
+        }
+      ")
+    ) |>
     echarts4r::e_legend(show = FALSE)
 }
+
 #' @title ECharts template for column distribution (total) survey question
 #' @description Creates a bar chart for column distribution (total) survey questions using echarts4r.
 #'
