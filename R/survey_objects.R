@@ -316,42 +316,6 @@ get_question_dimensions <- function(tipus) {
 
 #' Create ggplot for SurveyQuestion object
 #'
-#' @param x A SurveyQuestion object
-#' @param type Type of plot: "ggplot" or "echarts"
-#' @param ... Additional arguments (unused)
-#' @importFrom ggpubr as_ggplot
-#' @return A ggplot object
-#' @export
-plot.SurveyQuestion <- function(x, type = "ggplot", ...) {
-  if (type == "ggplot") {
-    if (is.null(x$ggplot_fn) || is.null(x$tipus)) {
-      stop("No ggplot function available for this question. Make sure the question type is properly set.")
-    }
-
-    plot_result <- tryCatch(survey_plot_dispatch("ggplot", x), error = function(e) {
-      stop(paste("Error creating ggplot:", e$message))
-    })
-
-    # Handle grid.arrange and other non-ggplot objects
-    if (inherits(plot_result, "ggplot")) {
-      return(plot_result)
-    } else {
-      return(ggpubr::as_ggplot(plot_result))
-    }
-  } else if (type == "echarts") {
-    if (is.null(x$echarts_fn) || is.null(x$tipus)) {
-      stop("No echarts function available for this question. Make sure the question type is properly set.")
-    }
-    tryCatch(survey_plot_dispatch("echarts", x), error = function(e) {
-      stop(paste("Error creating echarts:", e$message))
-    })
-  } else {
-    stop("type must be either 'ggplot' or 'echarts'")
-  }
-}
-
-#' Create ggplot for SurveyQuestion object
-#'
 #' @param question A SurveyQuestion object
 #' @param ... Additional arguments (unused)
 #' @return A ggplot object
