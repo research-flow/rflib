@@ -110,16 +110,40 @@
 # })
 
 
-
-
 library(tidyverse)
 
-survey_obj <- survey_init("inst/extdata/mock_raw.xlsx")
+survey_obj <- rflib::survey_init("inst/extdata/mock_raw.xlsx")
 
-survey_obj <- survey_add_definition(survey_obj,
+survey_obj <- rflib::survey_add_definition(survey_obj,
     definition_path = "inst/extdata/mock_seged.xlsx",
     rewrangle = TRUE, replot = TRUE
 )
+
+survey_obj$questions[[2]]$ggplot
+
+# NEW LAZY LOADING FUNCTIONALITY DEMONSTRATION
+# ==============================================
+
+# OLD WAY (still works):
+survey_plot_dispatch("ggplot", survey_obj$questions[[1]])
+
+# NEW WAYS (lazy loading):
+# 1. Using plot() method (default ggplot)
+plot(survey_obj$questions[[1]])
+
+# 2. Using plot() method with explicit type
+plot(survey_obj$questions[[1]], type = "ggplot")
+plot(survey_obj$questions[[1]], type = "echarts")
+
+# 3. Using explicit methods
+get_ggplot(survey_obj$questions[[1]])
+get_echarts(survey_obj$questions[[1]])
+
+# Benefits:
+# - Plots are created only when needed (lazy loading)
+# - Memory efficient (no pre-stored plots)
+# - Always reflects current question state
+# - Multiple convenient ways to create plots
 
 survey_obj <- survey_add_type(survey_obj, question_id = 1, tipus = "year_eloszlas", rewrangle = TRUE)
 survey_plot_dispatch("ggplot", survey_obj$questions[[1]])

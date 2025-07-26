@@ -7,7 +7,7 @@
 #' @return A SurveyQuestion object (S3)
 #' @export
 survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
-  structure(
+  question <- structure(
     list(
       id = id,
       tipus = tipus,
@@ -17,11 +17,20 @@ survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
       group = "Teljes minta",
       color_scale = color_scale,
       likert_labeller = NULL, # For likert_scale questions, this will hold the labels
-      ggplot = NULL,
-      echarts = NULL
+      ggplot_fn = NULL, # Function to create ggplot
+      echarts_fn = NULL # Function to create echarts
     ),
     class = "SurveyQuestion"
   )
+
+  # Create function factories for lazy plot creation if tipus is provided
+  if (!is.null(tipus)) {
+    # Store a reference to create functions that will use the current question state
+    question$ggplot_fn <- "ggplot"
+    question$echarts_fn <- "echarts"
+  }
+
+  return(question)
 }
 
 #' Create a Survey object
@@ -79,6 +88,10 @@ survey_add_type <- function(survey_obj, question_id, tipus, rewrangle = TRUE) {
   if (rewrangle) {
     question$wrangled <- tryCatch(survey_wrangle_dispatch(tipus, question$data, question$label), error = function(e) NULL)
   }
+
+  # Create function factories for lazy plot creation
+  question$ggplot_fn <- "ggplot"
+  question$echarts_fn <- "echarts"
 
   survey_obj$questions[[question_id]] <- question
   return(survey_obj)
@@ -219,8 +232,9 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
 
     if (replot) {
       question <- survey_obj$questions[[qid]]
-      question$ggplot <- tryCatch(survey_plot_dispatch("ggplot", question), error = function(e) NULL)
-      question$echarts <- tryCatch(survey_plot_dispatch("echarts", question), error = function(e) NULL)
+      # Update function factories for lazy plot creation
+      question$ggplot_fn <- "ggplot"
+      question$echarts_fn <- "echarts"
       survey_obj$questions[[qid]] <- question
     }
   }
@@ -236,37 +250,37 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
 #' @export
 get_question_dimensions <- function(tipus) {
   dimensions <- switch(tipus,
-    "col_eloszlas" = list(width = 6, height = 4),
-    "col_eloszlas_longitud" = list(width = 6, height = 4),
-    "col_eloszlas_multiple" = list(width = 6, height = 4),
-    "col_eloszlas_multiple_longitud" = list(width = 6, height = 4),
-    "col_eloszlas_multiple_orig" = list(width = 6, height = 4),
-    "col_eloszlas_multiple_table" = list(width = 6, height = 4),
-    "col_eloszlas_multiple_table_switch" = list(width = 6, height = 4),
-    "col_eloszlas_total_multiple" = list(width = 6, height = 4),
+    "col_eloszlas" = list(width = 10, height = 4),
+    "col_eloszlas_longitud" = list(width = 10, height = 4),
+    "col_eloszlas_multiple" = list(width = 10, height = 4),
+    "col_eloszlas_multiple_longitud" = list(width = 10, height = 4),
+    "col_eloszlas_multiple_orig" = list(width = 10, height = 4),
+    "col_eloszlas_multiple_table" = list(width = 10, height = 4),
+    "col_eloszlas_multiple_table_switch" = list(width = 10, height = 4),
+    "col_eloszlas_total_multiple" = list(width = 10, height = 4),
     "diszkret_eloszlas_multiple" = list(width = 13, height = 6),
-    "divider" = list(width = 6, height = 4),
-    "divider_longitud" = list(width = 6, height = 4),
-    "eloszlas" = list(width = 6, height = 4),
+    "divider" = list(width = 10, height = 4),
+    "divider_longitud" = list(width = 10, height = 4),
+    "eloszlas" = list(width = 10, height = 4),
     "hoterkep" = list(width = 13, height = 7),
     "iranyito_eloszlas" = list(width = 12, height = 7),
     "likert_scale" = list(width = 13, height = 7),
     "likert_scale_longitud" = list(width = 18, height = 10),
-    "likert_scale_new" = list(width = 6, height = 9),
+    "likert_scale_new" = list(width = 10, height = 9),
     "likert_scale_ref" = list(width = 13, height = 7),
     "likert_scale_rev" = list(width = 13, height = 7),
     "likert_scale_table" = list(width = 13, height = 7),
     "regio_eloszlas" = list(width = 12, height = 7),
     "resz_egesz_combined" = list(width = 17, height = 7),
     "resz_egesz_multiple" = list(width = 17, height = 8),
-    "resz_egesz_multiple_longitud" = list(width = 6, height = 4),
+    "resz_egesz_multiple_longitud" = list(width = 10, height = 4),
     "resz_egesz_total" = list(width = 17, height = 7),
-    "resz_egesz_total_longitud" = list(width = 6, height = 4),
+    "resz_egesz_total_longitud" = list(width = 10, height = 4),
     "szam_col_egyeb" = list(width = 17, height = 7),
-    "szoveg_buborek" = list(width = 6, height = 4),
-    "szoveg_buborek_multiple" = list(width = 6, height = 4),
+    "szoveg_buborek" = list(width = 10, height = 4),
+    "szoveg_buborek_multiple" = list(width = 10, height = 4),
     "szoveg_col" = list(width = 17, height = 7),
-    "szoveg_col_count" = list(width = 6, height = 4),
+    "szoveg_col_count" = list(width = 10, height = 4),
     "szoveg_col_egyeb" = list(width = 17, height = 7),
     "szoveg_col_egyeb_new" = list(width = 17, height = 7),
     "szoveg_col_multiple" = list(width = 17, height = 7),
@@ -280,14 +294,80 @@ get_question_dimensions <- function(tipus) {
     "table_sor" = list(width = 17, height = 8),
     "terulet_eloszlas" = list(width = 12, height = 7),
     "terulet_eloszlas_longitud" = list(width = 12, height = 7),
-    "time_series" = list(width = 6, height = 4),
-    "year_eloszlas" = list(width = 6, height = 4),
-    "year_eloszlas_longitud" = list(width = 6, height = 4),
-    "year_eloszlas_unscale" = list(width = 6, height = 4),
-    "year_eloszlas_unscale_longitud" = list(width = 6, height = 4),
-    "z_proba" = list(width = 6, height = 4),
+    "time_series" = list(width = 10, height = 4),
+    "year_eloszlas" = list(width = 10, height = 4),
+    "year_eloszlas_longitud" = list(width = 10, height = 4),
+    "year_eloszlas_unscale" = list(width = 10, height = 4),
+    "year_eloszlas_unscale_longitud" = list(width = 10, height = 4),
+    "z_proba" = list(width = 10, height = 4),
     # Default dimensions for unknown types
-    list(width = 6, height = 4)
+    list(width = 10, height = 4)
   )
   return(dimensions)
+}
+
+#' Create ggplot for SurveyQuestion object
+#'
+#' @param x A SurveyQuestion object
+#' @param ... Additional arguments (unused)
+#' @return A ggplot object
+#' @export
+plot.SurveyQuestion <- function(x, type = "ggplot", ...) {
+  if (type == "ggplot") {
+    if (is.null(x$ggplot_fn) || is.null(x$tipus)) {
+      stop("No ggplot function available for this question. Make sure the question type is properly set.")
+    }
+    tryCatch(survey_plot_dispatch("ggplot", x), error = function(e) {
+      stop(paste("Error creating ggplot:", e$message))
+    })
+  } else if (type == "echarts") {
+    if (is.null(x$echarts_fn) || is.null(x$tipus)) {
+      stop("No echarts function available for this question. Make sure the question type is properly set.")
+    }
+    tryCatch(survey_plot_dispatch("echarts", x), error = function(e) {
+      stop(paste("Error creating echarts:", e$message))
+    })
+  } else {
+    stop("type must be either 'ggplot' or 'echarts'")
+  }
+}
+
+#' Create ggplot for SurveyQuestion object
+#'
+#' @param question A SurveyQuestion object
+#' @param ... Additional arguments (unused)
+#' @return A ggplot object
+#' @export
+get_ggplot <- function(question, ...) {
+  UseMethod("get_ggplot")
+}
+
+#' @export
+get_ggplot.SurveyQuestion <- function(question, ...) {
+  if (is.null(question$ggplot_fn) || is.null(question$tipus)) {
+    stop("No ggplot function available for this question. Make sure the question type is properly set.")
+  }
+  tryCatch(survey_plot_dispatch("ggplot", question), error = function(e) {
+    stop(paste("Error creating ggplot:", e$message))
+  })
+}
+
+#' Create echarts for SurveyQuestion object
+#'
+#' @param question A SurveyQuestion object
+#' @param ... Additional arguments (unused)
+#' @return An echarts object
+#' @export
+get_echarts <- function(question, ...) {
+  UseMethod("get_echarts")
+}
+
+#' @export
+get_echarts.SurveyQuestion <- function(question, ...) {
+  if (is.null(question$echarts_fn) || is.null(question$tipus)) {
+    stop("No echarts function available for this question. Make sure the question type is properly set.")
+  }
+  tryCatch(survey_plot_dispatch("echarts", question), error = function(e) {
+    stop(paste("Error creating echarts:", e$message))
+  })
 }
