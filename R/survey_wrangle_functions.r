@@ -526,7 +526,8 @@ survey_wrangle_table_egyeb <- function(df, labels) {
 
 likert_labeller <- function(df, likert_labels) {
   if (is.null(likert_labels)) {
-    stop("Likert labels are missing.")
+    # If likert labels are missing, return identity function
+    return(function(x) x)
   }
 
   df %>%

@@ -4,12 +4,14 @@
 \alias{survey}
 \title{Create a Survey object}
 \usage{
-survey(title, labels)
+survey(title, labels, n_respondent = NULL)
 }
 \arguments{
 \item{title}{Survey title (from title sheet)}
 
 \item{labels}{Label dataframe from label sheet}
+
+\item{n_respondent}{Optional number of distinct respondents (will be calculated if not provided)}
 }
 \value{
 A Survey object containing metadata and question list

@@ -14,21 +14,21 @@ echarts4r::e_common(font_family = "helvetica", theme = "westeros")
 #' @importFrom echarts4r e_charts e_bar e_add_nested e_y_axis e_flip_coords e_tooltip e_legend
 
 survey_echarts_resz_egesz_total <- function(question) {
-  # TODO: create percentage labels!
   question$wrangled %>%
     dplyr::distinct(kerdes, valasz_szovege, mean, mean_perc) %>%
     dplyr::mutate(
-      x = "x",
-      color = question$color_scale[labels(valasz_szovege)],
-      mean_perc = round(mean_perc, 2)
+      x = "",
+      color = question$color_scale[valasz_szovege],
+      mean_perc = round(mean_perc * 100, 2)
     ) %>%
-    echarts4r::e_charts(x = x) %>%
+    echarts4r::e_charts(x = valasz_szovege) %>%
     echarts4r::e_bar(mean_perc,
-      stack = "grp", name = "Átlagos válasz arány (%)",
+      stack = "grp",
       label = list(
         show = TRUE, position = "inside"
       ),
     ) %>%
+    echarts4r::e_legend(show = FALSE) %>%
     echarts4r::e_add_nested("itemStyle", color) %>%
     echarts4r::e_y_axis(
       name = "Átlagos válasz arány (%)",
@@ -36,8 +36,7 @@ survey_echarts_resz_egesz_total <- function(question) {
     ) %>%
     echarts4r::e_flip_coords() %>%
     echarts4r::e_tooltip() %>%
-    echarts4r::e_y_axis(inverse = TRUE) %>%
-    echarts4r::e_legend(show = FALSE)
+    echarts4r::e_y_axis(inverse = TRUE)
 }
 #' @title ECharts template for multiple part-whole survey question
 #' @description Creates a bar chart for multiple part-whole survey questions using echarts4r.
@@ -50,7 +49,7 @@ survey_echarts_resz_egesz_multiple <- function(question) {
   question$wrangled %>%
     dplyr::distinct(kerdes, valasz_szovege, mean) %>%
     dplyr::mutate(
-      color = question$color_scale[labels(valasz_szovege)],
+      color = question$color_scale[valasz_szovege],
       mean = round(mean, 2)
     ) |>
     dplyr::arrange(mean) %>%
@@ -282,7 +281,21 @@ survey_echarts_table <- function(question) {
       formatter = htmlwidgets::JS("value => value + '%'")
     ) |>
     echarts4r::e_y_axis(inverse = TRUE) |>
-    echarts4r::e_tooltip()
+    echarts4r::e_tooltip(
+      formatter = htmlwidgets::JS("
+        function(params) {
+          var columnName = params.name;
+          var rowName = params.value[params.encode.y[0]];
+          var value = params.value[2];
+
+          return '<div style=\"padding: 10px; font-size: 14px;\">' +
+                 rowName + ' - ' +
+                 columnName + '<br/>' +
+                 value + '%' +
+                 '</div>';
+        }
+      ")
+    )
 }
 
 #' @title ECharts template for text bubble multiple survey question
@@ -299,25 +312,36 @@ survey_echarts_szoveg_buborek_multiple <- function(question) {
       answer_label = stringr::str_wrap(stringr::str_c(
         "\"", answer, "\""
       ), 50),
-      color = question$color_scale[labels(valasz_szovege)],
+      color = question$color_scale[valasz_szovege],
       size = log(count)
     ) |>
     dplyr::arrange(kerdesbetu) |>
     dplyr::group_split(valasz_szovege) %>%
-    purrr::imap(function(j, k) {
-      j %>%
-        echarts4r::e_charts(name = paste0("chart_", k)) |>
-        echarts4r::e_cloud(answer_label, size, color,
-          shrinkToFit = TRUE,
-          sizeRange = list(5, 15),
-          rotationRange = list(-30, 30),
-          rotationStep = 10,
-          shape = "diamond"
-        ) |>
-        echarts4r::e_title(subtext = first(j$valasz_szovege))
-    }) %>%
-    append(c(rows = 1, cols = 3)) %>%
-    do.call(echarts4r::e_arrange, .)
+    {
+      # Calculate dynamic grid dimensions
+      n_groups <- length(.)
+      n_cols <- max(3, ceiling(sqrt(n_groups))) # minimum 3 cols
+      n_rows <- min(3, ceiling(n_groups / n_cols)) # maximum 3 rows
+
+      # Create the charts
+      chart_list <- purrr::imap(., function(j, k) {
+        j %>%
+          echarts4r::e_charts(name = paste0("chart_", k)) |>
+          echarts4r::e_cloud(answer_label, size, color,
+            shrinkToFit = TRUE,
+            sizeRange = list(5, 15),
+            rotationRange = list(0, 0),
+            rotationStep = 10,
+            shape = "diamond"
+          ) |>
+          echarts4r::e_title(subtext = first(j$valasz_szovege))
+      })
+
+      # Append grid dimensions and arrange
+      chart_list %>%
+        append(c(rows = n_rows, cols = n_cols)) %>%
+        do.call(echarts4r::e_arrange, .)
+    }
 }
 
 

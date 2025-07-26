@@ -6,8 +6,16 @@
 #' @param label Optional question label (from df_labels)
 #' @param color_scale Optional color_scale (from valasz_szovege and oszlop szovege, with long_palette)
 #' @return A SurveyQuestion object (S3)
+#' @importFrom dplyr n_distinct
 #' @export
 survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
+  # Calculate n_respondent if respondent_id column exists
+  n_respondent <- if ("respondent_id" %in% names(data)) {
+    dplyr::n_distinct(data$respondent_id)
+  } else {
+    NA
+  }
+
   question <- structure(
     list(
       id = id,
@@ -19,7 +27,8 @@ survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
       color_scale = color_scale,
       likert_labeller = NULL, # For likert_scale questions, this will hold the labels
       ggplot_fn = NULL, # Function to create ggplot
-      echarts_fn = NULL # Function to create echarts
+      echarts_fn = NULL, # Function to create echarts
+      n_respondent = n_respondent # Number of distinct respondents
     ),
     class = "SurveyQuestion"
   )
@@ -38,14 +47,16 @@ survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
 #'
 #' @param title Survey title (from title sheet)
 #' @param labels Label dataframe from label sheet
+#' @param n_respondent Optional number of distinct respondents (will be calculated if not provided)
 #' @return A Survey object containing metadata and question list
 #' @export
-survey <- function(title, labels) {
+survey <- function(title, labels, n_respondent = NULL) {
   structure(
     list(
       title = title,
       labels = labels,
-      questions = list()
+      questions = list(),
+      n_respondent = n_respondent
     ),
     class = "Survey"
   )
@@ -56,8 +67,16 @@ survey <- function(title, labels) {
 #' @param survey_obj A Survey object
 #' @param question_obj A SurveyQuestion object
 #' @return Updated Survey object
+#' @importFrom dplyr n_distinct
 #' @export
 survey_add_question <- function(survey_obj, question_obj) {
+  # Add n_respondent parameter if respondent_id column exists in question data
+  if ("respondent_id" %in% names(question_obj$data)) {
+    question_obj$n_respondent <- dplyr::n_distinct(question_obj$data$respondent_id)
+  } else {
+    question_obj$n_respondent <- NA
+  }
+
   survey_obj$questions[[question_obj$id]] <- question_obj
   survey_obj
 }

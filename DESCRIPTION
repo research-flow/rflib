@@ -1,6 +1,6 @@
 Package: rflib
 Title: RF utilities
-Version: 1.0.3.0
+Version: 1.0.6.0
 Authors@R: 
     person("Balint", "Mazzag", , "mazzag.balint@researchflow.hu", role = c("aut", "cre"))
 Description: Package contains functions and utils for internal use.
