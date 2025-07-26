@@ -478,6 +478,7 @@ survey_ggplot_table <- function(question) {
 #' GGPlot template for text bubble multiple survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @importFrom ggwordcloud geom_text_wordcloud
 #' @return A ggplot object
 survey_ggplot_szoveg_buborek_multiple <- function(question) {
     question$wrangled |>

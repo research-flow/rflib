@@ -4,6 +4,7 @@
 #' @param tipus Type of the question (e.g., "likert_scale")
 #' @param data Tibble with respondent_id and answer
 #' @param label Optional question label (from df_labels)
+#' @param color_scale Optional color_scale (from valasz_szovege and oszlop szovege, with long_palette)
 #' @return A SurveyQuestion object (S3)
 #' @export
 survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {

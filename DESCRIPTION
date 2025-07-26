@@ -7,6 +7,7 @@ Description: Package contains functions and utils for internal use.
 License: MIT + file LICENSE
 Imports: 
     odbc,
+    ggpubr,
     dplyr (>= 1.1.2),
     lifecycle,
     RODBC,
@@ -21,6 +22,8 @@ Imports:
     tidyr,
     forcats,
     ggplot2,
+    ggwordcloud,
+    viridis,
     ggsci,
     gridExtra,
     htmlwidgets,

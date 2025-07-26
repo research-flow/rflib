@@ -3,7 +3,7 @@
 # Each function includes a placeholder for overarching elements (e.g., base options)
 
 #' @importFrom echarts4r e_common
-#' @export
+
 echarts4r::e_common(font_family = "helvetica", theme = "westeros")
 
 #' @title ECharts template for total part-whole survey question
@@ -12,7 +12,7 @@ echarts4r::e_common(font_family = "helvetica", theme = "westeros")
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_bar e_add_nested e_y_axis e_flip_coords e_tooltip e_legend
-#' @export
+
 survey_echarts_resz_egesz_total <- function(question) {
   # TODO: create percentage labels!
   question$wrangled %>%
@@ -45,7 +45,7 @@ survey_echarts_resz_egesz_total <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_bar e_add_nested e_axis_stagger e_y_axis e_flip_coords e_tooltip e_legend
-#' @export
+
 survey_echarts_resz_egesz_multiple <- function(question) {
   question$wrangled %>%
     dplyr::distinct(kerdes, valasz_szovege, mean) %>%
@@ -77,7 +77,7 @@ survey_echarts_resz_egesz_multiple <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_bar e_scatter e_add_nested e_x_axis e_flip_coords e_legend
-#' @export
+
 survey_echarts_likert_scale <- function(question) {
   if (is.null(question$likert_labeller)) {
     stop("Likert labeller is missing for this question.")
@@ -120,7 +120,7 @@ survey_echarts_likert_scale <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_bar e_add_nested e_x_axis e_y_axis e_flip_coords e_legend
-#' @export
+
 survey_echarts_col_eloszlas_total <- function(question) {
   question$wrangled |>
     dplyr::mutate(
@@ -152,7 +152,7 @@ survey_echarts_col_eloszlas_total <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_bar e_add_nested e_x_axis e_y_axis e_flip_coords e_legend
-#' @export
+
 survey_echarts_col_eloszlas_multiple <- function(question) {
   question$wrangled |>
     dplyr::mutate(
@@ -184,7 +184,7 @@ survey_echarts_col_eloszlas_multiple <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_histogram e_color e_y_axis e_legend e_mark_line
-#' @export
+
 survey_echarts_year_eloszlas_unscale <- function(question) {
   avg <- mean(question$wrangled$answer, na.rm = TRUE)
   med <- median(question$wrangled$answer, na.rm = TRUE)
@@ -222,7 +222,7 @@ survey_echarts_year_eloszlas_unscale <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_histogram e_color e_y_axis e_x_axis e_legend e_mark_line
-#' @export
+
 survey_echarts_year_eloszlas <- function(question) {
   avg <- mean(question$wrangled$answer, na.rm = TRUE)
   med <- median(question$wrangled$answer, na.rm = TRUE)
@@ -259,7 +259,7 @@ survey_echarts_year_eloszlas <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_heatmap e_visual_map e_tooltip
-#' @export
+
 survey_echarts_table <- function(question) {
   question$wrangled |>
     dplyr::mutate(perc = round(perc * 100, 1)) |>
@@ -291,7 +291,7 @@ survey_echarts_table <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_cloud e_title e_arrange
-#' @export
+
 survey_echarts_szoveg_buborek_multiple <- function(question) {
   question$wrangled |>
     tidyr::drop_na(answer) |>
@@ -332,7 +332,7 @@ survey_echarts_szoveg_buborek_multiple <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_regio_eloszlas <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -342,7 +342,7 @@ survey_echarts_regio_eloszlas <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_szoveg_col_egyeb <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -353,7 +353,7 @@ survey_echarts_szoveg_col_egyeb <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_table_atlag <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -363,7 +363,7 @@ survey_echarts_table_atlag <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_likert_scale_rev <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -373,7 +373,7 @@ survey_echarts_likert_scale_rev <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_szoveg_col_egyeb_new <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -384,7 +384,7 @@ survey_echarts_szoveg_col_egyeb_new <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_hoterkep <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -394,7 +394,7 @@ survey_echarts_hoterkep <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_terulet_eloszlas <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -404,7 +404,7 @@ survey_echarts_terulet_eloszlas <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_likert_scale_table <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -414,7 +414,7 @@ survey_echarts_likert_scale_table <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_likert_scale_ref <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -424,7 +424,7 @@ survey_echarts_likert_scale_ref <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_table_sor <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -434,7 +434,7 @@ survey_echarts_table_sor <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_table_rev <- function(question) {
   question$wrangled |>
     dplyr::mutate(perc = round(perc * 100, 1)) |>
@@ -465,7 +465,7 @@ survey_echarts_table_rev <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_szam_col_egyeb <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -475,7 +475,7 @@ survey_echarts_szam_col_egyeb <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_col_eloszlas <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -485,7 +485,7 @@ survey_echarts_col_eloszlas <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_table_oszlop <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -495,7 +495,7 @@ survey_echarts_table_oszlop <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_diszkret_eloszlas <- function(question) {
   # TODO: fill in ECharts code
 }
@@ -505,7 +505,7 @@ survey_echarts_diszkret_eloszlas <- function(question) {
 #' @param question A list containing wrangled data and plot parameters
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
-#' @export
+
 survey_echarts_table_egyeb <- function(question) {
   # TODO: fill in ECharts code
 }

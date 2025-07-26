@@ -7,6 +7,7 @@
 #' @return A character vector of colors.
 #' @importFrom ggsci pal_jco pal_aaas
 #' @importFrom ggplot2 alpha
+#' @importFrom viridis viridis
 #' @export
 
 long_palette <- function(n = NULL) {
