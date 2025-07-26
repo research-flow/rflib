@@ -305,9 +305,9 @@ survey_wrangle_table <- function(df, labels) {
     # dplyr::filter(sum(n) > 0) |>
     # dplyr::ungroup() |>
     dplyr::mutate(
-      oszlop_szovege = stringr::str_wrap(oszlop_szovege, 30),
+      oszlop_szovege = stringr::str_wrap(oszlop_szovege, 50),
       oszlop_szovege = forcats::fct_inorder(oszlop_szovege),
-      valasz_szovege = stringr::str_wrap(valasz_szovege, 20),
+      valasz_szovege = stringr::str_wrap(valasz_szovege, 30),
       valasz_szovege = forcats::fct_inorder(valasz_szovege),
     )
 }
@@ -483,7 +483,7 @@ survey_wrangle_table_rev <- function(df, labels) {
     dplyr::mutate(
       oszlop_szovege = stringr::str_wrap(oszlop_szovege, 30),
       oszlop_szovege = forcats::fct_inorder(oszlop_szovege),
-      valasz_szovege = stringr::str_wrap(valasz_szovege, 20),
+      valasz_szovege = stringr::str_wrap(valasz_szovege, 50),
       valasz_szovege = forcats::fct_inorder(valasz_szovege),
     )
 }

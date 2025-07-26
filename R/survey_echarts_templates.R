@@ -32,7 +32,8 @@ survey_echarts_resz_egesz_total <- function(question) {
     echarts4r::e_add_nested("itemStyle", color) %>%
     echarts4r::e_y_axis(
       name = "Átlagos válasz arány (%)",
-      formatter = htmlwidgets::JS("value => value + '%'")
+      formatter = htmlwidgets::JS("value => value + '%'"),
+      nameLocation = "middle"
     ) %>%
     echarts4r::e_flip_coords() %>%
     echarts4r::e_tooltip() %>%
@@ -65,6 +66,7 @@ survey_echarts_resz_egesz_multiple <- function(question) {
     echarts4r::e_y_axis(
       name = "Átlagos válasz arány (%)",
       formatter = htmlwidgets::JS("value => value + '%'"),
+      nameLocation = "middle"
     ) %>%
     echarts4r::e_flip_coords() %>%
     echarts4r::e_tooltip() %>%
@@ -157,7 +159,7 @@ survey_echarts_likert_scale <- function(question) {
 survey_echarts_col_eloszlas_total <- function(question) {
   question$wrangled |>
     dplyr::mutate(
-      color = question$color_scale[labels(valasz_szovege)],
+      color = question$color_scale[valasz_szovege],
       percentage = round(percentage * 100, 2)
     ) |>
     echarts4r::e_charts(valasz_szovege, reorder = FALSE) |>
@@ -175,6 +177,7 @@ survey_echarts_col_eloszlas_total <- function(question) {
     echarts4r::e_y_axis(
       name = "Válaszok aránya (%)",
       formatter = htmlwidgets::JS("value => value + '%'"),
+      nameLocation = "middle"
     ) |>
     echarts4r::e_flip_coords() |>
     echarts4r::e_legend(show = TRUE)
@@ -189,7 +192,7 @@ survey_echarts_col_eloszlas_total <- function(question) {
 survey_echarts_col_eloszlas_multiple <- function(question) {
   question$wrangled |>
     dplyr::mutate(
-      color = question$color_scale[labels(valasz_szovege)],
+      color = question$color_scale[valasz_szovege],
       percentage = round(percentage * 100, 2)
     ) |>
     echarts4r::e_charts(valasz_szovege, reorder = FALSE) |>
@@ -207,6 +210,7 @@ survey_echarts_col_eloszlas_multiple <- function(question) {
     echarts4r::e_y_axis(
       name = "Válaszok aránya (%)",
       formatter = htmlwidgets::JS("value => value + '%'"),
+      nameLocation = "middle"
     ) |>
     echarts4r::e_flip_coords() |>
     echarts4r::e_legend(show = TRUE)
@@ -247,7 +251,8 @@ survey_echarts_year_eloszlas_unscale <- function(question) {
       lineStyle = list(color = rflib::long_palette()[4]),
       title = stringr::str_c("Medián: ", scales::number(med, accuracy = 0.1)),
       title_position = "end"
-    )
+    ) |> 
+    echarts4r::e_tooltip()
 }
 #' @title ECharts template for year distribution survey question
 #' @description Creates a histogram for year distribution survey questions using echarts4r.
@@ -284,7 +289,8 @@ survey_echarts_year_eloszlas <- function(question) {
       symbol = "none",
       title = stringr::str_c("Medián: ", scales::number(med, accuracy = 0.1)),
       title_position = "end"
-    )
+    ) |> 
+    echarts4r::e_tooltip()
 }
 #' @title ECharts template for table survey question
 #' @description Creates a heatmap for table survey questions using echarts4r.
@@ -307,12 +313,6 @@ survey_echarts_table <- function(question) {
       }
     ")
       )
-    ) |>
-    echarts4r::e_visual_map(perc,
-      inRange = list(
-        color = c("#FFFAFA", rflib::long_palette()[2])
-      ),
-      formatter = htmlwidgets::JS("value => value + '%'")
     ) |>
     echarts4r::e_y_axis(inverse = TRUE) |>
     echarts4r::e_tooltip(
@@ -508,14 +508,22 @@ survey_echarts_table_rev <- function(question) {
     ")
       )
     ) |>
-    echarts4r::e_visual_map(perc,
-      inRange = list(
-        color = c("#FFFAFA", rflib::long_palette()[2])
-      ),
-      formatter = htmlwidgets::JS("value => value + '%'")
-    ) |>
     echarts4r::e_y_axis(inverse = TRUE) |>
-    echarts4r::e_tooltip()
+    echarts4r::e_tooltip(
+      formatter = htmlwidgets::JS("
+        function(params) {
+          var columnName = params.name;
+          var rowName = params.value[params.encode.y[0]];
+          var value = params.value[2];
+
+          return '<div style=\"padding: 10px; font-size: 14px;\">' +
+                 rowName + ' - ' +
+                 columnName + '<br/>' +
+                 value + '%' +
+                 '</div>';
+        }
+      ")
+    )
 }
 #' @title ECharts template for other numeric column survey question
 #' @description Creates a plot for other numeric column survey questions using echarts4r.
