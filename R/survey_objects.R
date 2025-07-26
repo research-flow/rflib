@@ -243,7 +243,10 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
           dplyr::filter(question_id == qid)
 
         if (nrow(question_labels) == 0) {
-          message(paste("Likert question", qid, "has no labels in the 'Likert' sheet. Proceeding without labels."))
+          message(paste("Likert question", qid, "has no labels in the 'Likert' sheet. Setting identity function."))
+          question <- survey_obj$questions[[qid]]
+          question$likert_labeller <- function(x) x
+          survey_obj$questions[[qid]] <- question
         } else {
           question <- survey_obj$questions[[qid]]
           question$likert_labeller <- question_labels %>%
@@ -254,6 +257,13 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
         if (qid %in% likert_labels$question_id) {
           message(paste("Non-Likert question", qid, "has labels in the 'Likert' sheet. Discarding these labels."))
         }
+      }
+    } else {
+      # If no Likert sheet exists, set identity function for all Likert questions
+      if (stringr::str_detect(tp, "likert")) {
+        question <- survey_obj$questions[[qid]]
+        question$likert_labeller <- function(x) x
+        survey_obj$questions[[qid]] <- question
       }
     }
 

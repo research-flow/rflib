@@ -78,11 +78,22 @@ survey_echarts_resz_egesz_multiple <- function(question) {
 #' @importFrom echarts4r e_charts e_bar e_scatter e_add_nested e_x_axis e_flip_coords e_legend
 
 survey_echarts_likert_scale <- function(question) {
+  # Handle missing likert_labeller gracefully
   if (is.null(question$likert_labeller)) {
-    stop("Likert labeller is missing for this question.")
+    # Set identity function if likert_labeller is missing
+    question$likert_labeller <- function(x) x
   }
 
-  question$data <- likert_labeller(question$data, question$likert_labeller)
+  # Apply labeller function if it's a function, otherwise use data as is
+  if (is.function(question$likert_labeller)) {
+    question$data <- question$likert_labeller(question$data)
+  } else {
+    # If likert_labeller is not a function, try to use likert_labeller function from wrangle_functions
+    question$data <- tryCatch(
+      likert_labeller(question$data, question$likert_labeller),
+      error = function(e) question$data # Use original data if labelling fails
+    )
+  }
 
   question$data <- question$wrangled %>%
     dplyr::mutate(
