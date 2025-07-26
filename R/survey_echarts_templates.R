@@ -24,6 +24,7 @@ survey_echarts_resz_egesz_total <- function(question) {
     echarts4r::e_charts(x = valasz_szovege) %>%
     echarts4r::e_bar(mean_perc,
       stack = "grp",
+      name = "Átlagos válasz arány (%)",
       label = list(
         show = TRUE, position = "inside"
       ),
@@ -33,7 +34,7 @@ survey_echarts_resz_egesz_total <- function(question) {
     echarts4r::e_y_axis(
       name = "Átlagos válasz arány (%)",
       formatter = htmlwidgets::JS("value => value + '%'"),
-      nameLocation = "middle"
+      nameLocation = "middle", nameGap = 30
     ) %>%
     echarts4r::e_flip_coords() %>%
     echarts4r::e_tooltip() %>%
@@ -66,7 +67,7 @@ survey_echarts_resz_egesz_multiple <- function(question) {
     echarts4r::e_y_axis(
       name = "Átlagos válasz arány (%)",
       formatter = htmlwidgets::JS("value => value + '%'"),
-      nameLocation = "middle"
+      nameLocation = "middle", nameGap = 30
     ) %>%
     echarts4r::e_flip_coords() %>%
     echarts4r::e_tooltip() %>%
@@ -177,10 +178,10 @@ survey_echarts_col_eloszlas_total <- function(question) {
     echarts4r::e_y_axis(
       name = "Válaszok aránya (%)",
       formatter = htmlwidgets::JS("value => value + '%'"),
-      nameLocation = "middle"
+      nameLocation = "middle", nameGap = 30
     ) |>
     echarts4r::e_flip_coords() |>
-    echarts4r::e_legend(show = TRUE)
+    echarts4r::e_legend(show = FALSE)
 }
 #' @title ECharts template for column distribution (multiple) survey question
 #' @description Creates a bar chart for column distribution (multiple) survey questions using echarts4r.
@@ -210,10 +211,10 @@ survey_echarts_col_eloszlas_multiple <- function(question) {
     echarts4r::e_y_axis(
       name = "Válaszok aránya (%)",
       formatter = htmlwidgets::JS("value => value + '%'"),
-      nameLocation = "middle"
+      nameLocation = "middle", nameGap = 30
     ) |>
     echarts4r::e_flip_coords() |>
-    echarts4r::e_legend(show = TRUE)
+    echarts4r::e_legend(show = FALSE)
 }
 #' @title ECharts template for year distribution (unscaled) survey question
 #' @description Creates a histogram for year distribution (unscaled) survey questions using echarts4r.
@@ -313,6 +314,13 @@ survey_echarts_table <- function(question) {
       }
     ")
       )
+    ) |>
+    echarts4r::e_visual_map(perc,
+      inRange = list(
+        color = c("#FFFAFA", rflib::long_palette()[2])
+      ),
+      formatter = htmlwidgets::JS("value => value + '%'"),
+      show = FALSE
     ) |>
     echarts4r::e_y_axis(inverse = TRUE) |>
     echarts4r::e_tooltip(
@@ -507,6 +515,13 @@ survey_echarts_table_rev <- function(question) {
       }
     ")
       )
+    ) |>
+    echarts4r::e_visual_map(perc,
+      inRange = list(
+        color = c("#FFFAFA", rflib::long_palette()[2])
+      ),
+      formatter = htmlwidgets::JS("value => value + '%'"),
+      show = FALSE
     ) |>
     echarts4r::e_y_axis(inverse = TRUE) |>
     echarts4r::e_tooltip(
