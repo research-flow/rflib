@@ -104,6 +104,13 @@ survey_add_type <- function(survey_obj, question_id, tipus, rewrangle = TRUE) {
 #' @param definition_path Path to Excel containing columns: kerdes_szam, tipus
 #' @param rewrangle Logical, rerun wrangling immediately (default: TRUE)
 #' @param replot Logical, rerun plot creation if enabled (default: FALSE)
+#' @importFrom readxl read_excel excel_sheets
+#' @importFrom dplyr rename_with select group_by filter row_number ungroup count bind_rows distinct
+#' @importFrom janitor make_clean_names
+#' @importFrom stringr str_detect str_wrap
+#' @importFrom purrr map
+#' @importFrom tidyr drop_na
+#' @importFrom magrittr %>%
 #'
 #' @return Updated Survey object
 #' @export
@@ -309,7 +316,9 @@ get_question_dimensions <- function(tipus) {
 #' Create ggplot for SurveyQuestion object
 #'
 #' @param x A SurveyQuestion object
+#' @param type Type of plot: "ggplot" or "echarts"
 #' @param ... Additional arguments (unused)
+#' @importFrom ggpubr as_ggplot
 #' @return A ggplot object
 #' @export
 plot.SurveyQuestion <- function(x, type = "ggplot", ...) {
@@ -317,9 +326,17 @@ plot.SurveyQuestion <- function(x, type = "ggplot", ...) {
     if (is.null(x$ggplot_fn) || is.null(x$tipus)) {
       stop("No ggplot function available for this question. Make sure the question type is properly set.")
     }
-    tryCatch(survey_plot_dispatch("ggplot", x), error = function(e) {
+
+    plot_result <- tryCatch(survey_plot_dispatch("ggplot", x), error = function(e) {
       stop(paste("Error creating ggplot:", e$message))
     })
+
+    # Handle grid.arrange and other non-ggplot objects
+    if (inherits(plot_result, "ggplot")) {
+      return(plot_result)
+    } else {
+      return(ggpubr::as_ggplot(plot_result))
+    }
   } else if (type == "echarts") {
     if (is.null(x$echarts_fn) || is.null(x$tipus)) {
       stop("No echarts function available for this question. Make sure the question type is properly set.")
@@ -337,6 +354,7 @@ plot.SurveyQuestion <- function(x, type = "ggplot", ...) {
 #' @param question A SurveyQuestion object
 #' @param ... Additional arguments (unused)
 #' @return A ggplot object
+#' @importFrom ggpubr as_ggplot
 #' @export
 get_ggplot <- function(question, ...) {
   UseMethod("get_ggplot")
@@ -347,9 +365,17 @@ get_ggplot.SurveyQuestion <- function(question, ...) {
   if (is.null(question$ggplot_fn) || is.null(question$tipus)) {
     stop("No ggplot function available for this question. Make sure the question type is properly set.")
   }
-  tryCatch(survey_plot_dispatch("ggplot", question), error = function(e) {
+
+  plot_result <- tryCatch(survey_plot_dispatch("ggplot", question), error = function(e) {
     stop(paste("Error creating ggplot:", e$message))
   })
+
+  # Handle grid.arrange and other non-ggplot objects
+  if (inherits(plot_result, "ggplot")) {
+    return(plot_result)
+  } else {
+    return(ggpubr::as_ggplot(plot_result))
+  }
 }
 
 #' Create echarts for SurveyQuestion object

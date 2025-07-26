@@ -9,6 +9,8 @@
 \arguments{
 \item{x}{A SurveyQuestion object}
 
+\item{type}{Type of plot: "ggplot" or "echarts"}
+
 \item{...}{Additional arguments (unused)}
 }
 \value{
