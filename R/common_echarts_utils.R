@@ -64,6 +64,20 @@ common_echarts_utils <- function(echarts,
   
   # Apply common utilities
   result <- echarts |>
+        echarts4r::e_y_axis(axisLabel = list(
+            hideOverlap = FALSE, 
+            interval = 0, 
+            width = 100,
+            #overflow = 'break', 
+            margin = 15
+        )) |>
+        echarts4r::e_x_axis(axisLabel = list(
+            hideOverlap = FALSE, 
+            interval = 0, 
+            width = 100,
+            #overflow = 'break', 
+            margin = 15
+        )) |>
     echarts4r::e_grid(
       top = top,
       bottom = bottom,
