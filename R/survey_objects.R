@@ -392,3 +392,113 @@ get_echarts <- function(question, ...) {
     stop(paste("Error creating echarts:", e$message))
   })
 }
+
+#' Recalibrate Survey data by filtering respondents
+#'
+#' This function filters all questions in a Survey object to include only the 
+#' specified respondent_ids. It preserves all labels, color scales, likert 
+#' labellers, and answer groups while recalculating respondent counts and 
+#' re-wrangling the filtered data. The group name for all questions will be 
+#' updated to the specified group_name.
+#'
+#' @param survey_obj A Survey object
+#' @param respondent_ids Vector of respondent_ids to keep in the filtered data
+#' @param group_name String specifying the new group name for all questions
+#' @param rewrangle Logical, whether to re-wrangle data after filtering (default: TRUE)
+#' @return Updated Survey object with filtered data
+#' @importFrom dplyr filter n_distinct
+#' @export
+survey_recalibrate <- function(survey_obj, respondent_ids, group_name, rewrangle = TRUE) {
+  if (!inherits(survey_obj, "Survey")) {
+    stop("survey_obj must be of class Survey.")
+  }
+  
+  if (length(respondent_ids) == 0) {
+    stop("respondent_ids cannot be empty.")
+  }
+  
+  if (missing(group_name) || is.null(group_name) || nchar(group_name) == 0) {
+    stop("group_name must be provided and cannot be empty.")
+  }
+  
+  # Convert to character to ensure consistent matching
+  respondent_ids <- as.character(respondent_ids)
+  
+  message(paste("Recalibrating survey data to", length(respondent_ids), "respondents with group name:", group_name, "..."))
+  
+  # Track filtering statistics
+  original_questions <- length(survey_obj$questions)
+  filtered_questions <- 0
+  
+  # Process each question
+  for (qid in names(survey_obj$questions)) {
+    question <- survey_obj$questions[[qid]]
+    
+    # Check if question has respondent_id column
+    if (!"respondent_id" %in% names(question$data)) {
+      warning(paste("Question", qid, "does not have respondent_id column. Skipping."))
+      next
+    }
+    
+    # Filter the data to keep only specified respondents
+    original_respondents <- dplyr::n_distinct(question$data$respondent_id)
+    question$data <- question$data %>%
+      dplyr::filter(as.character(respondent_id) %in% respondent_ids)
+    
+    # Check if any data remains after filtering
+    if (nrow(question$data) == 0) {
+      warning(paste("Question", qid, "has no data after filtering. Keeping question but with empty data."))
+    }
+    
+    # Recalculate n_respondent
+    question$n_respondent <- dplyr::n_distinct(question$data$respondent_id)
+    filtered_questions <- filtered_questions + 1
+    
+    # Re-wrangle data if requested and there's data to wrangle
+    if (rewrangle && nrow(question$data) > 0 && !is.null(question$tipus)) {
+      question$wrangled <- tryCatch(
+        survey_wrangle_dispatch(question$tipus, question$data, question$label), 
+        error = function(e) {
+          warning(paste("Failed to re-wrangle question", qid, ":", e$message))
+          NULL
+        }
+      )
+    } else if (nrow(question$data) == 0) {
+      # Set wrangled to NULL for empty data
+      question$wrangled <- NULL
+    }
+    
+    # Preserve all other attributes:
+    # - label (kept as-is to maintain all possible answer labels)
+    # - color_scale (kept as-is to maintain all possible colors)
+    # - likert_labeller (kept as-is)
+    # - group (updated to new group_name)
+    # - ggplot_fn and echarts_fn (kept as-is)
+    # - tipus (kept as-is)
+    
+    # Update group name
+    question$group <- group_name
+    
+    survey_obj$questions[[qid]] <- question
+    
+    message(paste("Question", qid, "filtered from", original_respondents, "to", question$n_respondent, "respondents"))
+  }
+  
+  # Update survey-level n_respondent
+  if (length(survey_obj$questions) > 0) {
+    all_respondents <- unique(unlist(lapply(survey_obj$questions, function(q) {
+      if ("respondent_id" %in% names(q$data) && nrow(q$data) > 0) {
+        return(q$data$respondent_id)
+      }
+      return(NULL)
+    })))
+    survey_obj$n_respondent <- length(unique(all_respondents))
+  } else {
+    survey_obj$n_respondent <- 0
+  }
+  
+  message(paste("Survey recalibration complete. Processed", filtered_questions, "of", original_questions, "questions."))
+  message(paste("Survey now contains", survey_obj$n_respondent, "unique respondents."))
+  
+  return(survey_obj)
+}
