@@ -149,3 +149,11 @@ survey_obj <- survey_add_type(survey_obj, question_id = 1, tipus = "year_eloszla
 survey_plot_dispatch("ggplot", survey_obj$questions[[1]])
 survey_obj$questions[[8]]$color_scale
 question <- survey_obj$questions[[8]]
+
+
+scales::show_col(
+    c(
+        ggsci::pal_jco()(10)[-5],
+        "green4"
+    )
+)
