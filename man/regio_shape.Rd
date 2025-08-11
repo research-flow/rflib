@@ -7,10 +7,8 @@
 \format{
 A data frame with 4 variables:
 \describe{
-\item{region}{Character. Region names}
-\item{geometry_data}{Character. Simplified geometry data (use sf objects in production)}
-\item{area_km2}{Numeric. Area in square kilometers}
-\item{population}{Numeric. Population count}
+\item{NUTS_NAME}{Character. Region names}
+\item{geometry}{Character. Simplified geometry data (use sf objects in production)}
 }
 }
 \source{

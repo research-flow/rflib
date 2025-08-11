@@ -7,9 +7,10 @@
 \format{
 A data frame with 3 variables:
 \describe{
-\item{postal_code}{Character. Hungarian postal codes}
-\item{county}{Character. County names}
-\item{region}{Character. Region names}
+\item{iranyitoszam}{Character. Hungarian postal codes}
+\item{megye_nev}{Character. County names}
+\item{regio_nev}{Character. Region names}
+\item{telepules_nev}{Character. Settlement names}
 }
 }
 \source{

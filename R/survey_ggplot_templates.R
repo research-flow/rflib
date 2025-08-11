@@ -525,12 +525,13 @@ survey_ggplot_regio_eloszlas <- function(question) {
         scale_fill_gradient2(
             mid = "snow",
             high = long_palette()[2],
-            na.value = long_palette()[3],
+            na.value = long_palette()[4],
             labels = scales::percent,
             guide = guide_colorbar(
                 frame.colour = "black"
             )
         ) +
+        theme_minimal() +
         theme(
             axis.text.x = element_blank(),
             axis.text.y = element_blank(),

@@ -122,7 +122,43 @@ survey_obj <- survey_add_definition(survey_obj,
 
 df <- survey_obj$questions[[5]]$data
 labels <- survey_obj$questions[[5]]$label
-get_ggplot(survey_obj$questions[[5]])
+survey_obj$questions[[5]]$wrangled |>
+    right_join(regio_shape,
+        by = join_by("regio_nev" == "NUTS_NAME")
+    ) |>
+    drop_na() |>
+    sf::st_as_sf() %>%
+    # left_join(, regio_geodata) %>%
+    ggplot(aes(fill = percentage, geometry = geometry)) +
+    geom_sf(color = "black") +
+    geom_sf_text(aes(label = count), size = 6, fontface = "bold") +
+    scale_fill_gradient2(
+        mid = "snow",
+        high = long_palette()[2],
+        na.value = long_palette()[4],
+        labels = scales::percent,
+        guide = guide_colorbar(
+            frame.colour = "black"
+        )
+    ) +
+    theme_minimal() +
+    theme(
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        panel.grid = element_blank(),
+        # axis.title = element_text(size = 14),
+        # axis.text = element_text(size = 12),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        # plot.background = element_rect(colour = "black", fill = NA, linewidth = 1),
+        plot.subtitle = element_text(size = 18)
+    ) +
+    labs(
+        fill = "Válaszok aránya",
+        # title = title_to_plot,
+        # subtitle = question$group,
+        x = NULL, y = NULL
+    )
 
 # NEW LAZY LOADING FUNCTIONALITY DEMONSTRATION
 # ==============================================
