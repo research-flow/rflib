@@ -112,14 +112,17 @@
 
 library(tidyverse)
 
-survey_obj <- rflib::survey_init("inst/extdata/mock_raw.xlsx")
 
-survey_obj <- rflib::survey_add_definition(survey_obj,
-    definition_path = "inst/extdata/mock_seged.xlsx",
+survey_obj <- survey_init("inst/extdata/173_MPC_250325_raw.xlsx")
+
+survey_obj <- survey_add_definition(survey_obj,
+    definition_path = "inst/extdata/173_MPC_250325_kerdes_seged.xlsx",
     rewrangle = TRUE, replot = TRUE
 )
 
-survey_obj$questions[[2]]$ggplot
+df <- survey_obj$questions[[5]]$data
+labels <- survey_obj$questions[[5]]$label
+get_ggplot(survey_obj$questions[[5]])
 
 # NEW LAZY LOADING FUNCTIONALITY DEMONSTRATION
 # ==============================================

@@ -333,7 +333,7 @@ survey_ggplot_year_eloszlas_unscale <- function(question) {
                     linetype = "dashed", size = 1
                 ) +
                 ggplot2::scale_color_manual(values = c(
-                    rflib::long_palette()[8],
+                    rflib::long_palette()[7],
                     rflib::long_palette()[4]
                 )) +
                 ggplot2::theme_minimal() +
@@ -422,7 +422,7 @@ survey_ggplot_year_eloszlas <- function(question) {
                     linetype = "dashed", size = 1
                 ) +
                 ggplot2::scale_color_manual(values = c(
-                    rflib::long_palette()[8],
+                    rflib::long_palette()[7],
                     rflib::long_palette()[4]
                 )) +
                 ggplot2::expand_limits(x = 0) +
@@ -507,22 +507,47 @@ survey_ggplot_szoveg_buborek_multiple <- function(question) {
         )
 }
 
-
-
-
-
-
-
-
-
-
-
 #' GGPlot template for region distribution survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @importFrom sf st_as_sf
 #' @return A ggplot object
 survey_ggplot_regio_eloszlas <- function(question) {
-    # TODO: fill in ggplot code
+    question$wrangled |>
+        right_join(regio_shape,
+            by = join_by("regio_nev" == "NUTS_NAME")
+        ) |>
+        sf::st_as_sf() %>%
+        # left_join(, regio_geodata) %>%
+        ggplot(aes(fill = percentage, geometry = geometry)) +
+        geom_sf(color = "black") +
+        geom_sf_text(aes(label = count), size = 6, fontface = "bold") +
+        scale_fill_gradient2(
+            mid = "snow",
+            high = long_palette()[2],
+            na.value = long_palette()[3],
+            labels = scales::percent,
+            guide = guide_colorbar(
+                frame.colour = "black"
+            )
+        ) +
+        theme(
+            axis.text.x = element_blank(),
+            axis.text.y = element_blank(),
+            panel.grid = element_blank(),
+            # axis.title = element_text(size = 14),
+            # axis.text = element_text(size = 12),
+            legend.title = element_text(size = 14),
+            legend.text = element_text(size = 12),
+            plot.background = element_rect(colour = "black", fill = NA, linewidth = 1),
+            plot.subtitle = element_text(size = 18)
+        ) +
+        labs(
+            fill = "Válaszok aránya",
+            # title = title_to_plot,
+            subtitle = question$group,
+            x = NULL, y = NULL
+        )
 }
 #' GGPlot template for other text column survey question
 #'

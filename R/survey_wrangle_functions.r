@@ -373,7 +373,46 @@ survey_wrangle_szoveg_buborek_multiple <- function(df, labels) {
 #' @return Not implemented
 
 survey_wrangle_regio_eloszlas <- function(df, labels) {
-  stop("Not implemented")
+  result <- df %>%
+    dplyr::filter(answer == "on") %>%
+    dplyr::mutate(resp_count = dplyr::n_distinct(respondent_id)) |>
+    dplyr::group_by(kerdes) %>%
+    dplyr::reframe(
+      count = dplyr::n(),
+      percentage = count / resp_count
+    ) %>%
+    dplyr::ungroup() %>%
+    unique() %>%
+    dplyr::left_join(labels, by = "kerdes") |>
+    dplyr::mutate(
+      # Clean geographic names: trim, squish, title case, remove special chars
+      cleaned_answer = valasz_szovege %>%
+        stringr::str_trim() %>%
+        stringr::str_squish(),
+      cleaned_answer = case_when(
+        stringr::str_detect(cleaned_answer, "songrád") ~ "Csongrád",
+        stringr::str_detect(cleaned_answer, "őváros") ~ "Budapest",
+        TRUE ~ cleaned_answer
+      )
+    )
+
+  szotar <- teruleti_szotar |>
+    select(-telepules_nev) |>
+    dplyr::mutate_all(as.character) |>
+    tidyr::pivot_longer(-regio_nev) |>
+    distinct()
+
+  result |>
+    dplyr::left_join(
+      szotar,
+      by = c("cleaned_answer" = "value")
+    ) |>
+    dplyr::group_by(regio_nev) |>
+    summarise(
+      count = sum(count, na.rm = TRUE),
+      percentage = sum(percentage, na.rm = TRUE),
+      .groups = "drop"
+    )
 }
 #' Wrangle other text column question
 #'

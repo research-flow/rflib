@@ -89,7 +89,7 @@ survey_load_labels <- function(path) {
   label_sheet <- sheets[which(tolower(sheets) == tolower("Label"))[1]]
   readxl::read_excel(path, sheet = label_sheet) %>%
     janitor::clean_names() %>%
-    mutate_at(vars("valasz_szovege"), ~ stringr::str_replace_all(.x, "[\\u200B-]", " ")) %>%
+    mutate_at(vars("valasz_szovege"), ~ stringr::str_replace_all(.x, "[\\u200B]", " ")) %>%
     {
       if ("valasz_szamjele" %in% names(.)) {
         tidyr::drop_na(., valasz_szamjele)

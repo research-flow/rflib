@@ -2,16 +2,20 @@
 % Please edit documentation in R/long_palette.r
 \name{long_palette}
 \alias{long_palette}
-\title{Custom color palette for survey plots}
+\title{Extended sophisticated color palette with 85+ strategically ordered hex colors}
 \usage{
 long_palette(n = NULL)
 }
 \arguments{
-\item{n}{Number of colors to return. If NULL, returns all colors.}
+\item{n}{Number of colors to return. If NULL, returns all colors (85+). If a number, returns the first \code{n} colors.}
 }
 \value{
-A character vector of colors.
+A character vector of hex color codes with sophisticated, muted tones optimized for professional visualizations.
+Colors follow the JCO palette aesthetic and are strategically ordered to maximize separation between adjacent categories.
 }
 \description{
-Returns a vector of colors for use in survey visualizations. If \code{n} is NULL, returns the whole palette. If \code{n} is a number, returns the first \code{n} colors.
+Returns a vector of aesthetically pleasing, sophisticated colors in hex format following
+the refined style of the JCO palette. The palette starts with the original JCO colors and extends to
+85+ carefully curated hex colors that maintain the sophisticated, muted aesthetic while maximizing
+visual distinction between categories. Avoids harsh primary colors in favor of refined, professional tones.
 }
