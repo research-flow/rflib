@@ -6,29 +6,29 @@ Authors@R:
 Description: Package contains functions and utils for internal use.
 License: MIT + file LICENSE
 Imports: 
-    odbc,
-    ggpubr,
-    DBI,
-    glue,
-    sf,
     dplyr (>= 1.1.2),
-    lifecycle,
+    rlang,
+    DBI,
+    echarts4r,
+    ggpubr,
+    janitor,
+    magrittr,
+    odbc,
+    purrr (>= 1.0.1),
+    readxl,
+    sf,
+    stringr,
+    tidyr,
+    glue
+Suggests: 
     RODBC,
     farver,
-    stringr,
     lubridate,
-    purrr (>= 1.0.1),
-    magrittr,
-    readxl,
-    echarts4r,
-    rlang,
-    tidyr,
     forcats,
     ggplot2,
     ggwordcloud,
     gridExtra,
     htmlwidgets,
-    janitor,
     scales
 Encoding: UTF-8
 LazyData: true
