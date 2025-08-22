@@ -55,6 +55,8 @@ generate_survey_presentation <- function(
     # Convert to absolute path to avoid issues
     # reference_doc <- normalizePath(reference_doc, winslash = "/")
 
+
+    message("Creating Survey object from: ", raw_file)
     message("Creating Survey object from: ", raw_file)
 
     if (is.null(survey_to_render)) {
