@@ -76,9 +76,6 @@ generate_survey_presentation <- function(
     # Make Survey object available globally for the Rmd
     assign("Survey", Survey, envir = .GlobalEnv)
 
-    # Source the helper functions
-    source("R/direct_render_helpers.R")
-
     # Check environment variables for Pandoc
     # Check Pandoc availability and environment variable
     pandoc_available <- rmarkdown::pandoc_available()
