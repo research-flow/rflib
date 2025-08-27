@@ -24,7 +24,7 @@
 #' @export
 generate_source_file <- function(
     source_dir,
-    output_file = "00_INDITO.R",
+    output_file = NULL,
     working_directory = getwd(),
     schema = "RFLOW",
     test_dsn = "RFLOW - Oracle",
@@ -46,7 +46,7 @@ generate_source_file <- function(
     # Normalize path and set output file
     source_dir <- normalizePath(source_dir, winslash = "/", mustWork = TRUE)
     if (is.null(output_file)) {
-        output_file <- file.path(source_dir, "00_INDITO.R")
+        output_file <- file.path(dirname(source_dir), "00_INDITO.R")
     }
     cli::cli_alert_success("Using source directory: {.path {source_dir}}")
     cli::cli_alert_info("Output will be generated at: {.path {output_file}}") # Find template
@@ -87,7 +87,7 @@ generate_source_file <- function(
         path = source_dir,
         pattern = "\\.R$",
         full.names = FALSE,
-        recursive = FALSE
+        recursive = TRUE
     )
 
     # Remove the output file from the list if it exists in source_dir
@@ -119,7 +119,7 @@ generate_source_file <- function(
     output <- whisker::whisker.render(template_content, data)
 
     # Ensure output directory exists
-    dir.create(dirname(output_file), showWarnings = FALSE, recursive = TRUE)
+    dir.create(dirname(source_dir), showWarnings = FALSE, recursive = TRUE)
 
     cli::cli_h2("Analyzing code style")
     cli::cli_alert_info("Checking for native pipe operators")
@@ -183,7 +183,7 @@ generate_source_file <- function(
         cli::cli_alert_warning("Do you want to replace all {.code |>} operators with {.code %>%}?")
         cli::cli_text("{.strong Replace operators?} {.emph [y/N]} ", appendLF = FALSE)
         answer <- tolower(trimws(readline()))
-        
+
         # Echo the answer for better UX
         cli::cli_alert_info("You chose: {.val {if(answer == 'y') 'yes' else 'no'}}")
 

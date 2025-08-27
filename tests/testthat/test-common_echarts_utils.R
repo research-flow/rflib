@@ -2,8 +2,8 @@ qtest_that("common_echarts_utils works with valid echarts4r object", {
   skip_if_not_installed("echarts4r")
   
   # Create a basic echarts object
-  chart <- mtcars |>
-    echarts4r::e_charts(mpg) |>
+  chart <- mtcars %>%
+    echarts4r::e_charts(mpg) %>%
     echarts4r::e_scatter(hp)
   
   # Test basic functionality
@@ -23,8 +23,8 @@ test_that("common_echarts_utils validates input types", {
   
   # Test with invalid margin parameters
   skip_if_not_installed("echarts4r")
-  chart <- mtcars |>
-    echarts4r::e_charts(mpg) |>
+  chart <- mtcars %>%
+    echarts4r::e_charts(mpg) %>%
     echarts4r::e_scatter(hp)
     
   expect_error(
@@ -51,8 +51,8 @@ test_that("common_echarts_utils validates input types", {
 test_that("common_echarts_utils accepts custom parameters", {
   skip_if_not_installed("echarts4r")
   
-  chart <- mtcars |>
-    echarts4r::e_charts(mpg) |>
+  chart <- mtcars %>%
+    echarts4r::e_charts(mpg) %>%
     echarts4r::e_scatter(hp)
   
   # Test with custom parameters
@@ -75,16 +75,16 @@ test_that("common_echarts_utils works with different chart types", {
   skip_if_not_installed("echarts4r")
   
   # Test with bar chart
-  bar_chart <- mtcars |>
-    echarts4r::e_charts(rownames) |>
+  bar_chart <- mtcars %>%
+    echarts4r::e_charts(rownames) %>%
     echarts4r::e_bar(mpg)
   
   result1 <- common_echarts_utils(bar_chart)
   expect_s3_class(result1, "echarts4r")
   
   # Test with line chart
-  line_chart <- mtcars |>
-    echarts4r::e_charts(mpg) |>
+  line_chart <- mtcars %>%
+    echarts4r::e_charts(mpg) %>%
     echarts4r::e_line(hp)
   
   result2 <- common_echarts_utils(line_chart)
@@ -95,10 +95,10 @@ test_that("common_echarts_utils preserves existing chart configuration", {
   skip_if_not_installed("echarts4r")
   
   # Create chart with some existing configuration
-  chart <- mtcars |>
-    echarts4r::e_charts(mpg) |>
-    echarts4r::e_scatter(hp) |>
-    echarts4r::e_title("Test Chart") |>
+  chart <- mtcars %>%
+    echarts4r::e_charts(mpg) %>%
+    echarts4r::e_scatter(hp) %>%
+    echarts4r::e_title("Test Chart") %>%
     echarts4r::e_legend(show = FALSE)
   
   result <- common_echarts_utils(chart)

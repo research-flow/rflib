@@ -6,7 +6,7 @@
 \usage{
 generate_source_file(
   source_dir,
-  output_file = "00_INDITO.R",
+  output_file = NULL,
   working_directory = getwd(),
   schema = "RFLOW",
   test_dsn = "RFLOW - Oracle",
