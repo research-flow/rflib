@@ -7,13 +7,11 @@
 render_plot_with_dimensions(id, width, height)
 }
 \arguments{
+\item{id}{question index}
+
 \item{width}{Figure width in inches}
 
 \item{height}{Figure height in inches}
-
-\item{plot}{ggplot object}
-
-\item{label}{Unique label for the plot}
 }
 \description{
 Render a plot with specific dimensions using permanent files

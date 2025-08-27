@@ -13,6 +13,8 @@ batch_generate_presentations(
 \arguments{
 \item{survey_folders}{Vector of survey folder names}
 
+\item{titles}{Vector of survey titles}
+
 \item{base_subtitle}{Base subtitle to use}
 }
 \value{

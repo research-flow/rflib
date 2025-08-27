@@ -163,7 +163,7 @@ generate_oracle_insert_sql_from_excel <- function(
   date_like <- grepl("(^DATE$|_DATE$|^DATUM$|_DATUM$|_DAY$|_DT$)", col_order)
   for (nm in col_order[date_like]) {
     if (is.character(df[[nm]])) {
-      utils::suppressWarnings({
+      suppressWarnings({
         cand <- as.Date(df[[nm]])
         if (any(!is.na(cand))) df[[nm]] <- cand
       })

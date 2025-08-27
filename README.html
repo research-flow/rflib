@@ -604,17 +604,144 @@ padding-top: 0px;
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 <h1 id="rflib">rflib</h1>
-<p>The goal of rflib is to provide Oracle connection helpers to internal
-use.</p>
+<!-- badges: start -->
+
+<!-- badges: end -->
+
+<p>Research Flow utility package (v2.0.0.0) for internal use, providing
+enhanced functions for survey data processing, SQL operations, and
+general utilities. This major version update brings improved
+organization, better error handling, and modern CLI-based user
+interactions.</p>
 <h2 id="installation">Installation</h2>
-<p>You can install the development version of rflib from <a href="https://github.com/">GitHub</a> with:</p>
+<p>You can install the development version of rflib from GitHub
+with:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;research-flow/rflib&quot;</span>)</span></code></pre></div>
-<h2 id="example">Example</h2>
-<p>This is a basic example which shows you how to solve a common
-problem:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># rflib::oracle_connect(&quot;SCHEME&quot;,F)</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="do">## basic example code</span></span></code></pre></div>
+<h2 id="survey-functions">Survey Functions</h2>
+<h3 id="survey-data-processing">Survey Data Processing</h3>
+<p>The package provides comprehensive tools for survey data handling and
+visualization:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Generate survey presentation</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">generate_survey_presentation</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">input_file =</span> <span class="st">&quot;survey_data.xlsx&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;results&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">template =</span> <span class="st">&quot;standard&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># Create interactive visualizations</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="fu">survey_echarts_likert_scale</span>(question_data)</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="fu">survey_echarts_col_eloszlas</span>(response_data)</span></code></pre></div>
+<h3 id="key-survey-functions">Key Survey Functions</h3>
+<ul>
+<li><code>generate_survey_presentation()</code>: Create comprehensive
+survey reports</li>
+<li><code>survey_add_question()</code>: Add new questions to survey
+objects</li>
+<li><code>survey_add_definition()</code>: Define survey parameters</li>
+<li><code>survey_add_type()</code>: Specify question types</li>
+</ul>
+<h3 id="visualization-options">Visualization Options</h3>
+<ul>
+<li>Static plots (ggplot2-based):
+<ul>
+<li><code>survey_ggplot_likert_scale()</code></li>
+<li><code>survey_ggplot_col_eloszlas()</code></li>
+<li><code>survey_ggplot_hoterkep()</code></li>
+</ul></li>
+<li>Interactive plots (echarts-based):
+<ul>
+<li><code>survey_echarts_likert_scale()</code></li>
+<li><code>survey_echarts_col_eloszlas()</code></li>
+<li><code>survey_echarts_hoterkep()</code></li>
+</ul></li>
+</ul>
+<h2 id="sql-functions">SQL Functions</h2>
+<h3 id="database-operations">Database Operations</h3>
+<p>Tools for efficient SQL operations and file generation:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Generate SQL from Excel</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">generate_oracle_insert_sql_from_excel</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">excel_path =</span> <span class="st">&quot;data.xlsx&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">sheet =</span> <span class="st">&quot;Sheet1&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">table_name =</span> <span class="st">&quot;MY_TABLE&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co"># Generate source files</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="fu">generate_source_file</span>(</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="at">source_dir =</span> <span class="st">&quot;R/&quot;</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="at">schema =</span> <span class="st">&quot;RFLOW&quot;</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>)</span></code></pre></div>
+<h3 id="key-sql-functions">Key SQL Functions</h3>
+<ul>
+<li><code>generate_oracle_insert_sql_from_excel()</code>: Convert Excel
+data to Oracle SQL</li>
+<li><code>generate_source_file()</code>: Create source files with
+database connections</li>
+<li><code>oracle_connect()</code>: Establish database connections</li>
+</ul>
+<h2 id="utility-functions">Utility Functions</h2>
+<h3 id="general-utilities">General Utilities</h3>
+<p>Various helper functions for data processing and visualization:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Color utilities</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">get_optimal_font_color</span>(<span class="st">&quot;#FFFFFF&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># Time handling</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="fu">parse_time_value</span>(<span class="st">&quot;2h 30m&quot;</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="fu">get_time_values</span>(<span class="st">&quot;2:30&quot;</span>)</span></code></pre></div>
+<h3 id="key-utility-functions">Key Utility Functions</h3>
+<ul>
+<li>Color Management:
+<ul>
+<li><code>get_optimal_font_color()</code></li>
+<li><code>long_palette()</code></li>
+</ul></li>
+<li>Time Handling:
+<ul>
+<li><code>parse_time_value()</code></li>
+<li><code>get_time_values()</code></li>
+</ul></li>
+<li>Data Processing:
+<ul>
+<li><code>integer_breaks()</code></li>
+<li><code>read_xlsb()</code></li>
+</ul></li>
+</ul>
+<h2 id="changelog">Changelog</h2>
+<h3 id="version-2000-current">Version 2.0.0.0 (Current)</h3>
+<ul>
+<li>Major version update</li>
+<li>Complete reorganization of package structure</li>
+<li>Enhanced survey functionality</li>
+<li>Improved SQL generation tools</li>
+<li>New template system for source file generation</li>
+<li>Better error handling and user feedback</li>
+<li>Modern CLI-based user interactions</li>
+</ul>
+<h3 id="version-1080">Version 1.0.8.0</h3>
+<ul>
+<li>Added automatic pipe operator detection and replacement</li>
+<li>Improved error handling in survey presentation generation</li>
+<li>Enhanced SQL template validation</li>
+</ul>
+<h3 id="version-1070">Version 1.0.7.0</h3>
+<ul>
+<li>Added survey presentation generation functions</li>
+<li>Improved echarts integration</li>
+<li>Enhanced Excel to SQL conversion with type detection</li>
+</ul>
+<h3 id="version-1060">Version 1.0.6.0</h3>
+<ul>
+<li>Added interactive survey visualization functions</li>
+<li>Improved database connection handling</li>
+<li>Enhanced error reporting in SQL generation</li>
+</ul>
+<h3 id="version-1050">Version 1.0.5.0</h3>
+<ul>
+<li>Initial public release</li>
+<li>Basic survey processing functionality</li>
+<li>SQL generation tools</li>
+<li>Core utility functions</li>
+</ul>
 
 </body>
 </html>

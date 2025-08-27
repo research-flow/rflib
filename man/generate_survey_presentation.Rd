@@ -29,6 +29,8 @@ generate_survey_presentation(
 \item{template_file}{Template Rmd file to use}
 
 \item{reference_doc}{PowerPoint reference document}
+
+\item{survey_to_render}{Survey object to render (optional, otherwise searches the survey_folder_raw.xlsx)}
 }
 \value{
 Path to generated presentation

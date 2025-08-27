@@ -150,10 +150,9 @@ render_all_slides <- function(Survey, question_indices = NULL, default_fig_width
 
 #' Render a plot with specific dimensions using permanent files
 #'
-#' @param plot ggplot object
+#' @param id question index
 #' @param width Figure width in inches
 #' @param height Figure height in inches
-#' @param label Unique label for the plot
 #' @export
 render_plot_with_dimensions <- function(id, width, height) {
     # Instead of saving files, create R chunks that render plots directly

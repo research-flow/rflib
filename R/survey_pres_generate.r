@@ -11,6 +11,7 @@
 #' @param output_file Output file name (optional)
 #' @param template_file Template Rmd file to use
 #' @param reference_doc PowerPoint reference document
+#' @param survey_to_render Survey object to render (optional, otherwise searches the survey_folder_raw.xlsx)
 #' @return Path to generated presentation
 #' @export
 generate_survey_presentation <- function(
@@ -225,6 +226,7 @@ generate_survey_html_report <- function(
 #' Batch generate presentations for multiple surveys
 #'
 #' @param survey_folders Vector of survey folder names
+#' @param titles Vector of survey titles
 #' @param base_subtitle Base subtitle to use
 #' @return Vector of generated file paths
 #' @export

@@ -509,7 +509,6 @@ survey_ggplot_szoveg_buborek_multiple <- function(question) {
 #' GGPlot template for region distribution survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
-#' @importFrom sf st_as_sf
 #' @return A ggplot object
 survey_ggplot_regio_eloszlas <- function(question) {
     question$wrangled |>

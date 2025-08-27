@@ -1,8 +1,5 @@
 #' @title Connect to RF Oracle schemes
 #'
-#' @importFrom odbc dbConnect
-#' @importFrom odbc odbc
-#'
 #' @description
 #' `oracle_connect()` connects to RF schemes, with host, scheme name and password.
 #'

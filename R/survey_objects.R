@@ -352,7 +352,6 @@ get_question_dimensions <- function(tipus) {
 #' @param question A SurveyQuestion object
 #' @param ... Additional arguments (unused)
 #' @return A ggplot object
-#' @importFrom ggpubr as_ggplot
 #' @export
 get_ggplot <- function(question, ...) {
   # Check if it's a SurveyQuestion object
