@@ -4,3 +4,8 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
+^inst/extdata
+^tests
+^vignettes
+^inst
+^dev

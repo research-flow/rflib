@@ -1,0 +1,127 @@
+
+title: "Survey Workflow Example"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Survey Workflow Example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+library(rflib)
+library(tibble)
+library(dplyr)
+library(ggplot2)
+library(echarts4r)
+library(forcats)
+library(stringr)
+library(gridExtra)
+```
+
+## Load and Process a Survey
+
+```{r}
+# Load mock data
+answers <- survey_load_answers("inst/extdata/mock_raw.xlsx")
+labels <- survey_load_labels("inst/extdata/mock_raw.xlsx")
+
+# Prepare label table
+label_table <- survey_prepare_label(labels)
+
+# Pair answers and labels
+paired <- survey_pair_questions_labels(answers, labels)
+
+# Initialize Survey object
+survey_obj <- survey_init(path = "inst/extdata/mock_raw.xlsx")
+
+# Add definitions from mock_seged.xlsx
+survey_obj <- survey_add_definition(survey_obj, definition_path = "inst/extdata/mock_seged.xlsx", rewrangle = TRUE, replot = FALSE)
+
+# Show survey title
+survey_obj$title
+```
+
+## Wrangle and Visualize a Question
+
+```{r}
+# Select a question (e.g., question 7: col_eloszlas_multiple)
+survey_obj <- survey_add_type(survey_obj, 7, "col_eloszlas_multiple", rewrangle = TRUE)
+question <- survey_obj$questions[["7"]]
+
+# Wrangled data
+head(question$wrangled)
+
+# GGPlot visualization
+survey_ggplot_col_eloszlas_multiple(question)
+```
+
+## ECharts Visualization
+
+```{r}
+# ECharts visualization for the same question
+survey_echarts_col_eloszlas_multiple(question)
+```
+
+## Wrangle and Visualize a Likert Scale Question
+
+```{r}
+# Select a Likert scale question (e.g., question 3)
+survey_obj <- survey_add_type(survey_obj, 3, "likert_scale", rewrangle = TRUE)
+likert_question <- survey_obj$questions[["3"]]
+
+# Wrangled data
+head(likert_question$wrangled)
+
+# GGPlot visualization
+survey_ggplot_likert_scale(likert_question)
+```
+
+## ECharts Visualization for Likert Scale
+
+```{r}
+survey_echarts_likert_scale(likert_question)
+```
+
+## Wrangle and Visualize a Table Question
+
+```{r}
+# Select a table question (e.g., question 5)
+survey_obj <- survey_add_type(survey_obj, 5, "table", rewrangle = TRUE)
+table_question <- survey_obj$questions[["5"]]
+
+# Wrangled data
+head(table_question$wrangled)
+
+# GGPlot visualization
+survey_ggplot_table(table_question)
+```
+
+## ECharts Visualization for Table
+
+```{r}
+survey_echarts_table(table_question)
+```
+
+## Wrangle and Visualize a Text Bubble Multiple Question
+
+```{r}
+# Select a text bubble multiple question (e.g., question 16)
+survey_obj <- survey_add_type(survey_obj, 16, "szoveg_buborek_multiple", rewrangle = TRUE)
+text_bubble_question <- survey_obj$questions[["16"]]
+
+# Wrangled data
+head(text_bubble_question$wrangled)
+
+# GGPlot visualization
+survey_ggplot_szoveg_buborek_multiple(text_bubble_question)
+```
+
+## ECharts Visualization for Text Bubble Multiple
+
+```{r}
+survey_echarts_szoveg_buborek_multiple(text_bubble_question)
+```
+
+## Summary
+
+This vignette demonstrates how to load, wrangle, and visualize survey data using the rflib package, with both ggplot2 and echarts4r visualizations. The workflow uses mock data files (`mock_raw.xlsx` and `mock_seged.xlsx`) and covers several question types.
