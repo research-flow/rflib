@@ -186,8 +186,8 @@ survey_ggplot_likert_scale <- function(question) {
             plot.subtitle = ggplot2::element_text(size = 18),
             plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
         ) +
-        ggplot2::scale_color_manual(values = question$color_scale) +
-        ggplot2::scale_fill_manual(values = question$color_scale) +
+        ggplot2::scale_color_manual(values = question$color_scale, na.value = "black") +
+        ggplot2::scale_fill_manual(values = question$color_scale, na.value = rflib::long_palette()[1]) +
         ggplot2::labs(
             x = NULL, y = NULL,
             size = "Válaszadók száma",
@@ -666,8 +666,8 @@ survey_ggplot_likert_scale_rev <- function(question) {
             plot.subtitle = ggplot2::element_text(size = 18),
             plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
         ) +
-        ggplot2::scale_color_manual(values = question$color_scale) +
-        ggplot2::scale_fill_manual(values = question$color_scale) +
+        ggplot2::scale_color_manual(values = question$color_scale, na.value = "black") +
+        ggplot2::scale_fill_manual(values = question$color_scale, na.value = rflib::long_palette()[1]) +
         ggplot2::labs(
             x = NULL, y = NULL,
             size = "Válaszadók száma",
