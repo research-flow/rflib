@@ -587,7 +587,7 @@ survey_ggplot_table_atlag <- function(question) {
         ggplot2::geom_tile(color = "black") +
         ggplot2::geom_text(ggplot2::aes(
             label =
-                scales::number(perc, accuracy = 0.1)
+                scales::number(mean, accuracy = 0.1)
         ), size = 6) +
         ggplot2::theme_minimal() +
         ggplot2::theme(

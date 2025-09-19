@@ -492,7 +492,7 @@ survey_wrangle_likert_scale_rev <- function(df, labels) {
     }) %>%
     dplyr::ungroup() %>%
     dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
-    dplyr::arrange(dplyr::desc(mean)) %>%
+    dplyr::arrange(mean) %>%
     replace_na(list(valasz_szovege = "")) %>%
     dplyr::mutate(
       valasz_szovege = stringr::str_wrap(valasz_szovege, 50),
