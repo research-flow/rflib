@@ -7,15 +7,15 @@
 batch_generate_presentations(
   survey_folders,
   titles = NULL,
-  base_subtitle = "Vizualizációk"
+  base_subtitle = NULL
 )
 }
 \arguments{
 \item{survey_folders}{Vector of survey folder names}
 
-\item{titles}{Vector of survey titles}
+\item{titles}{Vector of survey titles (optional, NULL to use Survey$title or default)}
 
-\item{base_subtitle}{Base subtitle to use}
+\item{base_subtitle}{Base subtitle to use (optional, NULL to use default)}
 }
 \value{
 Vector of generated file paths

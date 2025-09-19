@@ -5,9 +5,9 @@
 #' Generate Survey Presentation
 #'
 #' @param survey_folder Folder name containing survey files (e.g., "177_TAPADULT_250626")
-#' @param title Custom title for the presentation (optional)
-#' @param subtitle Custom subtitle (optional)
-#' @param date Custom date (optional, defaults to today)
+#' @param title Custom title for the presentation (optional, NULL to use Survey$title or default)
+#' @param subtitle Custom subtitle (optional, NULL to use default)
+#' @param date Custom date (optional, NULL to use current date)
 #' @param output_file Output file name (optional)
 #' @param template_file Template Rmd file to use
 #' @param reference_doc PowerPoint reference document
@@ -16,21 +16,17 @@
 #' @export
 generate_survey_presentation <- function(
     survey_folder,
-    title = "Research Flow prezentáció",
-    subtitle = "Vizualizációk",
+    title = NULL,
+    subtitle = NULL,
     date = NULL,
     output_file = NULL,
     template_file = "templates/survey_template.Rmd",
     reference_doc = NULL,
     survey_to_render = NULL) {
-    # Set defaults
-    if (is.null(date)) {
-        date <- paste("Készült:", format(Sys.Date(), "%Y. %B %d."))
-    }
+    # Will set defaults after Survey object is created
 
-    if (is.null(output_file)) {
-        output_file <- paste0(title, ".pptx")
-    }
+    # We'll temporarily set a default output_file if none provided
+    # This will be updated later with the final title
 
     # Extract just the folder name for file construction
     folder_name <- basename(survey_folder)
@@ -68,9 +64,35 @@ generate_survey_presentation <- function(
         Survey <- survey_to_render
     }
 
-    # Use Survey title if no custom title provided
+    # Handle title with three options:
+    # 1. If provided as parameter, use that
+    # 2. If Survey$title exists, use that
+    # 3. Default to "Research Flow prezentáció"
     if (is.null(title)) {
-        title <- if (!is.null(Survey$title)) Survey$title else survey_folder
+        if (!is.null(Survey$title)) {
+            title <- Survey$title
+        } else {
+            title <- "Research Flow prezentáció"
+        }
+    }
+
+    # Handle subtitle with similar logic:
+    # 1. If provided as parameter, use that
+    # 2. Default to "Vizualizációk"
+    if (is.null(subtitle)) {
+        subtitle <- "Vizualizációk"
+    }
+
+    # Handle date:
+    # 1. If provided as parameter, use that
+    # 2. Default to current date
+    if (is.null(date)) {
+        date <- paste("Készült:", format(Sys.Date(), "%Y. %B %d."))
+    }
+
+    # Always update output file name with final title unless explicitly set by user
+    if (is.null(output_file) || output_file == paste0(basename(survey_folder), ".pptx")) {
+        output_file <- paste0(title, ".pptx")
     }
 
     message("Survey created with ", length(Survey$question), " questions")
@@ -126,28 +148,24 @@ generate_survey_presentation <- function(
 #' Generate Survey HTML Report
 #'
 #' @param survey_folder Folder name containing survey files (e.g., "177_TAPADULT_250626")
-#' @param title Custom title for the report (optional)
-#' @param subtitle Custom subtitle (optional)
-#' @param date Custom date (optional, defaults to today)
+#' @param title Custom title for the report (optional, NULL to use Survey$title or default)
+#' @param subtitle Custom subtitle (optional, NULL to use default)
+#' @param date Custom date (optional, NULL to use current date)
 #' @param output_file Output file name (optional)
 #' @param template_file Template Rmd file to use
 #' @return Path to generated HTML report
 #' @export
 generate_survey_html_report <- function(
     survey_folder,
-    title = "Research Flow HTML jelentés",
-    subtitle = "Interaktív vizualizációk",
+    title = NULL,
+    subtitle = NULL,
     date = NULL,
     output_file = NULL,
     template_file = "templates/html_report_template.Rmd") {
-    # Set defaults
-    if (is.null(date)) {
-        date <- paste("Készült:", format(Sys.Date(), "%Y. %B %d."))
-    }
+    # Will set defaults after Survey object is created
 
-    if (is.null(output_file)) {
-        output_file <- paste0(basename(survey_folder), "_report.html")
-    }
+    # We'll temporarily set output_file to NULL if none provided
+    # This will be updated later with the final title
 
     # Extract just the folder name for file construction
     folder_name <- basename(survey_folder)
@@ -171,9 +189,35 @@ generate_survey_html_report <- function(
     Survey <- rflib::survey_init(raw_file)
     Survey <- rflib::survey_add_definition(Survey, seged_file, replot = TRUE)
 
-    # Use Survey title if no custom title provided
+    # Handle title with three options:
+    # 1. If provided as parameter, use that
+    # 2. If Survey$title exists, use that
+    # 3. Default to "Research Flow HTML jelentés"
     if (is.null(title)) {
-        title <- if (!is.null(Survey$title)) Survey$title else survey_folder
+        if (!is.null(Survey$title)) {
+            title <- Survey$title
+        } else {
+            title <- "Research Flow HTML jelentés"
+        }
+    }
+
+    # Handle subtitle with similar logic:
+    # 1. If provided as parameter, use that
+    # 2. Default to "Interaktív vizualizációk"
+    if (is.null(subtitle)) {
+        subtitle <- "Interaktív vizualizációk"
+    }
+
+    # Handle date:
+    # 1. If provided as parameter, use that
+    # 2. Default to current date
+    if (is.null(date)) {
+        date <- paste("Készült:", format(Sys.Date(), "%Y. %B %d."))
+    }
+
+    # Always update output file name with final title unless explicitly set by user
+    if (is.null(output_file) || output_file == paste0(basename(survey_folder), "_report.html")) {
+        output_file <- paste0(title, "_report.html")
     }
 
     message("Survey created with ", length(Survey$question), " questions")
@@ -226,11 +270,11 @@ generate_survey_html_report <- function(
 #' Batch generate presentations for multiple surveys
 #'
 #' @param survey_folders Vector of survey folder names
-#' @param titles Vector of survey titles
-#' @param base_subtitle Base subtitle to use
+#' @param titles Vector of survey titles (optional, NULL to use Survey$title or default)
+#' @param base_subtitle Base subtitle to use (optional, NULL to use default)
 #' @return Vector of generated file paths
 #' @export
-batch_generate_presentations <- function(survey_folders, titles = NULL, base_subtitle = "Vizualizációk") {
+batch_generate_presentations <- function(survey_folders, titles = NULL, base_subtitle = NULL) {
     # Validate inputs
     if (!is.character(survey_folders) || length(survey_folders) == 0) {
         stop("survey_folders must be a non-empty character vector")

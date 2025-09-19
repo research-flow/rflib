@@ -6,8 +6,8 @@
 \usage{
 generate_survey_presentation(
   survey_folder,
-  title = "Research Flow prezentáció",
-  subtitle = "Vizualizációk",
+  title = NULL,
+  subtitle = NULL,
   date = NULL,
   output_file = NULL,
   template_file = "templates/survey_template.Rmd",
@@ -18,11 +18,11 @@ generate_survey_presentation(
 \arguments{
 \item{survey_folder}{Folder name containing survey files (e.g., "177_TAPADULT_250626")}
 
-\item{title}{Custom title for the presentation (optional)}
+\item{title}{Custom title for the presentation (optional, NULL to use Survey$title or default)}
 
-\item{subtitle}{Custom subtitle (optional)}
+\item{subtitle}{Custom subtitle (optional, NULL to use default)}
 
-\item{date}{Custom date (optional, defaults to today)}
+\item{date}{Custom date (optional, NULL to use current date)}
 
 \item{output_file}{Output file name (optional)}
 

@@ -6,8 +6,8 @@
 \usage{
 generate_survey_html_report(
   survey_folder,
-  title = "Research Flow HTML jelentés",
-  subtitle = "Interaktív vizualizációk",
+  title = NULL,
+  subtitle = NULL,
   date = NULL,
   output_file = NULL,
   template_file = "templates/html_report_template.Rmd"
@@ -16,11 +16,11 @@ generate_survey_html_report(
 \arguments{
 \item{survey_folder}{Folder name containing survey files (e.g., "177_TAPADULT_250626")}
 
-\item{title}{Custom title for the report (optional)}
+\item{title}{Custom title for the report (optional, NULL to use Survey$title or default)}
 
-\item{subtitle}{Custom subtitle (optional)}
+\item{subtitle}{Custom subtitle (optional, NULL to use default)}
 
-\item{date}{Custom date (optional, defaults to today)}
+\item{date}{Custom date (optional, NULL to use current date)}
 
 \item{output_file}{Output file name (optional)}
 

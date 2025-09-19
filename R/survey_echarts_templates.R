@@ -227,11 +227,12 @@ survey_echarts_year_eloszlas_unscale <- function(question) {
   avg <- mean(question$wrangled$answer, na.rm = TRUE)
   med <- median(question$wrangled$answer, na.rm = TRUE)
 
+  n <- min(nrow(question$wrangled) - 1, 15)
+
   question$wrangled |>
     echarts4r::e_charts() |>
     echarts4r::e_histogram(answer,
-      name = "Közép", breaks =
-        15
+      name = "Közép", breaks = n
     ) |>
     echarts4r::e_color(alpha(rflib::long_palette()[3], 0.4)) |>
     echarts4r::e_y_axis(
@@ -252,7 +253,7 @@ survey_echarts_year_eloszlas_unscale <- function(question) {
       lineStyle = list(color = rflib::long_palette()[4]),
       title = stringr::str_c("Medián: ", scales::number(med, accuracy = 0.1)),
       title_position = "end"
-    ) |> 
+    ) |>
     echarts4r::e_tooltip()
 }
 #' @title ECharts template for year distribution survey question
@@ -265,11 +266,11 @@ survey_echarts_year_eloszlas_unscale <- function(question) {
 survey_echarts_year_eloszlas <- function(question) {
   avg <- mean(question$wrangled$answer, na.rm = TRUE)
   med <- median(question$wrangled$answer, na.rm = TRUE)
-
+  n <- min(nrow(question$wrangled) - 1, 15)
   question$wrangled |>
     echarts4r::e_charts() |>
     echarts4r::e_histogram(answer,
-      name = "Közép", breaks = 15
+      name = "Közép", breaks = n
     ) |>
     echarts4r::e_color(alpha(rflib::long_palette()[3], 0.4)) |>
     echarts4r::e_y_axis(
@@ -290,7 +291,7 @@ survey_echarts_year_eloszlas <- function(question) {
       symbol = "none",
       title = stringr::str_c("Medián: ", scales::number(med, accuracy = 0.1)),
       title_position = "end"
-    ) |> 
+    ) |>
     echarts4r::e_tooltip()
 }
 #' @title ECharts template for table survey question
@@ -421,7 +422,43 @@ survey_echarts_szoveg_col_egyeb <- function(question) {
 #' @importFrom echarts4r e_charts
 
 survey_echarts_table_atlag <- function(question) {
-  # TODO: fill in ECharts code
+  question$wrangled |>
+    dplyr::mutate(mean = round(mean, 2)) |>
+    echarts4r::e_charts(valasz_szovege) |>
+    echarts4r::e_heatmap(oszlop_szovege, mean,
+      itemStyle = list(emphasis = list(shadowBlur = 3)),
+      label = list(
+        show = TRUE,
+        formatter = htmlwidgets::JS("
+      function(params){
+      return(params.value[2])
+      }
+    ")
+      )
+    ) |>
+    echarts4r::e_visual_map(mean,
+      inRange = list(
+        color = c("#FFFAFA", rflib::long_palette()[2])
+      ),
+      formatter = htmlwidgets::JS("value => value"),
+      show = FALSE
+    ) |>
+    echarts4r::e_y_axis(inverse = TRUE) |>
+    echarts4r::e_tooltip(
+      formatter = htmlwidgets::JS("
+        function(params) {
+          var columnName = params.name;
+          var rowName = params.value[params.encode.y[0]];
+          var value = params.value[2];
+
+          return '<div style=\"padding: 10px; font-size: 14px;\">' +
+                 rowName + ' - ' +
+                 columnName + '<br/>' +
+                 value +
+                 '</div>';
+        }
+      ")
+    )
 }
 #' @title ECharts template for reversed Likert scale survey question
 #' @description Creates a plot for reversed Likert scale survey questions using echarts4r.
@@ -431,7 +468,74 @@ survey_echarts_table_atlag <- function(question) {
 #' @importFrom echarts4r e_charts
 
 survey_echarts_likert_scale_rev <- function(question) {
-  # TODO: fill in ECharts code
+  # Handle missing likert_labeller gracefully
+  if (is.null(question$likert_labeller)) {
+    # Set identity function if likert_labeller is missing
+    question$likert_labeller <- function(x) x
+  }
+
+  # Apply labeller function if it's a function, otherwise use data as is
+  if (is.function(question$likert_labeller)) {
+    question$data <- question$likert_labeller(question$data)
+  } else {
+    # If likert_labeller is not a function, try to use likert_labeller function from wrangle_functions
+    question$data <- tryCatch(
+      likert_labeller(question$data, question$likert_labeller),
+      error = function(e) question$data # Use original data if labelling fails
+    )
+  }
+
+  question$wrangled %>%
+    dplyr::mutate(
+      value_mod = 1,
+      color = alpha(question$color_scale[valasz_szovege], alpha)
+    ) |>
+    dplyr::group_by(answer) |>
+    echarts4r::e_charts(valasz_szovege) |>
+    echarts4r::e_bar(value_mod,
+      stack = "grp",
+      itemStyle = list(borderColor = "black"),
+      bind = count
+    ) |>
+    echarts4r::e_scatter(mean,
+      symbol_size = 10, color = "black",
+      label = list(
+        show = TRUE,
+        position = "right",
+        formatter =
+          htmlwidgets::JS("
+      function(params){
+        return(Number(params.value[0]).toFixed(2))
+      }
+    ")
+      )
+    ) |>
+    echarts4r::e_add_nested("itemStyle", color) |>
+    echarts4r::e_x_axis(inverse = TRUE) |>
+    echarts4r::e_flip_coords() |>
+    echarts4r::e_y_axis(inverse = TRUE) |>
+    echarts4r::e_tooltip(
+      formatter = htmlwidgets::JS("
+        function(params) {
+          var result = '<div style=\"padding: 10px; font-size: 14px;\">';
+
+          if (params.componentType === 'series') {
+            if (params.seriesType === 'bar') {
+              // For bar charts (stacked bars)
+              var answer = params.seriesName;
+              var category = params.name;
+
+              result += '<strong>' + answer + '</strong> - N =' + category + '<br/>'
+
+            }
+          }
+
+          result += '</div>';
+          return result;
+        }
+      ")
+    ) |>
+    echarts4r::e_legend(show = FALSE)
 }
 #' @title ECharts template for new other text column survey question
 #' @description Creates a plot for new other text column survey questions using echarts4r.

@@ -11,7 +11,7 @@ survey_plot_dispatch <- function(plottype, question) {
       "resz_egesz_total" = survey_ggplot_resz_egesz_total(question),
       "resz_egesz_multiple" = survey_ggplot_resz_egesz_multiple(question),
       "likert_scale" = survey_ggplot_likert_scale(question),
-      "col_eloszlas_total" = survey_ggplot_col_eloszlas_total(question),
+      "col_eloszlas_total" = survey_ggplot_col_eloszlas_multiple(question),
       "col_eloszlas_multiple" = survey_ggplot_col_eloszlas_multiple(question),
       "year_eloszlas_unscale" = survey_ggplot_year_eloszlas_unscale(question),
       "regio_eloszlas" = survey_ggplot_regio_eloszlas(question),
@@ -40,7 +40,7 @@ survey_plot_dispatch <- function(plottype, question) {
       "resz_egesz_total" = survey_echarts_resz_egesz_total(question),
       "resz_egesz_multiple" = survey_echarts_resz_egesz_multiple(question),
       "likert_scale" = survey_echarts_likert_scale(question),
-      "col_eloszlas_total" = survey_echarts_col_eloszlas_total(question),
+      "col_eloszlas_total" = survey_echarts_col_eloszlas_multiple(question),
       "col_eloszlas_multiple" = survey_echarts_col_eloszlas_multiple(question),
       "year_eloszlas_unscale" = survey_echarts_year_eloszlas_unscale(question),
       "regio_eloszlas" = survey_echarts_regio_eloszlas(question),
@@ -81,7 +81,7 @@ survey_wrangle_dispatch <- function(tipus, data, labels) {
     "resz_egesz_total" = survey_wrangle_resz_egesz_total(data, labels),
     "resz_egesz_multiple" = survey_wrangle_resz_egesz_multiple(data, labels),
     "likert_scale" = survey_wrangle_likert_scale(data, labels),
-    "col_eloszlas_total" = survey_wrangle_col_eloszlas_total(data, labels),
+    "col_eloszlas_total" = survey_wrangle_col_eloszlas_multiple(data, labels),
     "col_eloszlas_multiple" = survey_wrangle_col_eloszlas_multiple(data, labels),
     "year_eloszlas_unscale" = survey_wrangle_year_eloszlas_unscale(data, labels),
     "regio_eloszlas" = survey_wrangle_regio_eloszlas(data, labels),
@@ -397,10 +397,11 @@ survey_wrangle_regio_eloszlas <- function(df, labels) {
     )
 
   szotar <- teruleti_szotar |>
-    select(-telepules_nev) |>
+    dplyr::select(-telepules_nev) |>
     dplyr::mutate_all(as.character) |>
+    dplyr::mutate(regio = regio_nev) |>
     tidyr::pivot_longer(-regio_nev) |>
-    distinct()
+    dplyr::distinct()
 
   result |>
     dplyr::left_join(
@@ -431,7 +432,26 @@ survey_wrangle_szoveg_col_egyeb <- function(df, labels) {
 #' @return Not implemented
 
 survey_wrangle_table_atlag <- function(df, labels) {
-  stop("Not implemented")
+  df |>
+    dplyr::group_by(kerdes) %>%
+    mutate(mean = mean(as.numeric(value), na.rm = T)) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(orvos_db = dplyr::n_distinct(respondent_id)) %>%
+    dplyr::select(-respondent_id, -answer) %>%
+    unique() %>%
+    dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
+    tidyr::replace_na(list(mean = 0)) |>
+    dplyr::mutate(orvos_db = max(orvos_db, na.rm = TRUE)) %>%
+    dplyr::arrange(kerdesbetu) |>
+    # dplyr::group_by(oszlop_szovege) |>
+    # dplyr::filter(sum(n) > 0) |>
+    # dplyr::ungroup() |>
+    dplyr::mutate(
+      oszlop_szovege = stringr::str_wrap(oszlop_szovege, 50),
+      oszlop_szovege = forcats::fct_inorder(oszlop_szovege),
+      valasz_szovege = stringr::str_wrap(valasz_szovege, 30),
+      valasz_szovege = forcats::fct_inorder(valasz_szovege),
+    )
 }
 #' Wrangle reversed Likert scale question
 #'
@@ -440,7 +460,42 @@ survey_wrangle_table_atlag <- function(df, labels) {
 #' @return Not implemented
 
 survey_wrangle_likert_scale_rev <- function(df, labels) {
-  stop("Not implemented")
+  if (!all(suppressWarnings(!is.na(as.numeric(df$answer))))) {
+    stop("Some answers cannot be converted to numeric in survey_wrangle_likert_scale.")
+  }
+  df %>%
+    dplyr::group_by(kerdes, kerdesszam, kerdesbetu) %>%
+    dplyr::group_modify(~ {
+      df <- .x %>% dplyr::mutate(answer = as.numeric(answer))
+      # Expand possible values
+      if (!is.na(labels$tol[1]) && labels$tol[1] <= 0) {
+        vals <- seq(labels$tol[1] + 1, max(labels$ig, na.rm = TRUE))
+      } else {
+        vals <- seq(min(labels$tol, na.rm = TRUE), max(labels$ig, na.rm = TRUE))
+      }
+      # Count occurrences
+      counts <- df %>%
+        dplyr::count(answer, name = "count") %>%
+        tidyr::complete(answer = vals, fill = list(count = 0))
+      # Calculate percentages
+      counts <- counts %>%
+        dplyr::mutate(percentage = count / sum(count) * 100)
+      # Calculate mean
+      mean_val <- weighted.mean(counts$answer, counts$count)
+
+      counts %>%
+        dplyr::mutate(
+          mean = mean_val,
+          alpha = counts$count / max(counts$count) * 0.8
+        )
+    }) %>%
+    dplyr::ungroup() %>%
+    dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
+    dplyr::arrange(dplyr::desc(mean)) %>%
+    dplyr::mutate(
+      valasz_szovege = stringr::str_wrap(valasz_szovege, 50),
+      valasz_szovege = forcats::fct_inorder(valasz_szovege)
+    )
 }
 #' Wrangle new other text column question
 #'

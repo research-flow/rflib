@@ -291,7 +291,7 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
 #' @export
 get_question_dimensions <- function(tipus) {
   dimensions <- switch(tipus,
-    "col_eloszlas" = list(width = 10, height = 4),
+    "col_eloszlas_total" = list(width = 10, height = 4),
     "col_eloszlas_longitud" = list(width = 10, height = 4),
     "col_eloszlas_multiple" = list(width = 10, height = 4),
     "col_eloszlas_multiple_longitud" = list(width = 10, height = 4),
