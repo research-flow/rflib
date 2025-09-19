@@ -226,7 +226,7 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
 
     base_color_scale <- survey_obj$questions[[qid]]$color_scale
     if (length(base_color_scale) == 0) {
-      extended_color_scale <- c("black")
+      extended_color_scale <- c(rflib::long_palette()[1])
     } else {
       # Extend color scale for str_wrap(20), str_wrap(30), and str_wrap(50)
       extended_color_scale <- c(
