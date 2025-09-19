@@ -176,7 +176,7 @@ survey_wrangle_likert_scale <- function(df, labels) {
     dplyr::group_modify(~ {
       df <- .x %>% dplyr::mutate(answer = as.numeric(answer))
       # Expand possible values
-      if (!is.na(labels$tol[1]) && labels$tol[1] <= 0) {
+      if (!is.na(labels$tol[1]) && labels$tol[1] < 0) {
         vals <- seq(labels$tol[1] + 1, max(labels$ig, na.rm = TRUE))
       } else {
         vals <- seq(min(labels$tol, na.rm = TRUE), max(labels$ig, na.rm = TRUE))
@@ -469,7 +469,7 @@ survey_wrangle_likert_scale_rev <- function(df, labels) {
     dplyr::group_modify(~ {
       df <- .x %>% dplyr::mutate(answer = as.numeric(answer))
       # Expand possible values
-      if (!is.na(labels$tol[1]) && labels$tol[1] <= 0) {
+      if (!is.na(labels$tol[1]) && labels$tol[1] < 0) {
         vals <- seq(labels$tol[1] + 1, max(labels$ig, na.rm = TRUE))
       } else {
         vals <- seq(min(labels$tol, na.rm = TRUE), max(labels$ig, na.rm = TRUE))
