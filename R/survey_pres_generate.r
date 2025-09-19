@@ -132,6 +132,7 @@ generate_survey_presentation <- function(
     result_file <- rmarkdown::render(
         input = template_file,
         output_file = output_file,
+        output_dir = here::here("projects", folder_name),
         params = list(
             survey_title = title,
             survey_subtitle = subtitle,
@@ -254,6 +255,7 @@ generate_survey_html_report <- function(
     result_file <- rmarkdown::render(
         input = template_file,
         output_file = output_file,
+        output_dir = here::here("projects", folder_name),
         params = list(
             survey_title = title,
             survey_subtitle = subtitle,
