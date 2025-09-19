@@ -184,7 +184,8 @@ survey_wrangle_likert_scale <- function(df, labels) {
       # Count occurrences
       counts <- df %>%
         dplyr::count(answer, name = "count") %>%
-        tidyr::complete(answer = vals, fill = list(count = 0))
+        tidyr::complete(answer = vals, fill = list(count = 0)) %>%
+        dplyr::filter(answer %in% vals)
       # Calculate percentages
       counts <- counts %>%
         dplyr::mutate(percentage = count / sum(count) * 100)
@@ -477,7 +478,8 @@ survey_wrangle_likert_scale_rev <- function(df, labels) {
       # Count occurrences
       counts <- df %>%
         dplyr::count(answer, name = "count") %>%
-        tidyr::complete(answer = vals, fill = list(count = 0))
+        tidyr::complete(answer = vals, fill = list(count = 0)) %>%
+        dplyr::filter(answer %in% vals)
       # Calculate percentages
       counts <- counts %>%
         dplyr::mutate(percentage = count / sum(count) * 100)
