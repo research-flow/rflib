@@ -513,7 +513,6 @@ survey_echarts_likert_scale_rev <- function(question) {
     echarts4r::e_add_nested("itemStyle", color) |>
     echarts4r::e_x_axis(inverse = TRUE) |>
     echarts4r::e_flip_coords() |>
-    echarts4r::e_y_axis(inverse = TRUE) |>
     echarts4r::e_tooltip(
       formatter = htmlwidgets::JS("
         function(params) {

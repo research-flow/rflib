@@ -7,7 +7,7 @@ survey_ggplot_resz_egesz_total <- function(question) {
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
             question$wrangled %>%
-                dplyr::slice_max(order_by = mean, n = n_max) %>%
+                dplyr::filter(kerdesbetu <= n_max) %>%
                 ggplot2::ggplot(ggplot2::aes(x = answer)) +
                 ggplot2::geom_histogram(ggplot2::aes(alpha = ggplot2::after_stat(count), fill = valasz_szovege), color = "black", bins = 7) +
                 ggplot2::facet_wrap(~valasz_szovege, scales = "free") +
@@ -68,7 +68,7 @@ survey_ggplot_resz_egesz_multiple <- function(question) {
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
             question$wrangled %>%
-                dplyr::slice_max(order_by = mean, n = n_max) %>%
+                dplyr::filter(kerdesbetu <= n_max) %>%
                 ggplot2::ggplot(ggplot2::aes(x = answer)) +
                 ggplot2::geom_histogram(ggplot2::aes(alpha = after_stat(count), fill = valasz_szovege), color = "black", bins = 7) +
                 ggplot2::facet_wrap(~valasz_szovege, scales = "free") +
@@ -635,7 +635,6 @@ survey_ggplot_likert_scale_rev <- function(question) {
             range = c(0.1, 0.8),
             na.value = 0
         ) +
-        ggplot2::scale_y_discrete(limits = rev) +
         ggplot2::scale_x_continuous(
             na.value = 0,
             limits = c(0, first(as.numeric(question$label$ig)) + 1.3),

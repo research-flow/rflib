@@ -200,6 +200,7 @@ survey_wrangle_likert_scale <- function(df, labels) {
     dplyr::ungroup() %>%
     dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
     dplyr::arrange(dplyr::desc(mean)) %>%
+    replace_na(list(valasz_szovege = "")) %>%
     dplyr::mutate(
       valasz_szovege = stringr::str_wrap(valasz_szovege, 50),
       valasz_szovege = forcats::fct_inorder(valasz_szovege)
@@ -434,7 +435,7 @@ survey_wrangle_szoveg_col_egyeb <- function(df, labels) {
 survey_wrangle_table_atlag <- function(df, labels) {
   df |>
     dplyr::group_by(kerdes) %>%
-    mutate(mean = mean(as.numeric(value), na.rm = T)) %>%
+    mutate(mean = mean(as.numeric(answer), na.rm = T)) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(orvos_db = dplyr::n_distinct(respondent_id)) %>%
     dplyr::select(-respondent_id, -answer) %>%
@@ -492,6 +493,7 @@ survey_wrangle_likert_scale_rev <- function(df, labels) {
     dplyr::ungroup() %>%
     dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
     dplyr::arrange(dplyr::desc(mean)) %>%
+    replace_na(list(valasz_szovege = "")) %>%
     dplyr::mutate(
       valasz_szovege = stringr::str_wrap(valasz_szovege, 50),
       valasz_szovege = forcats::fct_inorder(valasz_szovege)
