@@ -177,7 +177,7 @@ survey_wrangle_likert_scale <- function(df, labels) {
       df <- .x %>% dplyr::mutate(answer = as.numeric(answer))
       # Expand possible values
       if (!is.na(labels$tol[1]) && labels$tol[1] <= 0) {
-        vals <- seq(labels$tol[1] + 1, max(labels$ig, na.rm = TRUE))
+        vals <- seq(1, max(labels$ig, na.rm = TRUE))
       } else {
         vals <- seq(min(labels$tol, na.rm = TRUE), max(labels$ig, na.rm = TRUE))
       }
@@ -313,6 +313,59 @@ survey_wrangle_table <- function(df, labels) {
       valasz_szovege = forcats::fct_inorder(valasz_szovege),
     )
 }
+
+#' Wrangle text bubble multiple question
+#'
+#' @param df A tibble with columns respondent_id, answer, kerdes
+#' @param labels A tibble with question labels
+#' @return A tibble with processed text bubble multiple answers
+
+survey_wrangle_szoveg_buborek <- function(df, labels) {
+  oszlop_multiple <-
+    (length(unique(na.omit(labels$oszlop_szovege))) > 1)
+  valasz_multiple <-
+    (length(unique(na.omit(labels$valasz_szovege))) > 1)
+
+  df %>%
+    dplyr::filter(answer != "on") %>%
+    tidyr::separate_longer_delim(cols = "answer", delim = ";") |>
+    dplyr::filter(!(answer %in% c("NA", "NULL", "", "0", "."))) %>%
+    dplyr::filter(!str_detect(answer, "^[^A-Za-z0-9]$")) %>%
+    dplyr::mutate(answer = stringr::str_to_title(stringr::str_squish(answer))) %>%
+    dplyr::count(answer, name = "count") %>%
+    dplyr::right_join(labels, by = dplyr::join_by("kerdes")) %>%
+    dplyr::mutate(
+      oszlop_szovege = as.character(oszlop_szovege),
+      valasz_szovege = as.character(valasz_szovege)
+    ) %>%
+    tidyr::replace_na(
+      list(
+        valasz_szovege = "",
+        oszlop_szovege = ""
+      )
+    ) %>%
+    dplyr::arrange(count) %>%
+    dplyr::mutate(
+      total_szoveg =
+        dplyr::case_when(
+          oszlop_multiple & valasz_multiple ~
+            stringr::str_c(
+              valasz_szovege, " ", oszlop_szovege
+            ),
+          oszlop_multiple & !valasz_multiple ~
+            oszlop_szovege,
+          !oszlop_multiple & valasz_multiple ~
+            valasz_szovege,
+          TRUE ~ stringr::str_c(
+            valasz_szovege, " ", oszlop_szovege
+          )
+        ),
+      total_szoveg = stringr::str_wrap(total_szoveg, 30),
+      total_szoveg = forcats::fct_inorder(total_szoveg)
+    )
+  # filter(count > 1)
+}
+
 
 #' Wrangle text bubble multiple question
 #'

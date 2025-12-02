@@ -500,6 +500,36 @@ survey_ggplot_table <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
+survey_ggplot_szoveg_buborek <- function(question) {
+    question$wrangled |>
+        ggplot2::ggplot(ggplot2::aes(label = str_wrap(str_c(
+            "\"", answer, "\""
+        ), 50))) +
+        ggwordcloud::geom_text_wordcloud(
+            ggplot2::aes(
+                color = valasz_szovege,
+                size = log(count)
+            ),
+            rm_outside = T
+        ) +
+        # ggplot2::facet_wrap(~total_szoveg) +
+        ggplot2::scale_color_manual(values = question$color_scale) +
+        ggplot2::scale_size(range = c(3, 6)) +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(
+            strip.text.x = ggplot2::element_text(size = 10),
+            plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
+        ) +
+        ggplot2::guides(color = "none") +
+        ggplot2::labs(
+            caption = "A válaszok nagysága arányos az említéseik számával\n Csak a kettőnél többször említett válaszok vannak megjelenítve",
+            subtitle = question$group
+        )
+}
+#' GGPlot template for text bubble multiple survey question
+#'
+#' @param question A list containing wrangled data and plot parameters
+#' @return A ggplot object
 survey_ggplot_szoveg_buborek_multiple <- function(question) {
     question$wrangled |>
         ggplot2::ggplot(ggplot2::aes(label = str_wrap(str_c(
