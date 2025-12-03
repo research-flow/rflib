@@ -136,7 +136,11 @@ oracle_select_all <- function(schema, table_name, connection = NULL) {
     # Execute query with error handling
     result <- tryCatch(
         {
-            DBI::dbGetQuery(connection, query)
+            start_time <- Sys.time()
+            result_ret <- DBI::dbGetQuery(connection, query)
+            end_time <- Sys.time()
+            message(sprintf("Query executed in %f seconds", as.numeric(difftime(end_time, start_time, units = "secs"))))
+            return(result_ret)
         },
         error = function(e) {
             stop(paste0("Error executing query: ", e$message))
