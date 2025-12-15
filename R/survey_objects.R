@@ -125,6 +125,7 @@ survey_add_type <- function(survey_obj, question_id, tipus, rewrangle = TRUE) {
 #' @param definition_path Path to Excel containing columns: kerdes_szam, tipus
 #' @param rewrangle Logical, rerun wrangling immediately (default: TRUE)
 #' @param replot Logical, rerun plot creation if enabled (default: FALSE)
+#' @param apply_references Logical, whether to automatically apply references (default: TRUE)
 #' @importFrom readxl read_excel excel_sheets
 #' @importFrom dplyr rename_with select group_by filter row_number ungroup count bind_rows distinct
 #' @importFrom janitor make_clean_names
@@ -135,7 +136,7 @@ survey_add_type <- function(survey_obj, question_id, tipus, rewrangle = TRUE) {
 #'
 #' @return Updated Survey object
 #' @export
-survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE, replot = FALSE) {
+survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE, replot = FALSE, apply_references = TRUE) {
   if (!inherits(survey_obj, "Survey")) {
     stop("survey_obj must be of class Survey.")
   }
@@ -301,17 +302,14 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
       reference_for_qid <- reference_labels %>%
         dplyr::filter(question_id == qid)
 
-      if (nrow(reference_labels) == 0) {
+      if (nrow(reference_for_qid) == 0) {
+        survey_obj$questions[[qid]]$reference <- NULL
         message(paste("Reference for ", qid, "has no labels"))
       } else {
         question <- survey_obj$questions[[qid]]
         question$reference <- reference_for_qid %>%
           pull(ref_question_id)
         survey_obj$questions[[qid]] <- question
-      }
-    } else {
-      if (qid %in% likert_labels$question_id) {
-        message(paste("Non-Likert question", qid, "has labels in the 'Likert' sheet. Discarding these labels."))
       }
     }
 
@@ -326,36 +324,67 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
     }
   }
 
-  # Apply references automatically for questions that have them
-  if (!is.null(reference_labels)) {
-    message("Applying references automatically...")
-    
-    # Get all questions that have references
-    questions_with_refs <- reference_labels %>%
-      dplyr::select(question_id, ref_question_id) %>%
-      dplyr::distinct()
-    
-    for (i in 1:nrow(questions_with_refs)) {
-      target_qid <- questions_with_refs$question_id[i]
-      ref_qid <- questions_with_refs$ref_question_id[i]
-      
-      # Check if both questions exist in the survey
-      if (target_qid %in% names(survey_obj$questions) && ref_qid %in% names(survey_obj$questions)) {
-        message(paste("Applying reference", ref_qid, "to question", target_qid))
-        
-        # Apply the reference using survey_add_reference function
-        tryCatch({
-          updated_question <- survey_add_reference(survey_obj, target_qid, ref_qid, rewrangle = rewrangle)
-          survey_obj$questions[[target_qid]] <- updated_question
-        }, error = function(e) {
-          warning(paste("Failed to apply reference", ref_qid, "to question", target_qid, ":", e$message))
-        })
-      } else {
-        warning(paste("Cannot apply reference: question", target_qid, "or reference", ref_qid, "not found in survey"))
-      }
+  return(survey_obj)
+}
+
+#' Apply References to All Questions in Survey
+#'
+#' This function loops through all questions in a survey that have a reference assigned
+#' and applies the reference processing using survey_add_reference.
+#'
+#' @param survey_obj A Survey object
+#' @param rewrangle Logical, whether to rerun the wrangling function after applying references (default: TRUE)
+#' @return Updated Survey object with all references applied
+#' @export
+survey_add_all_references <- function(survey_obj, rewrangle = TRUE) {
+  if (!inherits(survey_obj, "Survey")) {
+    stop("Input must be a Survey object.")
+  }
+
+  # Find all questions that have a reference assigned
+  questions_with_refs <- list()
+
+  for (qid in names(survey_obj$questions)) {
+    question <- survey_obj$questions[[qid]]
+    if (!is.null(question$reference)) {
+      questions_with_refs[[length(questions_with_refs) + 1]] <- list(
+        question_id = qid,
+        ref_question_id = question$reference
+      )
     }
   }
 
+  if (length(questions_with_refs) == 0) {
+    message("No questions with references found in survey.")
+    return(survey_obj)
+  }
+
+  message(paste("Applying references to", length(questions_with_refs), "questions..."))
+
+  for (ref_info in questions_with_refs) {
+    target_qid <- ref_info$question_id
+    ref_qid <- ref_info$ref_question_id
+
+    # Check if both questions exist in the survey
+    if (target_qid %in% names(survey_obj$questions) && ref_qid %in% names(survey_obj$questions)) {
+      message(paste("Applying reference", ref_qid, "to question", target_qid))
+
+      # Apply the reference using survey_add_reference function
+      tryCatch(
+        {
+          updated_question <- survey_add_reference(survey_obj, target_qid, ref_qid, rewrangle = rewrangle)
+          survey_obj$questions[[target_qid]] <- updated_question
+        },
+        error = function(e) {
+          warning(paste("Failed to apply reference", ref_qid, "to question", target_qid, ":", e$message))
+        }
+      )
+    } else {
+      warning(paste("Cannot apply reference: question", target_qid, "or reference", ref_qid, "not found in survey"))
+    }
+  }
+
+  message("Finished applying all references.")
   return(survey_obj)
 }
 
@@ -421,6 +450,41 @@ get_question_dimensions <- function(tipus) {
     list(width = 10, height = 4)
   )
   return(dimensions)
+}
+
+#' Create Color Scale with Wrapped Text Variants
+#'
+#' Creates a color scale for a character vector with additional variants for wrapped text
+#' at different widths (20, 30, and 50 characters).
+#'
+#' @param values A character vector of values to create color scale for
+#' @return A named vector with colors for original values and their wrapped variants
+#' @importFrom stringr str_wrap
+#' @export
+create_color_scale <- function(values) {
+  if (length(values) == 0) {
+    return(setNames(character(0), character(0)))
+  }
+
+  # Remove NA and empty values
+  clean_values <- values[!is.na(values) & values != ""]
+
+  if (length(clean_values) == 0) {
+    return(setNames(character(0), character(0)))
+  }
+
+  # Create base color scale
+  base_color_scale <- setNames(rflib::long_palette()[seq_along(clean_values)], clean_values)
+
+  # Create extended color scale with wrapped variants
+  extended_color_scale <- c(
+    base_color_scale,
+    setNames(base_color_scale, stringr::str_wrap(names(base_color_scale), 20)),
+    setNames(base_color_scale, stringr::str_wrap(names(base_color_scale), 30)),
+    setNames(base_color_scale, stringr::str_wrap(names(base_color_scale), 50))
+  )
+
+  return(extended_color_scale)
 }
 
 #' Create ggplot for SurveyQuestion object
@@ -669,7 +733,7 @@ survey_add_reference <- function(survey_obj, question_id, reference_question_id,
   # Create the label structure
   label_data <- tibble::tibble(
     kerdesszam = rep(question_id, length(distinct_answers)),
-    kerdesbetu = kerdesbetu_ids,
+    kerdesbetu = as.character(kerdesbetu_ids),
     kerdes = paste0(question_id, "_", kerdesbetu_ids),
     valasz_szovege = distinct_answers,
     oszlop_szovege = rep(NA, length(distinct_answers))
@@ -687,23 +751,36 @@ survey_add_reference <- function(survey_obj, question_id, reference_question_id,
   if ("answer" %in% names(original_data)) {
     original_question$data <-
       original_data %>%
+      mutate(kerdesbetu = as.character(kerdesbetu)) %>%
       left_join(
         ref_data %>%
           distinct(respondent_id, kerdesbetu, answer) %>%
           mutate(new_kerdesbetu = answer_to_kerdesbetu[as.character(answer)]) %>%
+          mutate(kerdesbetu = as.character(kerdesbetu)) %>%
           select(-answer),
         by = join_by(respondent_id, kerdesbetu)
       ) %>%
       select(respondent_id, kerdesbetu = new_kerdesbetu, answer) %>%
+      mutate(kerdesbetu = as.character(kerdesbetu)) %>%
       left_join(label_data, by = join_by(kerdesbetu))
     message("Relabeled target question data based on reference mapping")
   } else {
     warning("Original question data does not have 'answer' column, data not relabeled")
   }
 
+
   # Store the reference in the question
   original_question$reference <- reference_question_id
 
+  if (rewrangle) {
+    original_question$color_scale <- tryCatch(
+      create_color_scale(distinct_answers),
+      error = function(e) {
+        warning(paste("Failed to rewrangle question", question_id, "after reference modification:", e$message))
+        NULL
+      }
+    )
+  }
   # Rewrangle if requested
   if (rewrangle && !is.null(original_question$tipus)) {
     original_question$wrangled <- tryCatch(

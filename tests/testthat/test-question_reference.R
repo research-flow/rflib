@@ -4,24 +4,22 @@
 library(testthat)
 library(dplyr)
 library(tibble)
+library(tidyverse)
 
+devtools::load_all()
 Survey <- survey_init("inst/extdata/mock_data_raw.xlsx")
 
 Survey <- survey_add_definition(
     Survey,
-    "inst/extdata/mock_data_seged.xlsx"
+    "inst/extdata/mock_data_seged.xlsx",
+    rewrangle = TRUE
 )
 
-Survey$questions[[11]]
-Survey$questions[[11]]$wrangled$valasz_szovege
-Survey$questions[[18]]$label
-Survey$questions[[5]]$data
-
-
-Survey <- survey_add_reference(
+Survey <- survey_add_all_references(
     survey_obj = Survey,
-    question_id = 11,
-    reference_question_id = 5
+    rewrangle = TRUE
 )
 
-Survey$questions[[11]]$data
+survey_ggplot_likert_scale(
+    Survey$questions[[11]]
+)
