@@ -128,7 +128,9 @@ survey_wrangle_resz_egesz_total <- function(df, labels) {
     dplyr::group_by(respondent_id) %>%
     dplyr::mutate(mean_perc = mean / sum(mean, na.rm = TRUE)) %>%
     dplyr::ungroup() %>%
-    dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
+    dplyr::right_join(labels
+    # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
+    ) %>%
     dplyr::mutate(
       valasz_szovege = stringr::str_wrap(valasz_szovege, 30),
       valasz_szovege = forcats::fct_inorder(valasz_szovege)
@@ -153,7 +155,9 @@ survey_wrangle_resz_egesz_multiple <- function(df, labels) {
     dplyr::group_by(respondent_id) %>%
     dplyr::mutate(mean_perc = mean / sum(mean, na.rm = TRUE)) %>%
     dplyr::ungroup() %>%
-    dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
+    dplyr::right_join(labels
+    # by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
+    ) %>%
     dplyr::mutate(
       valasz_szovege = stringr::str_wrap(valasz_szovege, 30),
       valasz_szovege = forcats::fct_inorder(valasz_szovege)
@@ -199,7 +203,9 @@ survey_wrangle_likert_scale <- function(df, labels) {
         )
     }) %>%
     dplyr::ungroup() %>%
-    dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
+    dplyr::right_join(labels
+    # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
+    ) %>%
     dplyr::arrange(dplyr::desc(mean)) %>%
     replace_na(list(valasz_szovege = "")) %>%
     dplyr::mutate(
@@ -298,7 +304,9 @@ survey_wrangle_table <- function(df, labels) {
     dplyr::mutate(orvos_db = dplyr::n_distinct(respondent_id)) %>%
     dplyr::select(-respondent_id, -answer) %>%
     unique() %>%
-    dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
+    dplyr::right_join(labels
+    # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
+    ) %>%
     tidyr::replace_na(list(n = 0)) |>
     dplyr::mutate(orvos_db = max(orvos_db, na.rm = TRUE)) %>%
     dplyr::mutate(perc = n / orvos_db) |>
@@ -333,7 +341,9 @@ survey_wrangle_szoveg_buborek <- function(df, labels) {
     dplyr::filter(!str_detect(answer, "^[^A-Za-z0-9]$")) %>%
     dplyr::mutate(answer = stringr::str_to_title(stringr::str_squish(answer))) %>%
     dplyr::count(answer, name = "count") %>%
-    dplyr::right_join(labels, by = dplyr::join_by("kerdes")) %>%
+    dplyr::right_join(labels
+    # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
+    ) %>%
     dplyr::mutate(
       oszlop_szovege = as.character(oszlop_szovege),
       valasz_szovege = as.character(valasz_szovege)
@@ -385,7 +395,9 @@ survey_wrangle_szoveg_buborek_multiple <- function(df, labels) {
     dplyr::filter(!(answer %in% c("NA", "NULL", "", "0"))) %>%
     dplyr::mutate(answer = stringr::str_to_title(stringr::str_squish(answer))) %>%
     dplyr::count(kerdes, answer, name = "count") %>%
-    dplyr::right_join(labels, by = dplyr::join_by("kerdes")) %>%
+    dplyr::right_join(labels
+    # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
+    ) %>%
     dplyr::mutate(
       oszlop_szovege = as.character(oszlop_szovege),
       valasz_szovege = as.character(valasz_szovege)
@@ -494,7 +506,9 @@ survey_wrangle_table_atlag <- function(df, labels) {
     dplyr::mutate(orvos_db = dplyr::n_distinct(respondent_id)) %>%
     dplyr::select(-respondent_id, -answer) %>%
     unique() %>%
-    dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
+    dplyr::right_join(labels
+    # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
+    ) %>%
     tidyr::replace_na(list(mean = 0)) |>
     dplyr::mutate(orvos_db = max(orvos_db, na.rm = TRUE)) %>%
     dplyr::arrange(kerdesbetu) |>
@@ -546,7 +560,9 @@ survey_wrangle_likert_scale_rev <- function(df, labels) {
         )
     }) %>%
     dplyr::ungroup() %>%
-    dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
+    dplyr::right_join(labels
+    # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
+    ) %>%
     dplyr::arrange(mean) %>%
     replace_na(list(valasz_szovege = "")) %>%
     dplyr::mutate(
@@ -623,7 +639,9 @@ survey_wrangle_table_rev <- function(df, labels) {
     dplyr::mutate(orvos_db = dplyr::n_distinct(respondent_id)) %>%
     dplyr::select(-respondent_id, -answer) %>%
     unique() %>%
-    dplyr::right_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")) %>%
+    dplyr::right_join(labels
+    # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
+    ) %>%
     tidyr::replace_na(list(n = 0)) |>
     dplyr::mutate(orvos_db = max(orvos_db, na.rm = TRUE)) %>%
     dplyr::mutate(perc = n / orvos_db) |>

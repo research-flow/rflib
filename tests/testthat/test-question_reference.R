@@ -15,8 +15,16 @@ Survey <- survey_add_definition(
     rewrangle = TRUE
 )
 
-Survey <- survey_add_all_references(
+Survey$questions[[21]] <- survey_add_reference(
     survey_obj = Survey,
+    question_id = "21",
+    reference_question_id = "5",
+    rewrangle = TRUE
+)
+Survey$questions[[17]] <- survey_add_reference(
+    survey_obj = Survey,
+    question_id = "17",
+    reference_question_id = "5",
     rewrangle = TRUE
 )
 

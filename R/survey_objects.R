@@ -784,7 +784,7 @@ survey_add_reference <- function(survey_obj, question_id, reference_question_id,
   # Rewrangle if requested
   if (rewrangle && !is.null(original_question$tipus)) {
     original_question$wrangled <- tryCatch(
-      survey_wrangle_dispatch(original_question$tipus, original_question$data, original_question$label),
+      survey_wrangle_dispatch(tipus = original_question$tipus, data = original_question$data, label = original_question$label),
       error = function(e) {
         warning(paste("Failed to rewrangle question", question_id, "after reference modification:", e$message))
         NULL
