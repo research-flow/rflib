@@ -26,6 +26,7 @@ survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
       group = "Teljes minta",
       color_scale = color_scale,
       likert_labeller = NULL, # For likert_scale questions, this will hold the labels
+      reference = NULL, # Reference for comparison questions
       ggplot_fn = NULL, # Function to create ggplot
       echarts_fn = NULL, # Function to create echarts
       n_respondent = n_respondent # Number of distinct respondents
@@ -170,6 +171,33 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
     likert_labels <- NULL
   }
 
+  # Check for Reference sheet
+  if ("Reference" %in% readxl::excel_sheets(definition_path)) {
+    reference_labels <- readxl::read_excel(definition_path, sheet = "Reference") %>%
+      dplyr::rename_with(janitor::make_clean_names) %>%
+      dplyr::select(question_id, ref_question_id) %>%
+      dplyr::group_by(question_id) %>%
+      dplyr::filter(dplyr::row_number() == 1) %>%
+      dplyr::ungroup()
+
+    duplicate_questions <- readxl::read_excel(definition_path, sheet = "Reference") %>%
+      dplyr::rename_with(janitor::make_clean_names) %>%
+      dplyr::count(question_id) %>%
+      dplyr::filter(n > 1)
+
+    if (nrow(duplicate_questions) > 0) {
+      warning(
+        "The following questions have multiple rows in the 'Reference' sheet. Only the first row will be used:",
+        paste(duplicate_questions$question_id, collapse = ", ")
+      )
+    }
+
+    message("'Reference' sheet found. Processing Reference labels.")
+  } else {
+    message("'Reference' sheet not found. Proceeding with numeric values.")
+    likert_labels <- NULL
+  }
+
   # Check for AnswerGroups sheet
   if ("AnswerGroups" %in% readxl::excel_sheets(definition_path)) {
     answer_groups <- readxl::read_excel(definition_path, sheet = "AnswerGroups") %>%
@@ -239,8 +267,6 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
 
     survey_obj$questions[[qid]]$color_scale <- extended_color_scale
 
-    survey_obj <- survey_add_type(survey_obj, question_id = qid, tipus = tp, rewrangle = rewrangle)
-
     if (!is.null(likert_labels)) {
       if (stringr::str_detect(tp, "likert")) {
         question_labels <- likert_labels %>%
@@ -271,12 +297,62 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
       }
     }
 
+    if (!is.null(reference_labels)) {
+      reference_for_qid <- reference_labels %>%
+        dplyr::filter(question_id == qid)
+
+      if (nrow(reference_labels) == 0) {
+        message(paste("Reference for ", qid, "has no labels"))
+      } else {
+        question <- survey_obj$questions[[qid]]
+        question$reference <- reference_for_qid %>%
+          pull(ref_question_id)
+        survey_obj$questions[[qid]] <- question
+      }
+    } else {
+      if (qid %in% likert_labels$question_id) {
+        message(paste("Non-Likert question", qid, "has labels in the 'Likert' sheet. Discarding these labels."))
+      }
+    }
+
+    survey_obj <- survey_add_type(survey_obj, question_id = qid, tipus = tp, rewrangle = rewrangle)
+
     if (replot) {
       question <- survey_obj$questions[[qid]]
       # Update function factories for lazy plot creation
       question$ggplot_fn <- "ggplot"
       question$echarts_fn <- "echarts"
       survey_obj$questions[[qid]] <- question
+    }
+  }
+
+  # Apply references automatically for questions that have them
+  if (!is.null(reference_labels)) {
+    message("Applying references automatically...")
+    
+    # Get all questions that have references
+    questions_with_refs <- reference_labels %>%
+      dplyr::select(question_id, ref_question_id) %>%
+      dplyr::distinct()
+    
+    for (i in 1:nrow(questions_with_refs)) {
+      target_qid <- questions_with_refs$question_id[i]
+      ref_qid <- questions_with_refs$ref_question_id[i]
+      
+      # Check if both questions exist in the survey
+      if (target_qid %in% names(survey_obj$questions) && ref_qid %in% names(survey_obj$questions)) {
+        message(paste("Applying reference", ref_qid, "to question", target_qid))
+        
+        # Apply the reference using survey_add_reference function
+        tryCatch({
+          updated_question <- survey_add_reference(survey_obj, target_qid, ref_qid, rewrangle = rewrangle)
+          survey_obj$questions[[target_qid]] <- updated_question
+        }, error = function(e) {
+          warning(paste("Failed to apply reference", ref_qid, "to question", target_qid, ":", e$message))
+        })
+      } else {
+        warning(paste("Cannot apply reference: question", target_qid, "or reference", ref_qid, "not found in survey"))
+      }
     }
   }
 
@@ -504,4 +580,142 @@ survey_recalibrate <- function(survey_obj, respondent_ids, group_name, rewrangle
   message(paste("Survey now contains", survey_obj$n_respondent, "unique respondents."))
 
   return(survey_obj)
+}
+
+#' Add Reference to a Question and Modify Data
+#'
+#' This function assigns a reference question to another question and modifies the original question's data
+#' based on the reference. The wrangled data is recalculated from the altered dataset.
+#'
+#' @param survey_obj A Survey object containing the questions
+#' @param question_id The ID of the question to modify
+#' @param reference_question_id The ID of the reference question to use for comparison
+#' @param rewrangle Logical, whether to rerun the wrangling function after modifying data (default: TRUE)
+#'
+#' @return The updated SurveyQuestion object with modified data and labels
+#' @importFrom dplyr left_join select mutate
+#' @importFrom rlang sym
+#' @importFrom stringr str_trim str_to_lower str_replace_all
+#' @importFrom tibble tibble
+#' @importFrom magrittr %>%
+#' @export
+survey_add_reference <- function(survey_obj, question_id, reference_question_id, rewrangle = TRUE) {
+  # Input validation
+  if (!inherits(survey_obj, "Survey")) {
+    stop("Input must be a Survey object.")
+  }
+
+  if (!question_id %in% names(survey_obj$questions)) {
+    stop(paste("Question", question_id, "not found in Survey."))
+  }
+
+  if (!reference_question_id %in% names(survey_obj$questions)) {
+    stop(paste("Reference question", reference_question_id, "not found in Survey."))
+  }
+
+  if (question_id == reference_question_id) {
+    stop("A question cannot reference itself.")
+  }
+
+  # Get the questions
+  original_question <- survey_obj$questions[[question_id]]
+  reference_question <- survey_obj$questions[[reference_question_id]]
+
+  # Validate that both questions have data
+  if (is.null(original_question$data) || nrow(original_question$data) == 0) {
+    stop(paste("Original question", question_id, "has no data."))
+  }
+
+  if (is.null(reference_question$data) || nrow(reference_question$data) == 0) {
+    stop(paste("Reference question", reference_question_id, "has no data."))
+  }
+
+  # Process reference question data to create labels for target question
+  original_data <- original_question$data
+  original_label <- original_question$label
+  ref_data <- reference_question$data
+  ref_label <- reference_question$label
+
+  # Check if reference question has kerdesbetu column to compare with original
+  if (!is.null(ref_label) && "kerdesbetu" %in% names(ref_label)) {
+    ref_kerdesbetu_count <- length(unique(ref_label$kerdesbetu))
+    message(paste("Reference question has", ref_kerdesbetu_count, "distinct kerdesbetu values"))
+
+    if (!is.null(original_label) && "kerdesbetu" %in% names(original_label)) {
+      orig_kerdesbetu_count <- length(unique(original_label$kerdesbetu))
+      message(paste("Original question has", orig_kerdesbetu_count, "distinct kerdesbetu values"))
+
+      if (ref_kerdesbetu_count != orig_kerdesbetu_count) {
+        warning(paste(
+          "Reference question kerdesbetu count (", ref_kerdesbetu_count,
+          ") differs from original question count (", orig_kerdesbetu_count, ")"
+        ))
+      }
+    }
+  }
+
+  answer_col <- "answer" # Use answer column
+
+  # Get the reference answers without cleaning
+  ref_answers <- ref_data[[answer_col]]
+
+  # Create label data structure
+  distinct_answers <- unique(ref_answers)
+  distinct_answers <- distinct_answers[!is.na(distinct_answers) & distinct_answers != ""]
+
+  # Create kerdesbetu IDs
+  kerdesbetu_ids <- as.character(1:length(distinct_answers))
+
+  # Create the label structure
+  label_data <- tibble::tibble(
+    kerdesszam = rep(question_id, length(distinct_answers)),
+    kerdesbetu = kerdesbetu_ids,
+    kerdes = paste0(question_id, "_", kerdesbetu_ids),
+    valasz_szovege = distinct_answers,
+    oszlop_szovege = rep(NA, length(distinct_answers))
+  )
+
+  message(paste("Created", nrow(label_data), "labels from reference question"))
+
+  # Update the target question's label
+  original_question$label <- select(original_label, kerdes_szoveg:ig) %>% crossing(label_data)
+
+  # Relabel the data table based on reference mapping
+  # Create a mapping from reference answers to new kerdesbetu IDs
+  answer_to_kerdesbetu <- setNames(label_data$kerdesbetu, label_data$valasz_szovege)
+
+  if ("answer" %in% names(original_data)) {
+    original_question$data <-
+      original_data %>%
+      left_join(
+        ref_data %>%
+          distinct(respondent_id, kerdesbetu, answer) %>%
+          mutate(new_kerdesbetu = answer_to_kerdesbetu[as.character(answer)]) %>%
+          select(-answer),
+        by = join_by(respondent_id, kerdesbetu)
+      ) %>%
+      select(respondent_id, kerdesbetu = new_kerdesbetu, answer) %>%
+      left_join(label_data, by = join_by(kerdesbetu))
+    message("Relabeled target question data based on reference mapping")
+  } else {
+    warning("Original question data does not have 'answer' column, data not relabeled")
+  }
+
+  # Store the reference in the question
+  original_question$reference <- reference_question_id
+
+  # Rewrangle if requested
+  if (rewrangle && !is.null(original_question$tipus)) {
+    original_question$wrangled <- tryCatch(
+      survey_wrangle_dispatch(original_question$tipus, original_question$data, original_question$label),
+      error = function(e) {
+        warning(paste("Failed to rewrangle question", question_id, "after reference modification:", e$message))
+        NULL
+      }
+    )
+  }
+
+  message(paste("Reference", reference_question_id, "applied to question", question_id))
+
+  return(original_question)
 }
