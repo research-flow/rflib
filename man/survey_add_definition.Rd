@@ -8,7 +8,8 @@ survey_add_definition(
   survey_obj,
   definition_path,
   rewrangle = TRUE,
-  replot = FALSE
+  replot = FALSE,
+  apply_references = TRUE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ survey_add_definition(
 \item{rewrangle}{Logical, rerun wrangling immediately (default: TRUE)}
 
 \item{replot}{Logical, rerun plot creation if enabled (default: FALSE)}
+
+\item{apply_references}{Logical, whether to automatically apply references (default: TRUE)}
 }
 \value{
 Updated Survey object
