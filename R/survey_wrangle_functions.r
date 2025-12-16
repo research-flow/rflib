@@ -194,7 +194,10 @@ survey_wrangle_likert_scale <- function(df, labels) {
         dplyr::filter(answer %in% vals)
       # Calculate percentages
       counts <- counts %>%
-        dplyr::mutate(percentage = count / sum(count) * 100)
+        dplyr::mutate(
+          n = sum(count),
+          percentage = count / sum(count) * 100
+        )
       # Calculate mean
       mean_val <- weighted.mean(counts$answer, counts$count)
 
@@ -556,7 +559,10 @@ survey_wrangle_likert_scale_rev <- function(df, labels) {
         dplyr::filter(answer %in% vals)
       # Calculate percentages
       counts <- counts %>%
-        dplyr::mutate(percentage = count / sum(count) * 100)
+        dplyr::mutate(
+          n = sum(count),
+          percentage = count / sum(count) * 100
+        )
       # Calculate mean
       mean_val <- weighted.mean(counts$answer, counts$count)
 
