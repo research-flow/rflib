@@ -195,8 +195,8 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
 
     message("'Reference' sheet found. Processing Reference labels.")
   } else {
-    message("'Reference' sheet not found. Proceeding with numeric values.")
-    likert_labels <- NULL
+    message("'Reference' sheet not found. Proceeding without references.")
+    reference_labels <- NULL
   }
 
   # Check for AnswerGroups sheet
@@ -303,14 +303,17 @@ survey_add_definition <- function(survey_obj, definition_path, rewrangle = TRUE,
         dplyr::filter(question_id == qid)
 
       if (nrow(reference_for_qid) == 0) {
-        survey_obj$questions[[qid]]$reference <- NULL
-        message(paste("Reference for ", qid, "has no labels"))
+        survey_obj$questions[[qid]]$reference <- numeric(0)
+        message(paste("Reference for", qid, "has no labels"))
       } else {
         question <- survey_obj$questions[[qid]]
         question$reference <- reference_for_qid %>%
           pull(ref_question_id)
         survey_obj$questions[[qid]] <- question
       }
+    } else {
+      # No Reference sheet found, set empty reference for all questions
+      survey_obj$questions[[qid]]$reference <- numeric(0)
     }
 
     survey_obj <- survey_add_type(survey_obj, question_id = qid, tipus = tp, rewrangle = rewrangle)
@@ -346,7 +349,7 @@ survey_add_all_references <- function(survey_obj, rewrangle = TRUE) {
 
   for (qid in names(survey_obj$questions)) {
     question <- survey_obj$questions[[qid]]
-    if (!is.null(question$reference)) {
+    if (!is.null(question$reference) && length(question$reference) > 0) {
       questions_with_refs[[length(questions_with_refs) + 1]] <- list(
         question_id = qid,
         ref_question_id = question$reference
