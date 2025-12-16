@@ -28,6 +28,6 @@ Survey$questions[[17]] <- survey_add_reference(
     rewrangle = TRUE
 )
 
-survey_ggplot_likert_scale(
-    Survey$questions[[11]]
+survey_ggplot_resz_egesz_multiple(
+    question = Survey$questions[[21]]
 )

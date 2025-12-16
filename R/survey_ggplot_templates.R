@@ -7,7 +7,8 @@ survey_ggplot_resz_egesz_total <- function(question) {
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
             question$wrangled %>%
-                dplyr::filter(kerdesbetu <= n_max) %>%
+                dplyr::filter(n >= 3) %>%
+                dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max)) %>%
                 ggplot2::ggplot(ggplot2::aes(x = answer)) +
                 ggplot2::geom_histogram(ggplot2::aes(alpha = ggplot2::after_stat(count), fill = valasz_szovege), color = "black", bins = 7) +
                 ggplot2::facet_wrap(~valasz_szovege, scales = "free") +
@@ -31,6 +32,7 @@ survey_ggplot_resz_egesz_total <- function(question) {
                     plot.margin = unit(c(0, 2, 0, 2), "cm")
                 ),
             question$wrangled %>%
+                dplyr::filter(n >= 3) %>%
                 dplyr::select(kerdes, valasz_szovege, mean, mean_perc) %>%
                 unique() %>%
                 dplyr::mutate(
@@ -68,7 +70,8 @@ survey_ggplot_resz_egesz_multiple <- function(question) {
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
             question$wrangled %>%
-                dplyr::filter(kerdesbetu <= n_max) %>%
+                dplyr::filter(n >= 3) %>%
+                dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max)) %>%
                 ggplot2::ggplot(ggplot2::aes(x = answer)) +
                 ggplot2::geom_histogram(ggplot2::aes(alpha = after_stat(count), fill = valasz_szovege), color = "black", bins = 7) +
                 ggplot2::facet_wrap(~valasz_szovege, scales = "free") +
@@ -92,6 +95,7 @@ survey_ggplot_resz_egesz_multiple <- function(question) {
                     plot.margin = unit(c(0, 2, 0, 2), "cm")
                 ),
             question$wrangled %>%
+                dplyr::filter(n >= 3) %>%
                 dplyr::select(kerdes, valasz_szovege, mean) %>%
                 unique() %>%
                 dplyr::mutate(
