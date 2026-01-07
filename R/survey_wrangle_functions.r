@@ -184,6 +184,8 @@ survey_wrangle_likert_scale <- function(df, labels) {
       # Expand possible values
       if (!is.na(labels$tol[1]) && labels$tol[1] <= 0) {
         vals <- seq(1, max(labels$ig, na.rm = TRUE))
+      } else if (labels$tol[1] == -2) {
+        vals <- seq(0, max(labels$ig, na.rm = TRUE))
       } else {
         vals <- seq(min(labels$tol, na.rm = TRUE), max(labels$ig, na.rm = TRUE))
       }
