@@ -60,6 +60,7 @@ generate_survey_presentation <- function(
         # Create Survey object
         Survey <- rflib::survey_init(raw_file)
         Survey <- rflib::survey_add_definition(Survey, seged_file, replot = TRUE)
+        Survey <- rflib::survey_add_all_references(Survey, rewrangle = TRUE)
     } else {
         Survey <- survey_to_render
     }
@@ -189,6 +190,7 @@ generate_survey_html_report <- function(
     # Create Survey object
     Survey <- rflib::survey_init(raw_file)
     Survey <- rflib::survey_add_definition(Survey, seged_file, replot = TRUE)
+    Survey <- rflib::survey_add_all_references(Survey, rewrangle = TRUE)
 
     # Handle title with three options:
     # 1. If provided as parameter, use that
