@@ -170,12 +170,14 @@ survey_echarts_col_eloszlas_total <- function(question) {
       name = "Válaszok darabszáma",
       label = list(
         show = TRUE, position = "right",
-        formatter = "{b}"
+        formatter = "{@[0]}% ({b})"
       )
     ) |>
     echarts4r::e_add_nested("itemStyle", color) |>
     echarts4r::e_x_axis(inverse = TRUE) |>
     echarts4r::e_y_axis(
+      min = 0,
+      max = 100,
       name = "Válaszok aránya (%)",
       formatter = htmlwidgets::JS("value => value + '%'"),
       nameLocation = "middle", nameGap = 30
@@ -203,12 +205,14 @@ survey_echarts_col_eloszlas_multiple <- function(question) {
       name = "Válaszok darabszáma",
       label = list(
         show = TRUE, position = "right",
-        formatter = "{b}"
+        formatter = "{@[0]}% ({b})"
       )
     ) |>
     echarts4r::e_add_nested("itemStyle", color) |>
     echarts4r::e_x_axis(inverse = TRUE) |>
     echarts4r::e_y_axis(
+      min = 0,
+      max = 100,
       name = "Válaszok aránya (%)",
       formatter = htmlwidgets::JS("value => value + '%'"),
       nameLocation = "middle", nameGap = 30
