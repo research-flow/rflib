@@ -288,15 +288,14 @@ survey_echarts_year_eloszlas <- function(question) {
       data = list(xAxis = avg),
       symbol = "none",
       title = stringr::str_c("Átlag: ", scales::number(avg, accuracy = 0.1)),
-      title_position = "end"
+      title_position = "insideEndBottom"
     ) |>
     echarts4r::e_mark_line(
       data = list(xAxis = med),
       symbol = "none",
       title = stringr::str_c("Medián: ", scales::number(med, accuracy = 0.1)),
-      title_position = "end"
-    ) |>
-    echarts4r::e_tooltip()
+      title_position = "insideEndTop"
+    )
 }
 #' @title ECharts template for table survey question
 #' @description Creates a heatmap for table survey questions using echarts4r.
