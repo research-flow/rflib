@@ -3,12 +3,13 @@
 #' @param path Path to the Excel file
 #' @param clean_text Whether to run text classification on open-text (default = TRUE)
 #' @param save_output Whether to save intermediate outputs (default = FALSE)
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A Survey object with metadata, labels, and question objects
 #' @importFrom dplyr n_distinct filter pull
 #' @importFrom stringr str_wrap
 #' @importFrom rlang .data
 #' @export
-survey_init <- function(path, clean_text = TRUE, save_output = FALSE) {
+survey_init <- function(path, clean_text = TRUE, save_output = FALSE, language = "hu") {
   message("Loading answers and labels...")
   df_answers <- rflib::survey_load_answers(path) |> rflib::survey_prepare_answers()
   df_labels <- rflib::survey_load_labels(path) |> rflib::survey_prepare_label()
@@ -19,7 +20,7 @@ survey_init <- function(path, clean_text = TRUE, save_output = FALSE) {
 
   message("Creating Survey object...")
   n_respondent <- dplyr::n_distinct(df_answers$respondent_id)
-  obj <- rflib::survey(title = df_title, labels = df_labels, n_respondent = n_respondent)
+  obj <- rflib::survey(title = df_title, labels = df_labels, n_respondent = n_respondent, language = language)
 
   unique_questions <- unique(df_answers$kerdesszam)
   # First, add question-related values except 'tipus'

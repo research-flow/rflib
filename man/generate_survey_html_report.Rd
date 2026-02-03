@@ -9,6 +9,7 @@ generate_survey_html_report(
   title = NULL,
   subtitle = NULL,
   date = NULL,
+  language = "hu",
   output_file = NULL,
   template_file = "templates/html_report_template.Rmd"
 )
@@ -21,6 +22,8 @@ generate_survey_html_report(
 \item{subtitle}{Custom subtitle (optional, NULL to use default)}
 
 \item{date}{Custom date (optional, NULL to use current date)}
+
+\item{language}{Language code for chart labels ("hu" or "en", default "hu")}
 
 \item{output_file}{Output file name (optional)}
 

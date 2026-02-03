@@ -4,7 +4,7 @@
 \alias{survey}
 \title{Create a Survey object}
 \usage{
-survey(title, labels, n_respondent = NULL)
+survey(title, labels, n_respondent = NULL, language = "hu")
 }
 \arguments{
 \item{title}{Survey title (from title sheet)}
@@ -12,6 +12,8 @@ survey(title, labels, n_respondent = NULL)
 \item{labels}{Label dataframe from label sheet}
 
 \item{n_respondent}{Optional number of distinct respondents (will be calculated if not provided)}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 A Survey object containing metadata and question list

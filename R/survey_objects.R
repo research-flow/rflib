@@ -49,15 +49,17 @@ survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
 #' @param title Survey title (from title sheet)
 #' @param labels Label dataframe from label sheet
 #' @param n_respondent Optional number of distinct respondents (will be calculated if not provided)
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A Survey object containing metadata and question list
 #' @export
-survey <- function(title, labels, n_respondent = NULL) {
+survey <- function(title, labels, n_respondent = NULL, language = "hu") {
   structure(
     list(
       title = title,
       labels = labels,
       questions = list(),
-      n_respondent = n_respondent
+      n_respondent = n_respondent,
+      language = language
     ),
     class = "Survey"
   )

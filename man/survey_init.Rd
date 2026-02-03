@@ -4,7 +4,7 @@
 \alias{survey_init}
 \title{Initialize survey workflow as Survey object}
 \usage{
-survey_init(path, clean_text = TRUE, save_output = FALSE)
+survey_init(path, clean_text = TRUE, save_output = FALSE, language = "hu")
 }
 \arguments{
 \item{path}{Path to the Excel file}
@@ -12,6 +12,8 @@ survey_init(path, clean_text = TRUE, save_output = FALSE)
 \item{clean_text}{Whether to run text classification on open-text (default = TRUE)}
 
 \item{save_output}{Whether to save intermediate outputs (default = FALSE)}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 A Survey object with metadata, labels, and question objects
