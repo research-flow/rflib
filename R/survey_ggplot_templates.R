@@ -2,7 +2,7 @@
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot or grid object
-survey_ggplot_resz_egesz_total <- function(question) {
+survey_ggplot_resz_egesz_total <- function(question, language = "hu") {
     n_max <- 16
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
@@ -18,7 +18,7 @@ survey_ggplot_resz_egesz_total <- function(question) {
                 ggplot2::scale_alpha_continuous(range = c(0.45, 1)) +
                 ggplot2::guides(alpha = "none", fill = "none") +
                 ggplot2::labs(
-                    x = "Válasz", fill = "Válasz", y = "Válaszok száma",
+                    x = translate("txt_answer", language), fill = translate("txt_answer", language), y = translate("txt_resp_num", language),
                     subtitle = question$group
                 ) +
                 ggplot2::theme_minimal() +
@@ -49,7 +49,7 @@ survey_ggplot_resz_egesz_total <- function(question) {
                 ) +
                 ggplot2::scale_fill_manual(values = question$color_scale) +
                 ggplot2::scale_y_continuous(labels = scales::percent) +
-                ggplot2::labs(y = "Átlagos válasz arány", fill = "Válasz", x = NULL) +
+                ggplot2::labs(y = translate("txt_avg_resp_rate", language), fill = translate("txt_answer", language), x = NULL) +
                 ggplot2::theme_minimal() +
                 ggplot2::theme(
                     legend.text = ggplot2::element_text(size = 12),
@@ -65,7 +65,7 @@ survey_ggplot_resz_egesz_total <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot or grid object
-survey_ggplot_resz_egesz_multiple <- function(question) {
+survey_ggplot_resz_egesz_multiple <- function(question, language = "hu") {
     n_max <- 16
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
@@ -81,7 +81,7 @@ survey_ggplot_resz_egesz_multiple <- function(question) {
                 ggplot2::scale_alpha_continuous(range = c(0.45, 1)) +
                 ggplot2::guides(alpha = "none", fill = "none") +
                 ggplot2::labs(
-                    x = "Válasz", fill = "Válasz", y = "Válaszok száma",
+                    x = translate("txt_answer", language), fill = translate("txt_answer", language), y = translate("txt_resp_num", language),
                     subtitle = question$group
                 ) +
                 ggplot2::theme_minimal() +
@@ -122,7 +122,7 @@ survey_ggplot_resz_egesz_multiple <- function(question) {
                 ) +
                 ggplot2::scale_fill_manual(values = question$color_scale) +
                 ggplot2::guides(fill = ggplot2::guide_legend(ncol = 2, byrow = T, reverse = TRUE)) +
-                ggplot2::labs(y = "Átlagos válaszok", fill = NULL, x = NULL) +
+                ggplot2::labs(y = translate("txt_avg_answers", language), fill = NULL, x = NULL) +
                 ggplot2::theme_minimal() +
                 ggplot2::theme(
                     legend.text = ggplot2::element_text(size = 8),
@@ -140,7 +140,7 @@ survey_ggplot_resz_egesz_multiple <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_likert_scale <- function(question) {
+survey_ggplot_likert_scale <- function(question, language = "hu") {
     question$wrangled %>%
         dplyr::filter(n >= 5) %>%
         ggplot2::ggplot(ggplot2::aes(
@@ -152,7 +152,7 @@ survey_ggplot_likert_scale <- function(question) {
         ) +
         ggplot2::geom_text(ggplot2::aes(
             x = max(answer) + 1, label =
-                str_c("Átlag: ", round(mean, 1))
+                str_c(translate("txt_avg_prefix", language), round(mean, 1))
         )) +
         ggplot2::geom_point(ggplot2::aes(x = mean, fill = valasz_szovege),
             color = "black", pch = 21, size = 8, show.legend = F
@@ -196,7 +196,7 @@ survey_ggplot_likert_scale <- function(question) {
         ggplot2::scale_fill_manual(values = question$color_scale, na.value = rflib::long_palette()[1]) +
         ggplot2::labs(
             x = NULL, y = NULL,
-            size = "Válaszadók száma",
+            size = translate("txt_respondent_count", language),
             subtitle = question$group
         )
 }
@@ -204,7 +204,7 @@ survey_ggplot_likert_scale <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_col_eloszlas_total <- function(question) {
+survey_ggplot_col_eloszlas_total <- function(question, language = "hu") {
     question$wrangled %>%
         ggplot2::ggplot(ggplot2::aes(x = percentage, y = "", fill = valasz_szovege)) +
         ggplot2::geom_col(position = ggplot2::position_stack(), color = "black") +
@@ -231,7 +231,7 @@ survey_ggplot_col_eloszlas_total <- function(question) {
         )) +
         ggplot2::scale_fill_manual(values = question$color_scale) +
         ggplot2::labs(
-            x = "Válaszok aránya", y = NULL, fill = NULL,
+            x = translate("txt_resp_rate", language), y = NULL, fill = NULL,
             subtitle = question$group
         ) +
         ggplot2::theme_minimal() +
@@ -246,7 +246,7 @@ survey_ggplot_col_eloszlas_total <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_col_eloszlas_multiple <- function(question) {
+survey_ggplot_col_eloszlas_multiple <- function(question, language = "hu") {
     question$wrangled %>%
         dplyr::arrange(kerdesbetu) %>%
         dplyr::mutate(
@@ -278,7 +278,7 @@ survey_ggplot_col_eloszlas_multiple <- function(question) {
         ggplot2::scale_fill_manual(values = question$color_scale) +
         ggplot2::guides(fill = "none") +
         ggplot2::labs(
-            x = "Válaszok aránya (darabszáma)", y = NULL, fill = "",
+            x = translate("txt_resp_rate_count", language), y = NULL, fill = "",
             subtitle = question$group
         ) +
         ggplot2::theme_minimal() +
@@ -291,7 +291,7 @@ survey_ggplot_col_eloszlas_multiple <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_year_eloszlas_unscale <- function(question) {
+survey_ggplot_year_eloszlas_unscale <- function(question, language = "hu") {
     bin_limit <- 15
 
     kozepertek <-
@@ -310,13 +310,13 @@ survey_ggplot_year_eloszlas_unscale <- function(question) {
                     kozepertek, med_value,
                     ~ dplyr::case_when(
                         (.x == "mean") & (.y >= 1000) ~
-                            stringr::str_c("Átlag: ", round(.y, digits = 0)),
+                            stringr::str_c(translate("txt_avg_prefix", language), round(.y, digits = 0)),
                         !(.x == "mean") & (.y >= 1000) ~
-                            stringr::str_c("Medián: ", round(.y, digits = 0)),
+                            stringr::str_c(translate("txt_median_prefix", language), round(.y, digits = 0)),
                         (.x == "mean") & !(.y >= 1000) ~
-                            stringr::str_c("Átlag: ", round(.y, digits = 1)),
+                            stringr::str_c(translate("txt_avg_prefix", language), round(.y, digits = 1)),
                         !(.x == "mean") & !(.y >= 1000) ~
-                            stringr::str_c("Medián: ", round(.y, digits = 1)),
+                            stringr::str_c(translate("txt_median_prefix", language), round(.y, digits = 1)),
                     )
                 )
         )
@@ -372,7 +372,7 @@ survey_ggplot_year_eloszlas_unscale <- function(question) {
                     plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
                 ) +
                 ggplot2::labs(
-                    x = "Érték", y = "Válaszok száma", color = "Középértékek",
+                    x = translate("txt_value", language), y = translate("txt_resp_num", language), color = translate("txt_middle_values", language),
                     subtitle = question$group
                 )
         }
@@ -381,7 +381,7 @@ survey_ggplot_year_eloszlas_unscale <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_year_eloszlas <- function(question) {
+survey_ggplot_year_eloszlas <- function(question, language = "hu") {
     bin_limit <- 15
 
     kozepertek <-
@@ -400,13 +400,13 @@ survey_ggplot_year_eloszlas <- function(question) {
                     kozepertek, med_value,
                     ~ dplyr::case_when(
                         (.x == "mean") & (.y >= 1000) ~
-                            stringr::str_c("Átlag: ", round(.y, digits = 0)),
+                            stringr::str_c(translate("txt_avg_prefix", language), round(.y, digits = 0)),
                         !(.x == "mean") & (.y >= 1000) ~
-                            stringr::str_c("Medián: ", round(.y, digits = 0)),
+                            stringr::str_c(translate("txt_median_prefix", language), round(.y, digits = 0)),
                         (.x == "mean") & !(.y >= 1000) ~
-                            stringr::str_c("Átlag: ", round(.y, digits = 1)),
+                            stringr::str_c(translate("txt_avg_prefix", language), round(.y, digits = 1)),
                         !(.x == "mean") & !(.y >= 1000) ~
-                            stringr::str_c("Medián: ", round(.y, digits = 1)),
+                            stringr::str_c(translate("txt_median_prefix", language), round(.y, digits = 1)),
                     )
                 )
         )
@@ -462,7 +462,7 @@ survey_ggplot_year_eloszlas <- function(question) {
                     plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
                 ) +
                 ggplot2::labs(
-                    x = "Érték", y = "Válaszok száma", color = "Középértékek",
+                    x = translate("txt_value", language), y = translate("txt_resp_num", language), color = translate("txt_middle_values", language),
                     subtitle = question$group
                 )
         }
@@ -471,7 +471,7 @@ survey_ggplot_year_eloszlas <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_table <- function(question) {
+survey_ggplot_table <- function(question, language = "hu") {
     question$wrangled %>%
         ggplot2::ggplot(ggplot2::aes(x = valasz_szovege, y = oszlop_szovege, fill = perc)) +
         ggplot2::geom_tile(color = "black") +
@@ -498,7 +498,7 @@ survey_ggplot_table <- function(question) {
             na.value = alpha(rflib::long_palette()[3], 0.35)
         ) +
         ggplot2::labs(
-            x = NULL, y = NULL, fill = "Válaszok száma",
+            x = NULL, y = NULL, fill = translate("txt_resp_num", language),
             subtitle = question$group
         )
 }
@@ -506,7 +506,7 @@ survey_ggplot_table <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_szoveg_buborek <- function(question) {
+survey_ggplot_szoveg_buborek <- function(question, language = "hu") {
     question$wrangled |>
         ggplot2::ggplot(ggplot2::aes(label = str_wrap(str_c(
             "\"", answer, "\""
@@ -528,7 +528,7 @@ survey_ggplot_szoveg_buborek <- function(question) {
         ) +
         ggplot2::guides(color = "none") +
         ggplot2::labs(
-            caption = "A válaszok nagysága arányos az említéseik számával\n Csak a kettőnél többször említett válaszok vannak megjelenítve",
+            caption = translate("txt_bubble_caption", language),
             subtitle = question$group
         )
 }
@@ -536,7 +536,7 @@ survey_ggplot_szoveg_buborek <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_szoveg_buborek_multiple <- function(question) {
+survey_ggplot_szoveg_buborek_multiple <- function(question, language = "hu") {
     question$wrangled |>
         ggplot2::ggplot(ggplot2::aes(label = str_wrap(str_c(
             "\"", answer, "\""
@@ -558,7 +558,7 @@ survey_ggplot_szoveg_buborek_multiple <- function(question) {
         ) +
         ggplot2::guides(color = "none") +
         ggplot2::labs(
-            caption = "A válaszok nagysága arányos az említéseik számával\n Csak a kettőnél többször említett válaszok vannak megjelenítve",
+            caption = translate("txt_bubble_caption", language),
             subtitle = question$group
         )
 }
@@ -567,7 +567,7 @@ survey_ggplot_szoveg_buborek_multiple <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_regio_eloszlas <- function(question) {
+survey_ggplot_regio_eloszlas <- function(question, language = "hu") {
     question$wrangled |>
         right_join(regio_shape,
             by = join_by("regio_nev" == "NUTS_NAME")
@@ -599,7 +599,7 @@ survey_ggplot_regio_eloszlas <- function(question) {
             plot.subtitle = element_text(size = 18)
         ) +
         labs(
-            fill = "Válaszok aránya",
+            fill = translate("txt_resp_rate", language),
             # title = title_to_plot,
             subtitle = question$group,
             x = NULL, y = NULL
@@ -609,7 +609,7 @@ survey_ggplot_regio_eloszlas <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_szoveg_col_egyeb <- function(question) {
+survey_ggplot_szoveg_col_egyeb <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }
 
@@ -617,7 +617,7 @@ survey_ggplot_szoveg_col_egyeb <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_table_atlag <- function(question) {
+survey_ggplot_table_atlag <- function(question, language = "hu") {
     question$wrangled %>%
         ggplot2::ggplot(ggplot2::aes(x = valasz_szovege, y = oszlop_szovege, fill = mean)) +
         ggplot2::geom_tile(color = "black") +
@@ -644,7 +644,7 @@ survey_ggplot_table_atlag <- function(question) {
             na.value = alpha(rflib::long_palette()[3], 0.35)
         ) +
         ggplot2::labs(
-            x = NULL, y = NULL, fill = "Válaszok átlaga",
+            x = NULL, y = NULL, fill = translate("txt_resp_avg", language),
             subtitle = question$group
         )
 }
@@ -652,7 +652,7 @@ survey_ggplot_table_atlag <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_likert_scale_rev <- function(question) {
+survey_ggplot_likert_scale_rev <- function(question, language = "hu") {
     question$wrangled %>%
         dplyr::filter(n >= 5) %>%
         ggplot2::ggplot(ggplot2::aes(
@@ -664,7 +664,7 @@ survey_ggplot_likert_scale_rev <- function(question) {
         ) +
         ggplot2::geom_text(ggplot2::aes(
             x = max(answer) + 1, label =
-                str_c("Átlag: ", round(mean, 1))
+                str_c(translate("txt_avg_prefix", language), round(mean, 1))
         )) +
         ggplot2::geom_point(ggplot2::aes(x = mean, fill = valasz_szovege),
             color = "black", pch = 21, size = 8, show.legend = F
@@ -708,7 +708,7 @@ survey_ggplot_likert_scale_rev <- function(question) {
         ggplot2::scale_fill_manual(values = question$color_scale, na.value = rflib::long_palette()[1]) +
         ggplot2::labs(
             x = NULL, y = NULL,
-            size = "Válaszadók száma",
+            size = translate("txt_respondent_count", language),
             subtitle = question$group
         )
 }
@@ -716,7 +716,7 @@ survey_ggplot_likert_scale_rev <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_szoveg_col_egyeb_new <- function(question) {
+survey_ggplot_szoveg_col_egyeb_new <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }
 
@@ -724,42 +724,42 @@ survey_ggplot_szoveg_col_egyeb_new <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_hoterkep <- function(question) {
+survey_ggplot_hoterkep <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }
 #' GGPlot template for area distribution survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_terulet_eloszlas <- function(question) {
+survey_ggplot_terulet_eloszlas <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }
 #' GGPlot template for Likert scale table survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_likert_scale_table <- function(question) {
+survey_ggplot_likert_scale_table <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }
 #' GGPlot template for Likert scale reference survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_likert_scale_ref <- function(question) {
+survey_ggplot_likert_scale_ref <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }
 #' GGPlot template for table row survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_table_sor <- function(question) {
+survey_ggplot_table_sor <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }
 #' GGPlot template for table reversed survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_table_rev <- function(question) {
+survey_ggplot_table_rev <- function(question, language = "hu") {
     question$wrangled %>%
         ggplot2::ggplot(ggplot2::aes(y = valasz_szovege, x = oszlop_szovege, fill = perc)) +
         ggplot2::geom_tile(color = "black") +
@@ -786,7 +786,7 @@ survey_ggplot_table_rev <- function(question) {
             na.value = alpha(rflib::long_palette()[3], 0.35)
         ) +
         ggplot2::labs(
-            x = NULL, y = NULL, fill = "Válaszok száma",
+            x = NULL, y = NULL, fill = translate("txt_resp_num", language),
             subtitle = question$group
         )
 }
@@ -794,7 +794,7 @@ survey_ggplot_table_rev <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_szam_col_egyeb <- function(question) {
+survey_ggplot_szam_col_egyeb <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }
 
@@ -802,20 +802,20 @@ survey_ggplot_szam_col_egyeb <- function(question) {
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_table_oszlop <- function(question) {
+survey_ggplot_table_oszlop <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }
 #' GGPlot template for discrete distribution survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_diszkret_eloszlas <- function(question) {
+survey_ggplot_diszkret_eloszlas <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }
 #' GGPlot template for other table survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
 #' @return A ggplot object
-survey_ggplot_table_egyeb <- function(question) {
+survey_ggplot_table_egyeb <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }

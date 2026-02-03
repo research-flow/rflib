@@ -1,0 +1,92 @@
+{
+  "_metadata": {
+    "description": "Text translations for rflib package plot labels and chart elements",
+    "version": "1.0.0",
+    "last_updated": "2026-02-03"
+  },
+  "txt_avg_resp_rate_pct": {
+    "hu": "Átlagos válasz arány (%)",
+    "_comment_hu": "Average response rate (%) - used in axis names and series names",
+    "en": "Average Response Rate (%)"
+  },
+  "txt_resp_count": {
+    "hu": "Válaszok darabszáma",
+    "_comment_hu": "Number of responses - used as series name",
+    "en": "Number of Responses"
+  },
+  "txt_resp_rate_pct": {
+    "hu": "Válaszok aránya (%)",
+    "_comment_hu": "Response rate (%) - used in axis names",
+    "en": "Response Rate (%)"
+  },
+  "txt_middle": {
+    "hu": "Közép",
+    "_comment_hu": "Middle - used in axis names",
+    "en": "Middle"
+  },
+  "txt_resp_num": {
+    "hu": "Válaszok száma",
+    "_comment_hu": "Number of responses - used in axis labels",
+    "en": "Number of Responses"
+  },
+  "txt_avg_prefix": {
+    "hu": "Átlag: ",
+    "_comment_hu": "Average: - used as prefix in labels",
+    "en": "Average: "
+  },
+  "txt_median_prefix": {
+    "hu": "Medián: ",
+    "_comment_hu": "Median: - used as prefix in labels",
+    "en": "Median: "
+  },
+  "txt_answer": {
+    "hu": "Válasz",
+    "_comment_hu": "Answer - used in axis labels and legends",
+    "en": "Answer"
+  },
+  "txt_avg_answers": {
+    "hu": "Átlagos válaszok",
+    "_comment_hu": "Average answers - used in ggplot y-axis",
+    "en": "Average Answers"
+  },
+  "txt_avg_resp_rate": {
+    "hu": "Átlagos válasz arány",
+    "_comment_hu": "Average response rate (without %) - used in ggplot y-axis",
+    "en": "Average Response Rate"
+  },
+  "txt_respondent_count": {
+    "hu": "Válaszadók száma",
+    "_comment_hu": "Number of respondents - used in ggplot size aesthetic",
+    "en": "Number of Respondents"
+  },
+  "txt_resp_rate_count": {
+    "hu": "Válaszok aránya (darabszáma)",
+    "_comment_hu": "Response rate (count) - used in ggplot x-axis",
+    "en": "Response Rate (Count)"
+  },
+  "txt_value": {
+    "hu": "Érték",
+    "_comment_hu": "Value - used in ggplot x-axis",
+    "en": "Value"
+  },
+  "txt_middle_values": {
+    "hu": "Középértékek",
+    "_comment_hu": "Middle values - used in ggplot color aesthetic",
+    "en": "Middle Values"
+  },
+  "txt_bubble_caption": {
+    "hu": "A válaszok nagysága arányos az említéseik számával\n Csak a kettőnél többször említett válaszok vannak megjelenítve",
+    "_comment_hu": "Bubble chart caption explaining size proportionality",
+    "en": "The size of responses is proportional to their mentions\n Only responses mentioned more than twice are displayed"
+  },
+  "txt_resp_rate": {
+    "hu": "Válaszok aránya",
+    "_comment_hu": "Response rate - used in axis labels",
+    "en": "Response Rate"
+  },
+  "txt_resp_avg": {
+    "hu": "Válaszok átlaga",
+    "_comment_hu": "Response average - used in legends",
+    "en": "Response Average"
+  }
+}

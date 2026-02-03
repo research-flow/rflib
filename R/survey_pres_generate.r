@@ -8,6 +8,7 @@
 #' @param title Custom title for the presentation (optional, NULL to use Survey$title or default)
 #' @param subtitle Custom subtitle (optional, NULL to use default)
 #' @param date Custom date (optional, NULL to use current date)
+#' @param language Language code for chart labels ("hu" or "en", default "hu")
 #' @param output_file Output file name (optional)
 #' @param template_file Template Rmd file to use
 #' @param reference_doc PowerPoint reference document
@@ -19,6 +20,7 @@ generate_survey_presentation <- function(
     title = NULL,
     subtitle = NULL,
     date = NULL,
+    language = "hu",
     output_file = NULL,
     template_file = "templates/survey_template.Rmd",
     reference_doc = NULL,
