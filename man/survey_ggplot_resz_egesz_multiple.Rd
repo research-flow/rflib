@@ -4,10 +4,12 @@
 \alias{survey_ggplot_resz_egesz_multiple}
 \title{GGPlot template for multiple part-whole survey question}
 \usage{
-survey_ggplot_resz_egesz_multiple(question)
+survey_ggplot_resz_egesz_multiple(question, language = "hu")
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 A ggplot or grid object

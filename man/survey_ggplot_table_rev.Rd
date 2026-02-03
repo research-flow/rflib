@@ -4,10 +4,12 @@
 \alias{survey_ggplot_table_rev}
 \title{GGPlot template for table reversed survey question}
 \usage{
-survey_ggplot_table_rev(question)
+survey_ggplot_table_rev(question, language = "hu")
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 A ggplot object

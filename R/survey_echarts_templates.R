@@ -10,6 +10,7 @@ echarts4r::e_common(font_family = "helvetica", theme = "westeros")
 #' @description Creates a bar chart for total part-whole survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_bar e_add_nested e_y_axis e_flip_coords e_tooltip e_legend
 
@@ -44,6 +45,7 @@ survey_echarts_resz_egesz_total <- function(question, language = "hu") {
 #' @description Creates a bar chart for multiple part-whole survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_bar e_add_nested e_axis_stagger e_y_axis e_flip_coords e_tooltip e_legend
 
@@ -77,6 +79,7 @@ survey_echarts_resz_egesz_multiple <- function(question, language = "hu") {
 #' @description Creates a bar and scatter chart for Likert scale survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_bar e_scatter e_add_nested e_x_axis e_flip_coords e_legend
 
@@ -154,6 +157,7 @@ survey_echarts_likert_scale <- function(question, language = "hu") {
 #' @description Creates a bar chart for column distribution (total) survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_bar e_add_nested e_x_axis e_y_axis e_flip_coords e_legend
 
@@ -189,6 +193,7 @@ survey_echarts_col_eloszlas_total <- function(question, language = "hu") {
 #' @description Creates a bar chart for column distribution (multiple) survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_bar e_add_nested e_x_axis e_y_axis e_flip_coords e_legend
 
@@ -224,6 +229,7 @@ survey_echarts_col_eloszlas_multiple <- function(question, language = "hu") {
 #' @description Creates a histogram for year distribution (unscaled) survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_histogram e_color e_y_axis e_legend e_mark_line
 
@@ -264,6 +270,7 @@ survey_echarts_year_eloszlas_unscale <- function(question, language = "hu") {
 #' @description Creates a histogram for year distribution survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_histogram e_color e_y_axis e_x_axis e_legend e_mark_line
 
@@ -301,6 +308,7 @@ survey_echarts_year_eloszlas <- function(question, language = "hu") {
 #' @description Creates a heatmap for table survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_heatmap e_visual_map e_tooltip
 
@@ -348,6 +356,7 @@ survey_echarts_table <- function(question, language = "hu") {
 #' @description Creates a word cloud for text bubble multiple survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts e_cloud e_title e_arrange
 
@@ -400,6 +409,7 @@ survey_echarts_szoveg_buborek_multiple <- function(question, language = "hu") {
 #' @description Creates a region distribution plot for survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -410,6 +420,7 @@ survey_echarts_regio_eloszlas <- function(question, language = "hu") {
 #' @description Creates a plot for other text column survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -421,6 +432,7 @@ survey_echarts_szoveg_col_egyeb <- function(question, language = "hu") {
 #' @description Creates a plot for table average survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -467,6 +479,7 @@ survey_echarts_table_atlag <- function(question, language = "hu") {
 #' @description Creates a plot for reversed Likert scale survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -544,6 +557,7 @@ survey_echarts_likert_scale_rev <- function(question, language = "hu") {
 #' @description Creates a plot for new other text column survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -555,6 +569,7 @@ survey_echarts_szoveg_col_egyeb_new <- function(question, language = "hu") {
 #' @description Creates a heatmap for survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -565,6 +580,7 @@ survey_echarts_hoterkep <- function(question, language = "hu") {
 #' @description Creates a plot for area distribution survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -575,6 +591,7 @@ survey_echarts_terulet_eloszlas <- function(question, language = "hu") {
 #' @description Creates a plot for Likert scale table survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -585,6 +602,7 @@ survey_echarts_likert_scale_table <- function(question, language = "hu") {
 #' @description Creates a plot for Likert scale reference survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -595,6 +613,7 @@ survey_echarts_likert_scale_ref <- function(question, language = "hu") {
 #' @description Creates a plot for table row survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -605,6 +624,7 @@ survey_echarts_table_sor <- function(question, language = "hu") {
 #' @description Creates a plot for table reversed survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -651,6 +671,7 @@ survey_echarts_table_rev <- function(question, language = "hu") {
 #' @description Creates a plot for other numeric column survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -661,6 +682,7 @@ survey_echarts_szam_col_egyeb <- function(question, language = "hu") {
 #' @description Creates a plot for column distribution survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -671,6 +693,7 @@ survey_echarts_col_eloszlas <- function(question, language = "hu") {
 #' @description Creates a plot for table column survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -681,6 +704,7 @@ survey_echarts_table_oszlop <- function(question, language = "hu") {
 #' @description Creates a plot for discrete distribution survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 
@@ -691,6 +715,7 @@ survey_echarts_diszkret_eloszlas <- function(question, language = "hu") {
 #' @description Creates a plot for other table survey questions using echarts4r.
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return An echarts4r object
 #' @importFrom echarts4r e_charts
 

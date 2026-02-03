@@ -4,10 +4,12 @@
 \alias{survey_echarts_table}
 \title{ECharts template for table survey question}
 \usage{
-survey_echarts_table(question)
+survey_echarts_table(question, language = "hu")
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 An echarts4r object

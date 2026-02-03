@@ -4,10 +4,12 @@
 \alias{survey_ggplot_col_eloszlas_multiple}
 \title{GGPlot template for column distribution (multiple) survey question}
 \usage{
-survey_ggplot_col_eloszlas_multiple(question)
+survey_ggplot_col_eloszlas_multiple(question, language = "hu")
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 A ggplot object

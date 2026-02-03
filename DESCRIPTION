@@ -15,10 +15,13 @@ Imports:
     readxl,
     stringr,
     tidyr,
+    tibble,
     cli,
     echarts4r,
     whisker,
-    utils
+    utils,
+    here,
+    jsonlite
 Suggests: 
     RODBC,
     odbc,

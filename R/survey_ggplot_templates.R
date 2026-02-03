@@ -1,6 +1,7 @@
 #' GGPlot template for total part-whole survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot or grid object
 survey_ggplot_resz_egesz_total <- function(question, language = "hu") {
     n_max <- 16
@@ -64,6 +65,7 @@ survey_ggplot_resz_egesz_total <- function(question, language = "hu") {
 #' GGPlot template for multiple part-whole survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot or grid object
 survey_ggplot_resz_egesz_multiple <- function(question, language = "hu") {
     n_max <- 16
@@ -139,6 +141,7 @@ survey_ggplot_resz_egesz_multiple <- function(question, language = "hu") {
 #' GGPlot template for Likert scale survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_likert_scale <- function(question, language = "hu") {
     question$wrangled %>%
@@ -203,6 +206,7 @@ survey_ggplot_likert_scale <- function(question, language = "hu") {
 #' GGPlot template for column distribution (total) survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_col_eloszlas_total <- function(question, language = "hu") {
     question$wrangled %>%
@@ -245,6 +249,7 @@ survey_ggplot_col_eloszlas_total <- function(question, language = "hu") {
 #' GGPlot template for column distribution (multiple) survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_col_eloszlas_multiple <- function(question, language = "hu") {
     question$wrangled %>%
@@ -290,6 +295,7 @@ survey_ggplot_col_eloszlas_multiple <- function(question, language = "hu") {
 #' GGPlot template for year distribution (unscaled) survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_year_eloszlas_unscale <- function(question, language = "hu") {
     bin_limit <- 15
@@ -380,6 +386,7 @@ survey_ggplot_year_eloszlas_unscale <- function(question, language = "hu") {
 #' GGPlot template for year distribution survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_year_eloszlas <- function(question, language = "hu") {
     bin_limit <- 15
@@ -470,6 +477,7 @@ survey_ggplot_year_eloszlas <- function(question, language = "hu") {
 #' GGPlot template for table survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_table <- function(question, language = "hu") {
     question$wrangled %>%
@@ -505,6 +513,7 @@ survey_ggplot_table <- function(question, language = "hu") {
 #' GGPlot template for text bubble multiple survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_szoveg_buborek <- function(question, language = "hu") {
     question$wrangled |>
@@ -535,6 +544,7 @@ survey_ggplot_szoveg_buborek <- function(question, language = "hu") {
 #' GGPlot template for text bubble multiple survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_szoveg_buborek_multiple <- function(question, language = "hu") {
     question$wrangled |>
@@ -566,6 +576,7 @@ survey_ggplot_szoveg_buborek_multiple <- function(question, language = "hu") {
 #' GGPlot template for region distribution survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_regio_eloszlas <- function(question, language = "hu") {
     question$wrangled |>
@@ -608,6 +619,7 @@ survey_ggplot_regio_eloszlas <- function(question, language = "hu") {
 #' GGPlot template for other text column survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_szoveg_col_egyeb <- function(question, language = "hu") {
     # TODO: fill in ggplot code
@@ -616,6 +628,7 @@ survey_ggplot_szoveg_col_egyeb <- function(question, language = "hu") {
 #' GGPlot template for table average survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_table_atlag <- function(question, language = "hu") {
     question$wrangled %>%
@@ -651,6 +664,7 @@ survey_ggplot_table_atlag <- function(question, language = "hu") {
 #' GGPlot template for reversed Likert scale survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_likert_scale_rev <- function(question, language = "hu") {
     question$wrangled %>%
@@ -715,6 +729,7 @@ survey_ggplot_likert_scale_rev <- function(question, language = "hu") {
 #' GGPlot template for new other text column survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_szoveg_col_egyeb_new <- function(question, language = "hu") {
     # TODO: fill in ggplot code
@@ -723,6 +738,7 @@ survey_ggplot_szoveg_col_egyeb_new <- function(question, language = "hu") {
 #' GGPlot template for heatmap survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_hoterkep <- function(question, language = "hu") {
     # TODO: fill in ggplot code
@@ -730,6 +746,7 @@ survey_ggplot_hoterkep <- function(question, language = "hu") {
 #' GGPlot template for area distribution survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_terulet_eloszlas <- function(question, language = "hu") {
     # TODO: fill in ggplot code
@@ -737,6 +754,7 @@ survey_ggplot_terulet_eloszlas <- function(question, language = "hu") {
 #' GGPlot template for Likert scale table survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_likert_scale_table <- function(question, language = "hu") {
     # TODO: fill in ggplot code
@@ -744,6 +762,7 @@ survey_ggplot_likert_scale_table <- function(question, language = "hu") {
 #' GGPlot template for Likert scale reference survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_likert_scale_ref <- function(question, language = "hu") {
     # TODO: fill in ggplot code
@@ -751,6 +770,7 @@ survey_ggplot_likert_scale_ref <- function(question, language = "hu") {
 #' GGPlot template for table row survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_table_sor <- function(question, language = "hu") {
     # TODO: fill in ggplot code
@@ -758,6 +778,7 @@ survey_ggplot_table_sor <- function(question, language = "hu") {
 #' GGPlot template for table reversed survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_table_rev <- function(question, language = "hu") {
     question$wrangled %>%
@@ -793,6 +814,7 @@ survey_ggplot_table_rev <- function(question, language = "hu") {
 #' GGPlot template for other numeric column survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_szam_col_egyeb <- function(question, language = "hu") {
     # TODO: fill in ggplot code
@@ -801,6 +823,7 @@ survey_ggplot_szam_col_egyeb <- function(question, language = "hu") {
 #' GGPlot template for table column survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_table_oszlop <- function(question, language = "hu") {
     # TODO: fill in ggplot code
@@ -808,6 +831,7 @@ survey_ggplot_table_oszlop <- function(question, language = "hu") {
 #' GGPlot template for discrete distribution survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_diszkret_eloszlas <- function(question, language = "hu") {
     # TODO: fill in ggplot code
@@ -815,6 +839,7 @@ survey_ggplot_diszkret_eloszlas <- function(question, language = "hu") {
 #' GGPlot template for other table survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_table_egyeb <- function(question, language = "hu") {
     # TODO: fill in ggplot code

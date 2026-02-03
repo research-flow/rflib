@@ -4,10 +4,12 @@
 \alias{survey_ggplot_likert_scale_table}
 \title{GGPlot template for Likert scale table survey question}
 \usage{
-survey_ggplot_likert_scale_table(question)
+survey_ggplot_likert_scale_table(question, language = "hu")
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 A ggplot object
