@@ -43,7 +43,7 @@ survey_init <- function(path, clean_text = TRUE, save_output = FALSE, language =
       setNames(rflib::long_palette()[seq_along(unique_vals)], unique_vals)
 
 
-    question_obj <- rflib::survey_question(id = qid, data = q_data, tipus = tipus, label = q_labels, color_scale = assigned_palette)
+    question_obj <- rflib::survey_question(id = qid, data = q_data, tipus = tipus, label = q_labels, color_scale = assigned_palette, language = language)
     obj <- rflib::survey_add_question(obj, question_obj)
   }
 

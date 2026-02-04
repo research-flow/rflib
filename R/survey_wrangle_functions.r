@@ -7,6 +7,9 @@
 #' @export
 survey_plot_dispatch <- function(plottype, question, language = "hu") {
   type <- question$tipus
+  if (!is.null(question$language)) {
+    language <- question$language
+  }
   if (plottype == "ggplot") {
     switch(type,
       "resz_egesz_total" = survey_ggplot_resz_egesz_total(question, language),

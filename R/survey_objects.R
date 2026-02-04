@@ -8,7 +8,7 @@
 #' @return A SurveyQuestion object (S3)
 #' @importFrom dplyr n_distinct
 #' @export
-survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
+survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL, language = "hu") {
   # Calculate n_respondent if respondent_id column exists
   n_respondent <- if ("respondent_id" %in% names(data)) {
     dplyr::n_distinct(data$respondent_id)
@@ -23,6 +23,7 @@ survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
       data = data,
       wrangled = tryCatch(survey_wrangle_dispatch(tipus, data), error = function(e) NULL),
       label = label,
+      language = language,
       group = "Teljes minta",
       color_scale = color_scale,
       likert_labeller = NULL, # For likert_scale questions, this will hold the labels
