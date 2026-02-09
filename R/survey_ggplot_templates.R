@@ -844,3 +844,39 @@ survey_ggplot_diszkret_eloszlas <- function(question, language = "hu") {
 survey_ggplot_table_egyeb <- function(question, language = "hu") {
     # TODO: fill in ggplot code
 }
+#' GGPlot template for combobox with szoveg question
+#'
+#' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
+#' @return A ggplot object
+survey_ggplot_combobox <- function(question, language = "hu") {
+    question$wrangled %>%
+        ggplot2::ggplot(ggplot2::aes(y = valasz_szovege, x = combobox_szoveg, fill = perc)) +
+        ggplot2::geom_tile(color = "black") +
+        ggplot2::geom_text(ggplot2::aes(
+            label =
+                scales::percent(perc, accuracy = 0.1)
+        ), size = 6) +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(
+            axis.text.x = ggplot2::element_text(angle = 45, size = 9, vjust = 1, hjust = 1),
+            axis.text.y = ggplot2::element_text(size = 9),
+            panel.grid = ggplot2::element_blank(),
+            axis.title = ggplot2::element_text(size = 14),
+            legend.title = ggplot2::element_text(size = 14),
+            legend.text = ggplot2::element_text(size = 12),
+            plot.subtitle = ggplot2::element_text(size = 18),
+            plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1),
+        ) +
+        ggplot2::scale_y_discrete(limits = rev) +
+        ggplot2::scale_fill_gradient2(
+            labels = scales::percent,
+            mid = "#FFFAFA",
+            high = rflib::long_palette()[2],
+            na.value = alpha(rflib::long_palette()[3], 0.35)
+        ) +
+        ggplot2::labs(
+            x = NULL, y = NULL, fill = translate("txt_resp_rate", language),
+            subtitle = question$group
+        )
+}

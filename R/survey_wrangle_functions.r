@@ -695,6 +695,32 @@ survey_wrangle_szam_col_egyeb <- function(df, labels) {
 survey_wrangle_table_oszlop <- function(df, labels) {
   stop("Not implemented")
 }
+#' Wrangle combobox question
+#'
+#' @param df A tibble with columns respondent_id, answer, kerdes
+#' @param labels A tibble with question labels
+#' @return Not implemented
+
+survey_wrangle_combobox <- function(df, labels) {
+  df %>%
+    dplyr::mutate(
+      orvos_db = n_distinct(respondent_id)
+    ) %>%
+    dplyr::count(kerdes, answer, orvos_db) %>%
+    dplyr::right_join(labels, by = join_by("kerdes", "answer" == "combobox_value")) %>%
+    tidyr::replace_na(list(n = 0)) %>%
+    dplyr::mutate(orvos_db = max(orvos_db, na.rm = TRUE)) %>%
+    dplyr::mutate(perc = n / orvos_db) %>%
+    dplyr::filter(valasz_tipusa == "Combobox") %>%
+    tidyr::drop_na(combobox_szoveg) %>%
+    dplyr::arrange(kerdes, answer) %>%
+    dplyr::mutate(
+      combobox_szoveg = stringr::str_wrap(combobox_szoveg, 30),
+      combobox_szoveg = forcats::fct_inorder(combobox_szoveg),
+      valasz_szovege = stringr::str_wrap(valasz_szovege, 50),
+      valasz_szovege = forcats::fct_inorder(valasz_szovege),
+    )
+}
 #' Wrangle discrete distribution question
 #'
 #' @param df A tibble with columns respondent_id, answer, kerdes
