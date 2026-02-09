@@ -37,6 +37,7 @@ survey_plot_dispatch <- function(plottype, question, language = "hu") {
       "table_oszlop" = survey_ggplot_table_oszlop(question, language),
       "diszkret_eloszlas" = survey_ggplot_diszkret_eloszlas(question, language),
       "table_egyeb" = survey_ggplot_table_egyeb(question, language),
+      "combobox" = survey_ggplot_combobox(question, language),
       stop(paste("Unknown ggplot question type:", type))
     )
   } else if (plottype == "echarts") {
@@ -66,6 +67,7 @@ survey_plot_dispatch <- function(plottype, question, language = "hu") {
       "table_oszlop" = survey_echarts_table_oszlop(question, language),
       "diszkret_eloszlas" = survey_echarts_diszkret_eloszlas(question, language),
       "table_egyeb" = survey_echarts_table_egyeb(question, language),
+      # "combobox" = survey_echarts_combobox(question, language),
       stop(paste("Unknown echarts question type:", type))
     )
   } else {
@@ -107,6 +109,7 @@ survey_wrangle_dispatch <- function(tipus, data, labels) {
     "table_oszlop" = survey_wrangle_table_oszlop(data, labels),
     "diszkret_eloszlas" = survey_wrangle_diszkret_eloszlas(data, labels),
     "table_egyeb" = survey_wrangle_table_egyeb(data, labels),
+    "combobox" = survey_wrangle_combobox(data, labels),
     stop(paste("Unknown question type:", tipus))
   )
 }
