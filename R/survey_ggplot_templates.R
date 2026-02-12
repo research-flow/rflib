@@ -656,6 +656,7 @@ survey_ggplot_szoveg_buborek <- function(question, language = "hu") {
 #' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_col_with_szoveg <- function(question, language = "hu") {
+    n_max <- 16
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
             question$wrangled %>%
@@ -713,12 +714,12 @@ survey_ggplot_col_with_szoveg <- function(question, language = "hu") {
                 ) +
                 ggplot2::scale_x_continuous(labels = scales::percent) +
                 ggplot2::scale_y_discrete(limits = rev) +
-                # ggplot2::scale_fill_manual(values = question$color_scale) +
+                ggplot2::scale_fill_manual(values = question$color_scale) +
                 ggplot2::guides(fill = "none") +
-                # ggplot2::labs(
-                #   x = translate("txt_resp_rate_count", language), y = NULL, fill = "",
-                #   subtitle = question$group
-                # ) +
+                ggplot2::labs(
+                    x = translate("txt_resp_rate_count", language), y = NULL, fill = "",
+                    subtitle = question$group
+                ) +
                 ggplot2::theme_minimal() +
                 ggplot2::theme(
                     plot.subtitle = ggplot2::element_text(size = 16),
