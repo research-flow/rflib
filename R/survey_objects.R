@@ -425,6 +425,8 @@ get_question_dimensions <- function(tipus) {
     "regio_eloszlas" = list(width = 12, height = 7),
     "resz_egesz_combined" = list(width = 17, height = 7),
     "resz_egesz_multiple" = list(width = 17, height = 8),
+    "col_with_number" = list(width = 17, height = 8),
+    "col_with_szoveg" = list(width = 17, height = 8),
     "resz_egesz_multiple_longitud" = list(width = 10, height = 4),
     "resz_egesz_total" = list(width = 17, height = 7),
     "resz_egesz_total_longitud" = list(width = 10, height = 4),
