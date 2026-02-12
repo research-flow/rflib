@@ -22,7 +22,7 @@ survey_init <- function(path, clean_text = TRUE, save_output = FALSE, language =
   n_respondent <- dplyr::n_distinct(df_answers$respondent_id)
   obj <- rflib::survey(title = df_title, labels = df_labels, n_respondent = n_respondent, language = language)
 
-  unique_questions <- sort(unique(df_answers$kerdesszam))
+  unique_questions <- as.character(sort(as.numeric(unique(df_answers$kerdesszam))))
   # First, add question-related values except 'tipus'
   for (qid in unique_questions) {
     q_data <- df_answers %>% dplyr::filter(.data$kerdesszam == qid)
