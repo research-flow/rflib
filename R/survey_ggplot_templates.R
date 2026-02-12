@@ -661,17 +661,18 @@ survey_ggplot_col_with_szoveg <- function(question, language = "hu") {
         gridExtra::arrangeGrob(
             question$wrangled %>%
                 tidyr::drop_na(answer) %>%
-                dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max)) %>%
+                dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max), count >= 2) %>%
                 ggplot2::ggplot(ggplot2::aes(label = answer)) +
                 ggwordcloud::geom_text_wordcloud(
                     ggplot2::aes(
                         color = valasz_szovege,
-                        size = count
+                        size = log(count)
                     ),
                     rm_outside = T
                 ) +
                 ggplot2::facet_wrap(~valasz_szovege, scales = "free") +
                 ggplot2::scale_color_manual(values = question$color_scale) +
+                ggplot2::scale_size(range = c(3, 6)) +
                 ggplot2::guides(alpha = "none", fill = "none") +
                 ggplot2::theme_minimal() +
                 ggplot2::theme(
