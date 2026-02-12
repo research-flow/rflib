@@ -655,7 +655,7 @@ survey_ggplot_szoveg_buborek <- function(question, language = "hu") {
 #' @param question A list containing wrangled data and plot parameters
 #' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
-survey_ggplot_szoveg_buborek <- function(question, language = "hu") {
+survey_ggplot_col_with_szoveg <- function(question, language = "hu") {
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
             question$wrangled %>%
