@@ -100,7 +100,7 @@ survey_wrangle_dispatch <- function(tipus, data, labels) {
     "col_with_szoveg" = survey_wrangle_col_with_szoveg(data, labels),
     "col_eloszlas_total" = survey_wrangle_col_eloszlas_multiple(data, labels),
     "col_eloszlas_multiple" = survey_wrangle_col_eloszlas_multiple(data, labels),
-    "year_eloszlas_unscale" = survey_wrangle_year_eloszlas_unscale(data, labels),
+    "year_eloszlas_unscale" = survey_wrangle_year_eloszlas(data, labels),
     "regio_eloszlas" = survey_wrangle_regio_eloszlas(data, labels),
     "iranyito_eloszlas" = survey_wrangle_iranyito_eloszlas(data, labels),
     "szoveg_col_egyeb" = survey_wrangle_szoveg_col_egyeb(data, labels),
@@ -392,21 +392,6 @@ survey_wrangle_col_with_szoveg <- function(df, labels) {
   )
 }
 
-#' Wrangle year distribution (unscaled)
-#'
-#' @param df A tibble with columns respondent_id and answer
-#' @param labels A tibble with question labels
-#' @return A tibble with numeric answers joined to labels
-
-survey_wrangle_year_eloszlas_unscale <- function(df, labels) {
-  if (!all(suppressWarnings(!is.na(as.numeric(df$answer))))) {
-    stop("Some answers cannot be converted to numeric in survey_wrangle_year_eloszlas_unscale.")
-  }
-  df %>%
-    dplyr::mutate(answer = as.numeric(answer)) %>%
-    dplyr::left_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu"))
-}
-
 #' Wrangle year distribution
 #'
 #' @param df A tibble with columns respondent_id and answer
@@ -414,11 +399,11 @@ survey_wrangle_year_eloszlas_unscale <- function(df, labels) {
 #' @return A tibble with numeric answers joined to labels
 
 survey_wrangle_year_eloszlas <- function(df, labels) {
-  if (!all(suppressWarnings(!is.na(as.numeric(df$answer))))) {
+  if (!all(suppressWarnings(!is.na(as.numeric(stringr::str_replace_all(df$answer, "\\,", "\\.")))))) {
     stop("Some answers cannot be converted to numeric in survey_wrangle_year_eloszlas.")
   }
   df %>%
-    dplyr::mutate(answer = as.numeric(answer)) %>%
+    dplyr::mutate(answer = as.numeric(stringr::str_replace_all(answer, "\\,", "\\."))) %>%
     dplyr::left_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu"))
 }
 
