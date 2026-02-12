@@ -15,10 +15,14 @@ survey_plot_dispatch <- function(plottype, question, language = "hu") {
       "resz_egesz_total" = survey_ggplot_resz_egesz_total(question, language),
       "resz_egesz_multiple" = survey_ggplot_resz_egesz_multiple(question, language),
       "likert_scale" = survey_ggplot_likert_scale(question, language),
+      "naptar" = survey_ggplot_naptar(question, language),
+      "col_with_number" = survey_ggplot_col_with_number(question, language),
+      "col_with_szoveg" = survey_ggplot_col_with_szoveg(question, language),
       "col_eloszlas_total" = survey_ggplot_col_eloszlas_multiple(question, language),
       "col_eloszlas_multiple" = survey_ggplot_col_eloszlas_multiple(question, language),
       "year_eloszlas_unscale" = survey_ggplot_year_eloszlas_unscale(question, language),
       "regio_eloszlas" = survey_ggplot_regio_eloszlas(question, language),
+      "iranyito_eloszlas" = survey_ggplot_regio_eloszlas(question, language),
       "szoveg_col_egyeb" = survey_ggplot_szoveg_col_egyeb(question, language),
       "year_eloszlas" = survey_ggplot_year_eloszlas(question, language),
       "table" = survey_ggplot_table(question, language),
@@ -45,10 +49,14 @@ survey_plot_dispatch <- function(plottype, question, language = "hu") {
       "resz_egesz_total" = survey_echarts_resz_egesz_total(question, language),
       "resz_egesz_multiple" = survey_echarts_resz_egesz_multiple(question, language),
       "likert_scale" = survey_echarts_likert_scale(question, language),
+      # "naptar" = survey_echarts_naptar(question, language),
+      # "col_with_number" = survey_echarts_col_with_number(question, language),
+      # "col_with_szoveg" = survey_echarts_col_with_szoveg(question, language),
       "col_eloszlas_total" = survey_echarts_col_eloszlas_multiple(question, language),
       "col_eloszlas_multiple" = survey_echarts_col_eloszlas_multiple(question, language),
       "year_eloszlas_unscale" = survey_echarts_year_eloszlas_unscale(question, language),
       "regio_eloszlas" = survey_echarts_regio_eloszlas(question, language),
+      "iranyito_eloszlas" = survey_echarts_regio_eloszlas(question, language),
       "szoveg_col_egyeb" = survey_echarts_szoveg_col_egyeb(question, language),
       "year_eloszlas" = survey_echarts_year_eloszlas(question, language),
       "table" = survey_echarts_table(question, language),
@@ -87,10 +95,14 @@ survey_wrangle_dispatch <- function(tipus, data, labels) {
     "resz_egesz_total" = survey_wrangle_resz_egesz_total(data, labels),
     "resz_egesz_multiple" = survey_wrangle_resz_egesz_multiple(data, labels),
     "likert_scale" = survey_wrangle_likert_scale(data, labels),
+    "naptar" = survey_wrangle_naptar(data, labels),
+    "col_with_number" = survey_wrangle_col_with_number(data, labels),
+    "col_with_szoveg" = survey_wrangle_col_with_szoveg(data, labels),
     "col_eloszlas_total" = survey_wrangle_col_eloszlas_multiple(data, labels),
     "col_eloszlas_multiple" = survey_wrangle_col_eloszlas_multiple(data, labels),
     "year_eloszlas_unscale" = survey_wrangle_year_eloszlas_unscale(data, labels),
     "regio_eloszlas" = survey_wrangle_regio_eloszlas(data, labels),
+    "iranyito_eloszlas" = survey_wrangle_iranyito_eloszlas(data, labels),
     "szoveg_col_egyeb" = survey_wrangle_szoveg_col_egyeb(data, labels),
     "year_eloszlas" = survey_wrangle_year_eloszlas(data, labels),
     "table" = survey_wrangle_table(data, labels),
@@ -272,7 +284,112 @@ survey_wrangle_col_eloszlas_multiple <- function(df, labels) {
     ) %>%
     dplyr::ungroup() %>%
     unique() %>%
-    dplyr::left_join(labels, by = "kerdes")
+    dplyr::right_join(labels, by = "kerdes") %>%
+    tidyr::replace_na(list(count = 0, percentage = 0))
+}
+
+#' Wrangle column distribution question (multiple)
+#'
+#' @param df A tibble with columns respondent_id and answer
+#' @param labels A tibble with question labels
+#' @return A tibble with frequency per answer
+survey_wrangle_naptar <- function(df, labels) {
+  df %>%
+    dplyr::mutate(
+      n_total = dplyr::n_distinct(respondent_id),
+      date = lubridate::floor_date(lubridate::ymd(answer), unit = "months")
+    ) |>
+    tidyr::drop_na(date) |>
+    dplyr::count(kerdes, date, n_total) |>
+    dplyr::right_join(
+      labels
+    ) |>
+    dplyr::mutate(
+      year = as.character(lubridate::year(date)),
+      month = lubridate::month(date, label = T, locale = "LC_US"),
+      min_year = min(lubridate::year(date)),
+      max_year = max(lubridate::year(date))
+    ) |>
+    (\(x)
+    tidyr::crossing(
+      year = as.character(min(lubridate::year(x$date)):max(lubridate::year(x$date))),
+      month = lubridate::month(1:12, label = TRUE, locale = "LC_US")
+    ) |>
+      dplyr::left_join(x)
+    )()
+}
+#' Wrangle column distribution question (multiple)
+#'
+#' @param df A tibble with columns respondent_id and answer
+#' @param labels A tibble with question labels
+#' @return A tibble with frequency per answer
+survey_wrangle_col_with_number <- function(df, labels) {
+  full_join(
+    df %>%
+      dplyr::filter(answer != "on") |>
+      dplyr::transmute(kerdes, answer_num = as.numeric(answer)) %>%
+      dplyr::left_join(labels, by = "kerdes"),
+    df %>%
+      dplyr::filter(answer == "on") %>%
+      dplyr::mutate(resp_count = dplyr::n_distinct(respondent_id)) |>
+      dplyr::group_by(kerdes) %>%
+      dplyr::reframe(
+        count = dplyr::n(),
+        percentage = count / resp_count
+      ) %>%
+      dplyr::ungroup() %>%
+      unique() %>%
+      dplyr::right_join(labels, by = "kerdes") |>
+      tidyr::replace_na(list(count = 0, percentage = 0))
+  )
+}
+#' Wrangle column distribution question (multiple)
+#'
+#' @param df A tibble with columns respondent_id and answer
+#' @param labels A tibble with question labels
+#' @return A tibble with frequency per answer
+survey_wrangle_col_with_szoveg <- function(df, labels) {
+  full_join(
+    df %>%
+      dplyr::filter(answer != "on") %>%
+      tidyr::separate_longer_delim(cols = "answer", delim = ";") |>
+      dplyr::filter(!(answer %in% c("NA", "NULL", "", "0"))) %>%
+      dplyr::mutate(answer = stringr::str_to_title(stringr::str_squish(answer))) %>%
+      dplyr::count(kerdes, answer, name = "count") %>%
+      dplyr::left_join(
+        labels
+        # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
+      ) %>%
+      dplyr::mutate(
+        oszlop_szovege = as.character(oszlop_szovege),
+        valasz_szovege = as.character(valasz_szovege)
+      ) %>%
+      tidyr::replace_na(
+        list(
+          valasz_szovege = "",
+          oszlop_szovege = ""
+        )
+      ) %>%
+      dplyr::arrange(count) %>%
+      dplyr::mutate(
+        total_szoveg = valasz_szovege,
+        total_szoveg = stringr::str_wrap(total_szoveg, 30),
+        total_szoveg = forcats::fct_inorder(total_szoveg)
+      ),
+    df %>%
+      dplyr::filter(answer == "on") %>%
+      dplyr::mutate(resp_count = dplyr::n_distinct(respondent_id)) |>
+      dplyr::group_by(kerdes) %>%
+      dplyr::reframe(
+        resp_count,
+        count_num = dplyr::n(),
+        percentage = count_num / resp_count
+      ) %>%
+      dplyr::ungroup() %>%
+      unique() %>%
+      dplyr::right_join(labels, by = "kerdes") |>
+      tidyr::replace_na(list(count_num = 0, percentage = 0))
+  )
 }
 
 #' Wrangle year distribution (unscaled)
@@ -497,6 +614,43 @@ survey_wrangle_regio_eloszlas <- function(df, labels) {
     summarise(
       count = sum(count, na.rm = TRUE),
       percentage = sum(percentage, na.rm = TRUE),
+      .groups = "drop"
+    )
+}
+#' Wrangle region distribution question
+#'
+#' @param df A tibble with columns respondent_id, answer, kerdes
+#' @param labels A tibble with question labels
+#' @return Not implemented
+
+survey_wrangle_iranyito_eloszlas <- function(df, labels) {
+  result <- df %>%
+    dplyr::transmute(
+      kerdes,
+      resp_count = dplyr::n_distinct(respondent_id),
+      respondent_id,
+      name = "iranyitoszam",
+      value = answer,
+      value_num = as.numeric(value)
+    ) %>%
+    tidyr::drop_na(value_num)
+
+  szotar <- teruleti_szotar |>
+    dplyr::select(-telepules_nev) |>
+    dplyr::mutate_all(as.character) |>
+    dplyr::mutate(regio = regio_nev) |>
+    tidyr::pivot_longer(-regio_nev) |>
+    dplyr::distinct()
+
+  result |>
+    dplyr::left_join(
+      szotar,
+      by = c("name", "value")
+    ) |>
+    dplyr::group_by(regio_nev) |>
+    dplyr::summarise(
+      count = dplyr::n_distinct(respondent_id, na.rm = TRUE),
+      percentage = count / max(resp_count, na.rm = T),
       .groups = "drop"
     )
 }

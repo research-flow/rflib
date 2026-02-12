@@ -138,6 +138,115 @@ survey_ggplot_resz_egesz_multiple <- function(question, language = "hu") {
         )
     )
 }
+#' GGPlot template for multiple part-whole survey question
+#'
+#' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
+#' @return A ggplot or grid object
+survey_ggplot_col_with_number <- function(question, language = "hu") {
+    n_max <- 16
+
+    gridExtra::grid.arrange(
+        gridExtra::arrangeGrob(
+            question$wrangled %>%
+                drop_na(answer_num) %>%
+                # dplyr::filter(n >= 5) %>%
+                dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max)) %>%
+                ggplot2::ggplot(ggplot2::aes(x = answer_num)) +
+                ggplot2::geom_histogram(ggplot2::aes(alpha = after_stat(count), fill = valasz_szovege), color = "black", bins = 7) +
+                ggplot2::facet_wrap(~valasz_szovege, scales = "free") +
+                ggplot2::scale_x_continuous(breaks = rflib::integer_breaks(), labels = scales::label_comma()) +
+                ggplot2::scale_y_continuous(breaks = rflib::integer_breaks(), labels = scales::label_comma()) +
+                ggplot2::scale_fill_manual(values = question$color_scale) +
+                ggplot2::scale_alpha_continuous(range = c(0.45, 1)) +
+                ggplot2::guides(alpha = "none", fill = "none") +
+                ggplot2::labs(
+                    x = translate("txt_answer", language), fill = translate("txt_answer", language), y = translate("txt_resp_num", language),
+                    subtitle = question$group
+                ) +
+                ggplot2::theme_minimal() +
+                ggplot2::theme(
+                    strip.text = ggplot2::element_text(size = 14),
+                    axis.text = ggplot2::element_text(size = 12),
+                    axis.title = ggplot2::element_text(size = 14),
+                    legend.title = ggplot2::element_text(size = 14),
+                    plot.background = ggplot2::element_rect(colour = NA, fill = NA, linewidth = 1),
+                    legend.text = ggplot2::element_text(size = 12),
+                    plot.margin = unit(c(0, 2, 0, 2), "cm"),
+                    # plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
+                ),
+            question$wrangled %>%
+                distinct(kerdes, kerdesbetu, count, percentage, kerdes_szoveg, valasz_szovege) %>%
+                dplyr::arrange(kerdesbetu) %>%
+                dplyr::mutate(
+                    valasz_szovege =
+                        (stringr::str_wrap(valasz_szovege, 30))
+                ) %>%
+                dplyr::mutate(valasz_szovege = forcats::fct_inorder(valasz_szovege)) |>
+                ggplot2::ggplot(ggplot2::aes(x = percentage, y = valasz_szovege, fill = valasz_szovege)) +
+                ggplot2::geom_col(position = ggplot2::position_stack(), color = "black") +
+                ggplot2::geom_col(alpha = 0.3, ggplot2::aes(x = 1)) +
+                ggplot2::geom_text(
+                    ggplot2::aes(
+                        label =
+                            ifelse(percentage <= 0.02,
+                                "",
+                                str_c(
+                                    scales::percent(percentage, accuracy = 0.1),
+                                    " (",
+                                    scales::number(count, accuracy = 1L),
+                                    ")"
+                                )
+                            )
+                    ),
+                    size = 4.5, position = ggplot2::position_stack(vjust = 0.5),
+                    fontface = "bold", color = "black"
+                ) +
+                ggplot2::scale_x_continuous(labels = scales::percent) +
+                ggplot2::scale_y_discrete(limits = rev) +
+                ggplot2::scale_fill_manual(values = question$color_scale) +
+                ggplot2::guides(fill = "none") +
+                ggplot2::labs(
+                    x = translate("txt_resp_rate_count", language), y = NULL, fill = "",
+                    subtitle = question$group
+                ) +
+                ggplot2::theme_minimal() +
+                ggplot2::theme(
+                    plot.subtitle = ggplot2::element_text(size = 16),
+                    # plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
+                ),
+            nrow = 1, widths = c(3, 3)
+        )
+    )
+}
+#' GGPlot template for multiple part-whole survey question
+#'
+#' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
+#' @return A ggplot or grid object
+survey_ggplot_naptar <- function(question, language = "hu") {
+    question$wrangled %>%
+        ggplot2::ggplot(
+            ggplot2::aes(
+                x = month,
+                y = year,
+                fill = n / n_total
+            )
+        ) +
+        ggplot2::geom_tile(color = "black") +
+        ggplot2::geom_text(ggplot2::aes(label = scales::number(n))) +
+        ggplot2::coord_equal() +
+        ggplot2::scale_y_discrete(limits = rev) +
+        ggplot2::scale_fill_gradient2(
+            low = "white",
+            high = rflib::long_palette(2)[2],
+            na.value = "grey",
+            labels = scales::label_percent()
+        ) +
+        ggplot2::labs(x = NULL, y = NULL, fill = translate("txt_resp_rate", language)) +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(panel.grid = ggplot2::element_blank())
+}
 #' GGPlot template for Likert scale survey question
 #'
 #' @param question A list containing wrangled data and plot parameters
@@ -540,6 +649,84 @@ survey_ggplot_szoveg_buborek <- function(question, language = "hu") {
             caption = translate("txt_bubble_caption", language),
             subtitle = question$group
         )
+}
+#' GGPlot template for text bubble multiple survey question
+#'
+#' @param question A list containing wrangled data and plot parameters
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
+#' @return A ggplot object
+survey_ggplot_szoveg_buborek <- function(question, language = "hu") {
+    gridExtra::grid.arrange(
+        gridExtra::arrangeGrob(
+            question$wrangled %>%
+                tidyr::drop_na(answer) %>%
+                dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max)) %>%
+                ggplot2::ggplot(ggplot2::aes(label = answer)) +
+                ggwordcloud::geom_text_wordcloud(
+                    ggplot2::aes(
+                        color = valasz_szovege,
+                        size = count
+                    ),
+                    rm_outside = T
+                ) +
+                ggplot2::facet_wrap(~valasz_szovege, scales = "free") +
+                ggplot2::scale_color_manual(values = question$color_scale) +
+                ggplot2::guides(alpha = "none", fill = "none") +
+                ggplot2::theme_minimal() +
+                ggplot2::theme(
+                    strip.text = ggplot2::element_text(size = 14),
+                    axis.text = ggplot2::element_text(size = 12),
+                    axis.title = ggplot2::element_text(size = 14),
+                    legend.title = ggplot2::element_text(size = 14),
+                    plot.background = ggplot2::element_rect(colour = NA, fill = NA, linewidth = 1),
+                    legend.text = ggplot2::element_text(size = 12),
+                    plot.margin = unit(c(0, 2, 0, 2), "cm"),
+                    # plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
+                ),
+            question$wrangled %>%
+                dplyr::filter(is.na(answer)) %>%
+                dplyr::distinct(kerdes, kerdesbetu, resp_count, count_num, percentage, kerdes_szoveg, valasz_szovege) %>%
+                dplyr::arrange(kerdesbetu) %>%
+                dplyr::mutate(
+                    valasz_szovege =
+                        (stringr::str_wrap(valasz_szovege, 30))
+                ) %>%
+                dplyr::mutate(valasz_szovege = forcats::fct_inorder(valasz_szovege)) |>
+                ggplot2::ggplot(ggplot2::aes(x = percentage, y = valasz_szovege, fill = valasz_szovege)) +
+                ggplot2::geom_col(position = ggplot2::position_stack(), color = "black") +
+                ggplot2::geom_col(alpha = 0.3, ggplot2::aes(x = 1)) +
+                ggplot2::geom_text(
+                    ggplot2::aes(
+                        label =
+                            ifelse(percentage <= 0.02,
+                                "",
+                                str_c(
+                                    scales::percent(percentage, accuracy = 0.1),
+                                    " (",
+                                    scales::number(count_num, accuracy = 1L),
+                                    ")"
+                                )
+                            )
+                    ),
+                    size = 4.5, position = ggplot2::position_stack(vjust = 0.5),
+                    fontface = "bold", color = "black"
+                ) +
+                ggplot2::scale_x_continuous(labels = scales::percent) +
+                ggplot2::scale_y_discrete(limits = rev) +
+                # ggplot2::scale_fill_manual(values = question$color_scale) +
+                ggplot2::guides(fill = "none") +
+                # ggplot2::labs(
+                #   x = translate("txt_resp_rate_count", language), y = NULL, fill = "",
+                #   subtitle = question$group
+                # ) +
+                ggplot2::theme_minimal() +
+                ggplot2::theme(
+                    plot.subtitle = ggplot2::element_text(size = 16),
+                    # plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
+                ),
+            nrow = 1, widths = c(3, 3)
+        )
+    )
 }
 #' GGPlot template for text bubble multiple survey question
 #'

@@ -5,6 +5,8 @@
 \title{GGPlot template for text bubble multiple survey question}
 \usage{
 survey_ggplot_szoveg_buborek(question, language = "hu")
+
+survey_ggplot_szoveg_buborek(question, language = "hu")
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
@@ -13,7 +15,11 @@ survey_ggplot_szoveg_buborek(question, language = "hu")
 }
 \value{
 A ggplot object
+
+A ggplot object
 }
 \description{
+GGPlot template for text bubble multiple survey question
+
 GGPlot template for text bubble multiple survey question
 }
