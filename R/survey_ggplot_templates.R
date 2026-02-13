@@ -721,30 +721,78 @@ survey_ggplot_table <- function(question, language = "hu") {
 #' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot object
 survey_ggplot_szoveg_buborek <- function(question, language = "hu") {
-    question$wrangled |>
-        ggplot2::ggplot(ggplot2::aes(label = str_wrap(str_c(
-            "\"", answer, "\""
-        ), 50))) +
-        ggwordcloud::geom_text_wordcloud(
-            ggplot2::aes(
-                color = valasz_szovege,
-                size = log(count)
-            ),
-            rm_outside = T
-        ) +
-        # ggplot2::facet_wrap(~total_szoveg) +
-        ggplot2::scale_color_manual(values = question$color_scale) +
-        ggplot2::scale_size(range = c(3, 6)) +
-        ggplot2::theme_minimal() +
-        ggplot2::theme(
-            strip.text.x = ggplot2::element_text(size = 10),
-            plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
-        ) +
-        ggplot2::guides(color = "none") +
-        ggplot2::labs(
-            caption = translate("txt_bubble_caption", language),
-            subtitle = question$group
+    gridExtra::grid.arrange(
+        gridExtra::arrangeGrob(
+            data %>%
+                ggplot2::ggplot(ggplot2::aes(label = str_wrap(str_c(
+                    "\"", answer, "\""
+                ), 50))) +
+                ggwordcloud::geom_text_wordcloud(
+                    ggplot2::aes(
+                        color = valasz_szovege,
+                        size = log(count)
+                    ),
+                    rm_outside = T
+                ) +
+                # ggplot2::facet_wrap(~total_szoveg) +
+                ggplot2::scale_color_manual(values = question$color_scale) +
+                ggplot2::scale_size(range = c(3, 6)) +
+                ggplot2::theme_minimal() +
+                ggplot2::theme(
+                    plot.margin = ggplot2::unit(c(0, 2, 0, 2), "cm"),
+                    plot.background = ggplot2::element_rect(colour = NA, fill = NA, linewidth = 1),
+                    strip.text.x = ggplot2::element_text(size = 10),
+                    # plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
+                ) +
+                ggplot2::guides(color = "none") +
+                ggplot2::labs(
+                    caption = translate("txt_bubble_caption", language),
+                    subtitle = question$group
+                ),
+            data %>%
+                dplyr::slice_max(n = 10, order_by = count) |>
+                dplyr::arrange(answer == "Other", desc(count)) |>
+                dplyr::mutate(
+                    answer = forcats::fct_inorder(answer),
+                    percentage = count / n_total
+                ) |>
+                ggplot2::ggplot(ggplot2::aes(x = percentage, y = answer, fill = answer)) +
+                ggplot2::geom_col(position = ggplot2::position_stack(), color = "black") +
+                ggplot2::geom_col(alpha = 0.3, ggplot2::aes(x = 1)) +
+                ggplot2::geom_text(
+                    ggplot2::aes(
+                        label =
+                            ifelse(percentage <= 0.02,
+                                "",
+                                str_c(
+                                    scales::percent(percentage, accuracy = 0.1),
+                                    " (",
+                                    scales::number(count, accuracy = 1L),
+                                    ")"
+                                )
+                            )
+                    ),
+                    size = 4.5, position = ggplot2::position_stack(vjust = 0.5),
+                    fontface = "bold", color = "black"
+                ) +
+                ggplot2::scale_x_continuous(labels = scales::percent) +
+                ggplot2::scale_y_discrete(limits = rev) +
+                ggplot2::scale_fill_manual(values = rflib::long_palette()) +
+                ggplot2::guides(fill = "none") +
+                ggplot2::labs(
+                    x = translate("txt_resp_rate_count", language), y = NULL, fill = "",
+                    # subtitle = question$group
+                ) +
+                ggplot2::theme_minimal() +
+                ggplot2::theme(
+                    plot.subtitle = ggplot2::element_text(size = 16),
+                    plot.background = ggplot2::element_rect(colour = NA, fill = NA, linewidth = 1),
+                    panel.grid = element_blank(),
+                    plot.margin = unit(c(2, 0, 2, 0), "cm")
+                ),
+            nrow = 1, widths = c(3, 3)
         )
+    )
 }
 #' GGPlot template for text bubble multiple survey question
 #'
