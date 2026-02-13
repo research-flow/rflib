@@ -5,6 +5,7 @@
 #' @return A ggplot or grid object
 survey_ggplot_resz_egesz_total <- function(question, language = "hu") {
     bins_nonzero <- 5 # how many bins for >0 part
+    n_max <- 16
 
     df_hist <- question$wrangled %>%
         dplyr::filter(n >= 5) %>%
@@ -48,7 +49,6 @@ survey_ggplot_resz_egesz_total <- function(question, language = "hu") {
             bin = tidytext::reorder_within(bin, bin_upper, kerdes)
         )
 
-    n_max <- 16
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
             ggplot2::ggplot(df_hist, ggplot2::aes(x = bin, y = n)) +
@@ -116,6 +116,7 @@ survey_ggplot_resz_egesz_total <- function(question, language = "hu") {
 #' @return A ggplot or grid object
 survey_ggplot_resz_egesz_multiple <- function(question, language = "hu") {
     bins_nonzero <- 5 # how many bins for >0 part
+    n_max <- 16
 
     df_hist <- question$wrangled %>%
         dplyr::filter(n >= 5) %>%
@@ -159,7 +160,6 @@ survey_ggplot_resz_egesz_multiple <- function(question, language = "hu") {
             bin = tidytext::reorder_within(bin, bin_upper, kerdes)
         )
 
-    n_max <- 16
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
             ggplot2::ggplot(df_hist, ggplot2::aes(x = bin, y = n)) +
