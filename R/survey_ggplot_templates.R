@@ -723,7 +723,7 @@ survey_ggplot_table <- function(question, language = "hu") {
 survey_ggplot_szoveg_buborek <- function(question, language = "hu") {
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
-            data %>%
+            question$wrangled %>%
                 ggplot2::ggplot(ggplot2::aes(label = str_wrap(str_c(
                     "\"", answer, "\""
                 ), 50))) +
@@ -749,7 +749,7 @@ survey_ggplot_szoveg_buborek <- function(question, language = "hu") {
                     caption = translate("txt_bubble_caption", language),
                     subtitle = question$group
                 ),
-            data %>%
+            question$wrangled %>%
                 dplyr::slice_max(n = 10, order_by = count) |>
                 dplyr::arrange(answer == "Other", desc(count)) |>
                 dplyr::mutate(
