@@ -354,7 +354,7 @@ survey_wrangle_col_with_szoveg <- function(df, labels) {
       dplyr::filter(answer != "on") %>%
       tidyr::separate_longer_delim(cols = "answer", delim = ";") |>
       dplyr::filter(!(answer %in% c("NA", "NULL", "", "0"))) %>%
-      dplyr::mutate(answer = stringr::str_to_title(stringr::str_squish(answer))) %>%
+      dplyr::mutate(answer = stringr::str_squish(answer)) %>%
       dplyr::count(kerdes, answer, name = "count") %>%
       dplyr::left_join(
         labels
@@ -458,7 +458,7 @@ survey_wrangle_szoveg_buborek <- function(df, labels) {
     tidyr::separate_longer_delim(cols = "answer", delim = ";") |>
     dplyr::filter(!(answer %in% c("NA", "NULL", "", "0", "."))) %>%
     dplyr::filter(!str_detect(answer, "^[^A-Za-z0-9]$")) %>%
-    dplyr::mutate(answer = stringr::str_to_title(stringr::str_squish(answer))) %>%
+    dplyr::mutate(answer = stringr::str_squish(answer)) %>%
     dplyr::count(kerdesszam, answer, n_total, name = "count") %>%
     dplyr::right_join(
       distinct(labels, kerdesszam, kerdes_szoveg)
@@ -506,7 +506,7 @@ survey_wrangle_szoveg_buborek_multiple <- function(df, labels) {
     dplyr::filter(answer != "on") %>%
     tidyr::separate_longer_delim(cols = "answer", delim = ";") |>
     dplyr::filter(!(answer %in% c("NA", "NULL", "", "0"))) %>%
-    dplyr::mutate(answer = stringr::str_to_title(stringr::str_squish(answer))) %>%
+    dplyr::mutate(answer = stringr::str_squish(answer)) %>%
     dplyr::count(kerdes, answer, name = "count") %>%
     dplyr::right_join(
       labels
