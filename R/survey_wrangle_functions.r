@@ -458,20 +458,13 @@ survey_wrangle_szoveg_buborek <- function(df, labels) {
     dplyr::filter(!(answer %in% c("NA", "NULL", "", "0", "."))) %>%
     dplyr::filter(!str_detect(answer, "^[^A-Za-z0-9]$")) %>%
     dplyr::mutate(answer = stringr::str_to_title(stringr::str_squish(answer))) %>%
-    dplyr::count(answer, name = "count") %>%
+    dplyr::count(kerdesszam, answer, name = "count") %>%
     dplyr::right_join(
-      labels
+      distinct(labels, kerdesszam, kerdes_szoveg)
       # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
     ) %>%
     dplyr::mutate(
-      oszlop_szovege = as.character(oszlop_szovege),
-      valasz_szovege = as.character(valasz_szovege)
-    ) %>%
-    tidyr::replace_na(
-      list(
-        valasz_szovege = "",
-        oszlop_szovege = ""
-      )
+      valasz_szovege = "", oszlop_szovege = ""
     ) %>%
     dplyr::arrange(count) %>%
     dplyr::mutate(

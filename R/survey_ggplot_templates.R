@@ -4,33 +4,80 @@
 #' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot or grid object
 survey_ggplot_resz_egesz_total <- function(question, language = "hu") {
+    bins_nonzero <- 5 # how many bins for >0 part
+
+    df_hist <- question$wrangled %>%
+        dplyr::filter(n >= 5) %>%
+        dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max)) %>%
+        dplyr::mutate(answer = as.numeric(answer)) %>%
+        dplyr::group_by(kerdes, valasz_szovege) %>%
+        dplyr::group_modify(\(.x, .g) {
+            x_pos <- .x$answer[.x$answer > 0 & !is.na(.x$answer)]
+            max_x <- if (length(x_pos)) max(x_pos) else 0
+
+            # breaks for this kerdes only
+            br <- unique(round(pretty(c(0, max_x), n = bins_nonzero)))
+            br <- br[br >= 0]
+            if (length(br) < 2) br <- c(0, max_x)
+            if (max(br) < max_x) br <- c(br, max_x)
+
+            # labels like 1-20, 21-40...
+            lab <- paste0(br[-length(br)] + 1, "-", br[-1])
+
+            .x %>%
+                dplyr::mutate(
+                    bin = dplyr::case_when(
+                        answer == 0 ~ "0",
+                        answer > 0 ~ as.character(cut(answer,
+                            breaks = br, labels = lab,
+                            right = TRUE, include.lowest = TRUE
+                        )),
+                        TRUE ~ NA_character_
+                    )
+                ) %>%
+                dplyr::count(bin, name = "n") %>%
+                # 🔥 this forces "0" + all bins to exist in EACH facet (valasz_szovege) for THIS kerdes
+                tidyr::complete(
+                    bin = c("0", lab),
+                    fill = list(n = 0)
+                )
+        }) %>%
+        dplyr::ungroup() %>%
+        mutate(
+            bin_upper = as.numeric(str_extract(bin, "(\\d+)$", group = 1)),
+            bin = tidytext::reorder_within(bin, bin_upper, kerdes)
+        )
+
     n_max <- 16
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
-            question$wrangled %>%
-                dplyr::filter(n >= 5) %>%
-                dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max)) %>%
-                ggplot2::ggplot(ggplot2::aes(x = answer)) +
-                ggplot2::geom_histogram(ggplot2::aes(alpha = ggplot2::after_stat(count), fill = valasz_szovege), color = "black", bins = 7) +
-                ggplot2::facet_wrap(~valasz_szovege, scales = "free") +
-                ggplot2::scale_x_continuous(breaks = rflib::integer_breaks(), labels = scales::label_comma()) +
+            ggplot2::ggplot(df_hist, ggplot2::aes(x = bin, y = n)) +
+                ggplot2::geom_col(ggplot2::aes(alpha = n, fill = valasz_szovege), color = "black") +
+                ggplot2::facet_wrap(~valasz_szovege, scales = "free_x") +
+                tidytext::scale_x_reordered() +
                 ggplot2::scale_y_continuous(breaks = rflib::integer_breaks(), labels = scales::label_comma()) +
-                ggplot2::scale_fill_manual(values = question$color_scale) +
                 ggplot2::scale_alpha_continuous(range = c(0.45, 1)) +
+                ggplot2::scale_fill_manual(values = question$color_scale) +
                 ggplot2::guides(alpha = "none", fill = "none") +
                 ggplot2::labs(
-                    x = translate("txt_answer", language), fill = translate("txt_answer", language), y = translate("txt_resp_num", language),
-                    subtitle = question$group
+                    x = translate("txt_answer", language),
+                    y = translate("txt_resp_num", language),
+                    subtitle = question$group,
+                    caption = translate("resz_egesz_caption", language)
                 ) +
                 ggplot2::theme_minimal() +
                 ggplot2::theme(
-                    strip.text = ggplot2::element_text(size = 14),
                     axis.text = ggplot2::element_text(size = 12),
                     axis.title = ggplot2::element_text(size = 14),
                     legend.title = ggplot2::element_text(size = 14),
                     plot.background = ggplot2::element_rect(colour = NA, fill = NA, linewidth = 1),
                     legend.text = ggplot2::element_text(size = 12),
-                    plot.margin = unit(c(0, 2, 0, 2), "cm")
+                    plot.margin = ggplot2::unit(c(0, 2, 0, 2), "cm"),
+                    axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+                    strip.text = ggplot2::element_text(size = 12),
+                    panel.grid.minor = ggplot2::element_blank(),
+                    panel.grid.major.x = ggplot2::element_blank(),
+                    plot.caption = ggplot2::element_text(hjust = 0, face = "italic")
                 ),
             question$wrangled %>%
                 dplyr::filter(n >= 5) %>%
@@ -68,33 +115,80 @@ survey_ggplot_resz_egesz_total <- function(question, language = "hu") {
 #' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A ggplot or grid object
 survey_ggplot_resz_egesz_multiple <- function(question, language = "hu") {
+    bins_nonzero <- 5 # how many bins for >0 part
+
+    df_hist <- question$wrangled %>%
+        dplyr::filter(n >= 5) %>%
+        dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max)) %>%
+        dplyr::mutate(answer = as.numeric(answer)) %>%
+        dplyr::group_by(kerdes, valasz_szovege) %>%
+        dplyr::group_modify(\(.x, .g) {
+            x_pos <- .x$answer[.x$answer > 0 & !is.na(.x$answer)]
+            max_x <- if (length(x_pos)) max(x_pos) else 0
+
+            # breaks for this kerdes only
+            br <- unique(round(pretty(c(0, max_x), n = bins_nonzero)))
+            br <- br[br >= 0]
+            if (length(br) < 2) br <- c(0, max_x)
+            if (max(br) < max_x) br <- c(br, max_x)
+
+            # labels like 1-20, 21-40...
+            lab <- paste0(br[-length(br)] + 1, "-", br[-1])
+
+            .x %>%
+                dplyr::mutate(
+                    bin = dplyr::case_when(
+                        answer == 0 ~ "0",
+                        answer > 0 ~ as.character(cut(answer,
+                            breaks = br, labels = lab,
+                            right = TRUE, include.lowest = TRUE
+                        )),
+                        TRUE ~ NA_character_
+                    )
+                ) %>%
+                dplyr::count(bin, name = "n") %>%
+                # 🔥 this forces "0" + all bins to exist in EACH facet (valasz_szovege) for THIS kerdes
+                tidyr::complete(
+                    bin = c("0", lab),
+                    fill = list(n = 0)
+                )
+        }) %>%
+        dplyr::ungroup() %>%
+        mutate(
+            bin_upper = as.numeric(str_extract(bin, "(\\d+)$", group = 1)),
+            bin = tidytext::reorder_within(bin, bin_upper, kerdes)
+        )
+
     n_max <- 16
     gridExtra::grid.arrange(
         gridExtra::arrangeGrob(
-            question$wrangled %>%
-                dplyr::filter(n >= 5) %>%
-                dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max)) %>%
-                ggplot2::ggplot(ggplot2::aes(x = answer)) +
-                ggplot2::geom_histogram(ggplot2::aes(alpha = after_stat(count), fill = valasz_szovege), color = "black", bins = 7) +
-                ggplot2::facet_wrap(~valasz_szovege, scales = "free") +
-                ggplot2::scale_x_continuous(breaks = rflib::integer_breaks(), labels = scales::label_comma()) +
+            ggplot2::ggplot(df_hist, ggplot2::aes(x = bin, y = n)) +
+                ggplot2::geom_col(ggplot2::aes(alpha = n, fill = valasz_szovege), color = "black") +
+                ggplot2::facet_wrap(~valasz_szovege, scales = "free_x") +
+                tidytext::scale_x_reordered() +
                 ggplot2::scale_y_continuous(breaks = rflib::integer_breaks(), labels = scales::label_comma()) +
-                ggplot2::scale_fill_manual(values = question$color_scale) +
                 ggplot2::scale_alpha_continuous(range = c(0.45, 1)) +
+                ggplot2::scale_fill_manual(values = question$color_scale) +
                 ggplot2::guides(alpha = "none", fill = "none") +
                 ggplot2::labs(
-                    x = translate("txt_answer", language), fill = translate("txt_answer", language), y = translate("txt_resp_num", language),
-                    subtitle = question$group
+                    x = translate("txt_answer", language),
+                    y = translate("txt_resp_num", language),
+                    subtitle = question$group,
+                    caption = translate("resz_egesz_caption", language)
                 ) +
                 ggplot2::theme_minimal() +
                 ggplot2::theme(
-                    strip.text = ggplot2::element_text(size = 14),
                     axis.text = ggplot2::element_text(size = 12),
                     axis.title = ggplot2::element_text(size = 14),
                     legend.title = ggplot2::element_text(size = 14),
                     plot.background = ggplot2::element_rect(colour = NA, fill = NA, linewidth = 1),
                     legend.text = ggplot2::element_text(size = 12),
-                    plot.margin = unit(c(0, 2, 0, 2), "cm")
+                    plot.margin = ggplot2::unit(c(0, 2, 0, 2), "cm"),
+                    axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+                    strip.text = ggplot2::element_text(size = 12),
+                    panel.grid.minor = ggplot2::element_blank(),
+                    panel.grid.major.x = ggplot2::element_blank(),
+                    plot.caption = ggplot2::element_text(hjust = 0, face = "italic")
                 ),
             question$wrangled %>%
                 dplyr::filter(n >= 5) %>%
@@ -302,14 +396,16 @@ survey_ggplot_likert_scale <- function(question, language = "hu") {
             legend.title = ggplot2::element_text(size = 14),
             legend.text = ggplot2::element_text(size = 12),
             plot.subtitle = ggplot2::element_text(size = 18),
-            plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
+            plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1),
+            plot.caption = ggplot2::element_text(hjust = 0, face = "italic")
         ) +
         ggplot2::scale_color_manual(values = question$color_scale, na.value = "black") +
         ggplot2::scale_fill_manual(values = question$color_scale, na.value = rflib::long_palette()[1]) +
         ggplot2::labs(
             x = NULL, y = NULL,
             size = translate("txt_respondent_count", language),
-            subtitle = question$group
+            subtitle = question$group,
+            caption = translate("likert_caption", language)
         )
 }
 #' GGPlot template for column distribution (total) survey question
@@ -905,14 +1001,16 @@ survey_ggplot_likert_scale_rev <- function(question, language = "hu") {
             legend.title = ggplot2::element_text(size = 14),
             legend.text = ggplot2::element_text(size = 12),
             plot.subtitle = ggplot2::element_text(size = 18),
-            plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
+            plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1),
+            plot.caption = ggplot2::element_text(hjust = 0, face = "italic")
         ) +
         ggplot2::scale_color_manual(values = question$color_scale, na.value = "black") +
         ggplot2::scale_fill_manual(values = question$color_scale, na.value = rflib::long_palette()[1]) +
         ggplot2::labs(
             x = NULL, y = NULL,
             size = translate("txt_respondent_count", language),
-            subtitle = question$group
+            subtitle = question$group,
+            caption = translate("likert_caption", language)
         )
 }
 #' GGPlot template for new other text column survey question

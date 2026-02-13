@@ -25,6 +25,7 @@ Imports:
 Suggests: 
     RODBC,
     odbc,
+    tidytext,
     knitr,
     rmarkdown,
     sf,
