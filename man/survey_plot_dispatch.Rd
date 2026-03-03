@@ -4,12 +4,14 @@
 \alias{survey_plot_dispatch}
 \title{Dispatch plot function based on plot type and question type}
 \usage{
-survey_plot_dispatch(plottype, question)
+survey_plot_dispatch(plottype, question, language = "hu")
 }
 \arguments{
 \item{plottype}{A string: "ggplot" or "echarts"}
 
 \item{question}{A SurveyQuestion object}
+
+\item{language}{Language code for chart labels ("hu" or "en", default "hu")}
 }
 \value{
 A plot object (ggplot or echarts4r)

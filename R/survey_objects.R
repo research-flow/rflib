@@ -8,7 +8,7 @@
 #' @return A SurveyQuestion object (S3)
 #' @importFrom dplyr n_distinct
 #' @export
-survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
+survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL, language = "hu") {
   # Calculate n_respondent if respondent_id column exists
   n_respondent <- if ("respondent_id" %in% names(data)) {
     dplyr::n_distinct(data$respondent_id)
@@ -23,6 +23,7 @@ survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
       data = data,
       wrangled = tryCatch(survey_wrangle_dispatch(tipus, data), error = function(e) NULL),
       label = label,
+      language = language,
       group = "Teljes minta",
       color_scale = color_scale,
       likert_labeller = NULL, # For likert_scale questions, this will hold the labels
@@ -49,15 +50,17 @@ survey_question <- function(id, tipus, data, label = NULL, color_scale = NULL) {
 #' @param title Survey title (from title sheet)
 #' @param labels Label dataframe from label sheet
 #' @param n_respondent Optional number of distinct respondents (will be calculated if not provided)
+#' @param language Language code for chart labels and formatting (default: "hu" for Hungarian)
 #' @return A Survey object containing metadata and question list
 #' @export
-survey <- function(title, labels, n_respondent = NULL) {
+survey <- function(title, labels, n_respondent = NULL, language = "hu") {
   structure(
     list(
       title = title,
       labels = labels,
       questions = list(),
-      n_respondent = n_respondent
+      n_respondent = n_respondent,
+      language = language
     ),
     class = "Survey"
   )
@@ -422,6 +425,8 @@ get_question_dimensions <- function(tipus) {
     "regio_eloszlas" = list(width = 12, height = 7),
     "resz_egesz_combined" = list(width = 17, height = 7),
     "resz_egesz_multiple" = list(width = 17, height = 8),
+    "col_with_number" = list(width = 17, height = 8),
+    "col_with_szoveg" = list(width = 17, height = 8),
     "resz_egesz_multiple_longitud" = list(width = 10, height = 4),
     "resz_egesz_total" = list(width = 17, height = 7),
     "resz_egesz_total_longitud" = list(width = 10, height = 4),

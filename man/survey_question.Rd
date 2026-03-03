@@ -4,7 +4,14 @@
 \alias{survey_question}
 \title{Create a SurveyQuestion object}
 \usage{
-survey_question(id, tipus, data, label = NULL, color_scale = NULL)
+survey_question(
+  id,
+  tipus,
+  data,
+  label = NULL,
+  color_scale = NULL,
+  language = "hu"
+)
 }
 \arguments{
 \item{id}{Question identifier}

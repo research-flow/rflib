@@ -8,6 +8,7 @@
 #' @param title Custom title for the presentation (optional, NULL to use Survey$title or default)
 #' @param subtitle Custom subtitle (optional, NULL to use default)
 #' @param date Custom date (optional, NULL to use current date)
+#' @param language Language code for chart labels ("hu" or "en", default "hu")
 #' @param output_file Output file name (optional)
 #' @param template_file Template Rmd file to use
 #' @param reference_doc PowerPoint reference document
@@ -19,6 +20,7 @@ generate_survey_presentation <- function(
     title = NULL,
     subtitle = NULL,
     date = NULL,
+    language = "hu",
     output_file = NULL,
     template_file = "templates/survey_template.Rmd",
     reference_doc = NULL,
@@ -58,7 +60,7 @@ generate_survey_presentation <- function(
 
     if (is.null(survey_to_render)) {
         # Create Survey object
-        Survey <- rflib::survey_init(raw_file)
+        Survey <- rflib::survey_init(raw_file, language = language)
         Survey <- rflib::survey_add_definition(Survey, seged_file, replot = TRUE)
         Survey <- rflib::survey_add_all_references(Survey, rewrangle = TRUE)
     } else {
@@ -153,6 +155,7 @@ generate_survey_presentation <- function(
 #' @param title Custom title for the report (optional, NULL to use Survey$title or default)
 #' @param subtitle Custom subtitle (optional, NULL to use default)
 #' @param date Custom date (optional, NULL to use current date)
+#' @param language Language code for chart labels ("hu" or "en", default "hu")
 #' @param output_file Output file name (optional)
 #' @param template_file Template Rmd file to use
 #' @return Path to generated HTML report
@@ -162,6 +165,7 @@ generate_survey_html_report <- function(
     title = NULL,
     subtitle = NULL,
     date = NULL,
+    language = "hu",
     output_file = NULL,
     template_file = "templates/html_report_template.Rmd") {
     # Will set defaults after Survey object is created
@@ -188,7 +192,7 @@ generate_survey_html_report <- function(
     message("Creating Survey object from: ", raw_file)
 
     # Create Survey object
-    Survey <- rflib::survey_init(raw_file)
+    Survey <- rflib::survey_init(raw_file, language = language)
     Survey <- rflib::survey_add_definition(Survey, seged_file, replot = TRUE)
     Survey <- rflib::survey_add_all_references(Survey, rewrangle = TRUE)
 

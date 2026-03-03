@@ -4,10 +4,12 @@
 \alias{survey_echarts_likert_scale_rev}
 \title{ECharts template for reversed Likert scale survey question}
 \usage{
-survey_echarts_likert_scale_rev(question)
+survey_echarts_likert_scale_rev(question, language = "hu")
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 An echarts4r object

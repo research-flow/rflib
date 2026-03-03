@@ -2,66 +2,80 @@
 #'
 #' @param plottype A string: "ggplot" or "echarts"
 #' @param question A SurveyQuestion object
+#' @param language Language code for chart labels ("hu" or "en", default "hu")
 #' @return A plot object (ggplot or echarts4r)
 #' @export
-survey_plot_dispatch <- function(plottype, question) {
+survey_plot_dispatch <- function(plottype, question, language = "hu") {
   type <- question$tipus
+  if (!is.null(question$language)) {
+    language <- question$language
+  }
   if (plottype == "ggplot") {
     switch(type,
-      "resz_egesz_total" = survey_ggplot_resz_egesz_total(question),
-      "resz_egesz_multiple" = survey_ggplot_resz_egesz_multiple(question),
-      "likert_scale" = survey_ggplot_likert_scale(question),
-      "col_eloszlas_total" = survey_ggplot_col_eloszlas_multiple(question),
-      "col_eloszlas_multiple" = survey_ggplot_col_eloszlas_multiple(question),
-      "year_eloszlas_unscale" = survey_ggplot_year_eloszlas_unscale(question),
-      "regio_eloszlas" = survey_ggplot_regio_eloszlas(question),
-      "szoveg_col_egyeb" = survey_ggplot_szoveg_col_egyeb(question),
-      "year_eloszlas" = survey_ggplot_year_eloszlas(question),
-      "table" = survey_ggplot_table(question),
-      "szoveg_buborek" = survey_ggplot_szoveg_buborek(question),
-      "table_atlag" = survey_ggplot_table_atlag(question),
-      "likert_scale_rev" = survey_ggplot_likert_scale_rev(question),
-      "szoveg_col_egyeb_new" = survey_ggplot_szoveg_col_egyeb_new(question),
-      "szoveg_buborek_multiple" = survey_ggplot_szoveg_buborek_multiple(question),
-      "hoterkep" = survey_ggplot_hoterkep(question),
-      "terulet_eloszlas" = survey_ggplot_terulet_eloszlas(question),
-      "likert_scale_table" = survey_ggplot_likert_scale_table(question),
-      "likert_scale_ref" = survey_ggplot_likert_scale_ref(question),
-      "table_sor" = survey_ggplot_table_sor(question),
-      "table_rev" = survey_ggplot_table_rev(question),
-      "szam_col_egyeb" = survey_ggplot_szam_col_egyeb(question),
-      "table_oszlop" = survey_ggplot_table_oszlop(question),
-      "diszkret_eloszlas" = survey_ggplot_diszkret_eloszlas(question),
-      "table_egyeb" = survey_ggplot_table_egyeb(question),
+      "resz_egesz_total" = survey_ggplot_resz_egesz_total(question, language),
+      "resz_egesz_multiple" = survey_ggplot_resz_egesz_multiple(question, language),
+      "likert_scale" = survey_ggplot_likert_scale(question, language),
+      "naptar" = survey_ggplot_naptar(question, language),
+      "col_with_number" = survey_ggplot_col_with_number(question, language),
+      "col_with_szoveg" = survey_ggplot_col_with_szoveg(question, language),
+      "col_eloszlas_total" = survey_ggplot_col_eloszlas_multiple(question, language),
+      "col_eloszlas_multiple" = survey_ggplot_col_eloszlas_multiple(question, language),
+      "year_eloszlas_unscale" = survey_ggplot_year_eloszlas_unscale(question, language),
+      "regio_eloszlas" = survey_ggplot_regio_eloszlas(question, language),
+      "iranyito_eloszlas" = survey_ggplot_regio_eloszlas(question, language),
+      "szoveg_col_egyeb" = survey_ggplot_szoveg_col_egyeb(question, language),
+      "year_eloszlas" = survey_ggplot_year_eloszlas(question, language),
+      "table" = survey_ggplot_table(question, language),
+      "szoveg_buborek" = survey_ggplot_szoveg_buborek(question, language),
+      "table_atlag" = survey_ggplot_table_atlag(question, language),
+      "likert_scale_rev" = survey_ggplot_likert_scale_rev(question, language),
+      "szoveg_col_egyeb_new" = survey_ggplot_szoveg_col_egyeb_new(question, language),
+      "szoveg_buborek_multiple" = survey_ggplot_szoveg_buborek_multiple(question, language),
+      "hoterkep" = survey_ggplot_hoterkep(question, language),
+      "terulet_eloszlas" = survey_ggplot_terulet_eloszlas(question, language),
+      "likert_scale_table" = survey_ggplot_likert_scale_table(question, language),
+      "likert_scale_ref" = survey_ggplot_likert_scale_ref(question, language),
+      "table_sor" = survey_ggplot_table_sor(question, language),
+      "table_rev" = survey_ggplot_table_rev(question, language),
+      "szam_col_egyeb" = survey_ggplot_szam_col_egyeb(question, language),
+      "table_oszlop" = survey_ggplot_table_oszlop(question, language),
+      "diszkret_eloszlas" = survey_ggplot_diszkret_eloszlas(question, language),
+      "table_egyeb" = survey_ggplot_table_egyeb(question, language),
+      "combobox" = survey_ggplot_combobox(question, language),
       stop(paste("Unknown ggplot question type:", type))
     )
   } else if (plottype == "echarts") {
     switch(type,
-      "resz_egesz_total" = survey_echarts_resz_egesz_total(question),
-      "resz_egesz_multiple" = survey_echarts_resz_egesz_multiple(question),
-      "likert_scale" = survey_echarts_likert_scale(question),
-      "col_eloszlas_total" = survey_echarts_col_eloszlas_multiple(question),
-      "col_eloszlas_multiple" = survey_echarts_col_eloszlas_multiple(question),
-      "year_eloszlas_unscale" = survey_echarts_year_eloszlas_unscale(question),
-      "regio_eloszlas" = survey_echarts_regio_eloszlas(question),
-      "szoveg_col_egyeb" = survey_echarts_szoveg_col_egyeb(question),
-      "year_eloszlas" = survey_echarts_year_eloszlas(question),
-      "table" = survey_echarts_table(question),
-      "szoveg_buborek" = survey_echarts_szoveg_buborek(question),
-      "table_atlag" = survey_echarts_table_atlag(question),
-      "likert_scale_rev" = survey_echarts_likert_scale_rev(question),
-      "szoveg_col_egyeb_new" = survey_echarts_szoveg_col_egyeb_new(question),
-      "szoveg_buborek_multiple" = survey_echarts_szoveg_buborek_multiple(question),
-      "hoterkep" = survey_echarts_hoterkep(question),
-      "terulet_eloszlas" = survey_echarts_terulet_eloszlas(question),
-      "likert_scale_table" = survey_echarts_likert_scale_table(question),
-      "likert_scale_ref" = survey_echarts_likert_scale_ref(question),
-      "table_sor" = survey_echarts_table_sor(question),
-      "table_rev" = survey_echarts_table_rev(question),
-      "szam_col_egyeb" = survey_echarts_szam_col_egyeb(question),
-      "table_oszlop" = survey_echarts_table_oszlop(question),
-      "diszkret_eloszlas" = survey_echarts_diszkret_eloszlas(question),
-      "table_egyeb" = survey_echarts_table_egyeb(question),
+      "resz_egesz_total" = survey_echarts_resz_egesz_total(question, language),
+      "resz_egesz_multiple" = survey_echarts_resz_egesz_multiple(question, language),
+      "likert_scale" = survey_echarts_likert_scale(question, language),
+      # "naptar" = survey_echarts_naptar(question, language),
+      # "col_with_number" = survey_echarts_col_with_number(question, language),
+      # "col_with_szoveg" = survey_echarts_col_with_szoveg(question, language),
+      "col_eloszlas_total" = survey_echarts_col_eloszlas_multiple(question, language),
+      "col_eloszlas_multiple" = survey_echarts_col_eloszlas_multiple(question, language),
+      "year_eloszlas_unscale" = survey_echarts_year_eloszlas_unscale(question, language),
+      "regio_eloszlas" = survey_echarts_regio_eloszlas(question, language),
+      "iranyito_eloszlas" = survey_echarts_regio_eloszlas(question, language),
+      "szoveg_col_egyeb" = survey_echarts_szoveg_col_egyeb(question, language),
+      "year_eloszlas" = survey_echarts_year_eloszlas(question, language),
+      "table" = survey_echarts_table(question, language),
+      "szoveg_buborek" = survey_echarts_szoveg_buborek(question, language),
+      "table_atlag" = survey_echarts_table_atlag(question, language),
+      "likert_scale_rev" = survey_echarts_likert_scale_rev(question, language),
+      "szoveg_col_egyeb_new" = survey_echarts_szoveg_col_egyeb_new(question, language),
+      "szoveg_buborek_multiple" = survey_echarts_szoveg_buborek_multiple(question, language),
+      "hoterkep" = survey_echarts_hoterkep(question, language),
+      "terulet_eloszlas" = survey_echarts_terulet_eloszlas(question, language),
+      "likert_scale_table" = survey_echarts_likert_scale_table(question, language),
+      "likert_scale_ref" = survey_echarts_likert_scale_ref(question, language),
+      "table_sor" = survey_echarts_table_sor(question, language),
+      "table_rev" = survey_echarts_table_rev(question, language),
+      "szam_col_egyeb" = survey_echarts_szam_col_egyeb(question, language),
+      "table_oszlop" = survey_echarts_table_oszlop(question, language),
+      "diszkret_eloszlas" = survey_echarts_diszkret_eloszlas(question, language),
+      "table_egyeb" = survey_echarts_table_egyeb(question, language),
+      # "combobox" = survey_echarts_combobox(question, language),
       stop(paste("Unknown echarts question type:", type))
     )
   } else {
@@ -81,10 +95,14 @@ survey_wrangle_dispatch <- function(tipus, data, labels) {
     "resz_egesz_total" = survey_wrangle_resz_egesz_total(data, labels),
     "resz_egesz_multiple" = survey_wrangle_resz_egesz_multiple(data, labels),
     "likert_scale" = survey_wrangle_likert_scale(data, labels),
+    "naptar" = survey_wrangle_naptar(data, labels),
+    "col_with_number" = survey_wrangle_col_with_number(data, labels),
+    "col_with_szoveg" = survey_wrangle_col_with_szoveg(data, labels),
     "col_eloszlas_total" = survey_wrangle_col_eloszlas_multiple(data, labels),
     "col_eloszlas_multiple" = survey_wrangle_col_eloszlas_multiple(data, labels),
-    "year_eloszlas_unscale" = survey_wrangle_year_eloszlas_unscale(data, labels),
+    "year_eloszlas_unscale" = survey_wrangle_year_eloszlas(data, labels),
     "regio_eloszlas" = survey_wrangle_regio_eloszlas(data, labels),
+    "iranyito_eloszlas" = survey_wrangle_iranyito_eloszlas(data, labels),
     "szoveg_col_egyeb" = survey_wrangle_szoveg_col_egyeb(data, labels),
     "year_eloszlas" = survey_wrangle_year_eloszlas(data, labels),
     "table" = survey_wrangle_table(data, labels),
@@ -103,6 +121,7 @@ survey_wrangle_dispatch <- function(tipus, data, labels) {
     "table_oszlop" = survey_wrangle_table_oszlop(data, labels),
     "diszkret_eloszlas" = survey_wrangle_diszkret_eloszlas(data, labels),
     "table_egyeb" = survey_wrangle_table_egyeb(data, labels),
+    "combobox" = survey_wrangle_combobox(data, labels),
     stop(paste("Unknown question type:", tipus))
   )
 }
@@ -265,22 +284,112 @@ survey_wrangle_col_eloszlas_multiple <- function(df, labels) {
     ) %>%
     dplyr::ungroup() %>%
     unique() %>%
-    dplyr::left_join(labels, by = "kerdes")
+    dplyr::right_join(labels, by = "kerdes") %>%
+    tidyr::replace_na(list(count = 0, percentage = 0))
 }
 
-#' Wrangle year distribution (unscaled)
+#' Wrangle column distribution question (multiple)
 #'
 #' @param df A tibble with columns respondent_id and answer
 #' @param labels A tibble with question labels
-#' @return A tibble with numeric answers joined to labels
-
-survey_wrangle_year_eloszlas_unscale <- function(df, labels) {
-  if (!all(suppressWarnings(!is.na(as.numeric(df$answer))))) {
-    stop("Some answers cannot be converted to numeric in survey_wrangle_year_eloszlas_unscale.")
-  }
+#' @return A tibble with frequency per answer
+survey_wrangle_naptar <- function(df, labels) {
   df %>%
-    dplyr::mutate(answer = as.numeric(answer)) %>%
-    dplyr::left_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu"))
+    dplyr::mutate(
+      n_total = dplyr::n_distinct(respondent_id),
+      date = lubridate::floor_date(lubridate::ymd(answer), unit = "months")
+    ) |>
+    tidyr::drop_na(date) |>
+    dplyr::count(kerdes, date, n_total) |>
+    dplyr::right_join(
+      labels
+    ) |>
+    dplyr::mutate(
+      year = as.character(lubridate::year(date)),
+      month = lubridate::month(date, label = T, locale = "LC_US"),
+      min_year = min(lubridate::year(date)),
+      max_year = max(lubridate::year(date))
+    ) |>
+    (\(x)
+    tidyr::crossing(
+      year = as.character(min(lubridate::year(x$date)):max(lubridate::year(x$date))),
+      month = lubridate::month(1:12, label = TRUE, locale = "LC_US")
+    ) |>
+      dplyr::left_join(x)
+    )()
+}
+#' Wrangle column distribution question (multiple)
+#'
+#' @param df A tibble with columns respondent_id and answer
+#' @param labels A tibble with question labels
+#' @return A tibble with frequency per answer
+survey_wrangle_col_with_number <- function(df, labels) {
+  full_join(
+    df %>%
+      dplyr::filter(answer != "on") |>
+      dplyr::transmute(kerdes, answer_num = as.numeric(answer)) %>%
+      dplyr::left_join(labels, by = "kerdes"),
+    df %>%
+      dplyr::filter(answer == "on") %>%
+      dplyr::mutate(resp_count = dplyr::n_distinct(respondent_id)) |>
+      dplyr::group_by(kerdes) %>%
+      dplyr::reframe(
+        count = dplyr::n(),
+        percentage = count / resp_count
+      ) %>%
+      dplyr::ungroup() %>%
+      unique() %>%
+      dplyr::right_join(labels, by = "kerdes") |>
+      tidyr::replace_na(list(count = 0, percentage = 0))
+  )
+}
+#' Wrangle column distribution question (multiple)
+#'
+#' @param df A tibble with columns respondent_id and answer
+#' @param labels A tibble with question labels
+#' @return A tibble with frequency per answer
+survey_wrangle_col_with_szoveg <- function(df, labels) {
+  full_join(
+    df %>%
+      dplyr::filter(answer != "on") %>%
+      tidyr::separate_longer_delim(cols = "answer", delim = ";") |>
+      dplyr::filter(!(answer %in% c("NA", "NULL", "", "0"))) %>%
+      dplyr::mutate(answer = stringr::str_squish(answer)) %>%
+      dplyr::count(kerdes, answer, name = "count") %>%
+      dplyr::left_join(
+        labels
+        # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
+      ) %>%
+      dplyr::mutate(
+        oszlop_szovege = as.character(oszlop_szovege),
+        valasz_szovege = as.character(valasz_szovege)
+      ) %>%
+      tidyr::replace_na(
+        list(
+          valasz_szovege = "",
+          oszlop_szovege = ""
+        )
+      ) %>%
+      dplyr::arrange(count) %>%
+      dplyr::mutate(
+        total_szoveg = valasz_szovege,
+        total_szoveg = stringr::str_wrap(total_szoveg, 30),
+        total_szoveg = forcats::fct_inorder(total_szoveg)
+      ),
+    df %>%
+      dplyr::filter(answer == "on") %>%
+      dplyr::mutate(resp_count = dplyr::n_distinct(respondent_id)) |>
+      dplyr::group_by(kerdes) %>%
+      dplyr::reframe(
+        resp_count,
+        count_num = dplyr::n(),
+        percentage = count_num / resp_count
+      ) %>%
+      dplyr::ungroup() %>%
+      unique() %>%
+      dplyr::right_join(labels, by = "kerdes") |>
+      tidyr::replace_na(list(count_num = 0, percentage = 0))
+  )
 }
 
 #' Wrangle year distribution
@@ -290,11 +399,11 @@ survey_wrangle_year_eloszlas_unscale <- function(df, labels) {
 #' @return A tibble with numeric answers joined to labels
 
 survey_wrangle_year_eloszlas <- function(df, labels) {
-  if (!all(suppressWarnings(!is.na(as.numeric(df$answer))))) {
+  if (!all(suppressWarnings(!is.na(as.numeric(stringr::str_replace_all(df$answer, "\\,", "\\.")))))) {
     stop("Some answers cannot be converted to numeric in survey_wrangle_year_eloszlas.")
   }
   df %>%
-    dplyr::mutate(answer = as.numeric(answer)) %>%
+    dplyr::mutate(answer = as.numeric(stringr::str_replace_all(answer, "\\,", "\\."))) %>%
     dplyr::left_join(labels, by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu"))
 }
 
@@ -344,25 +453,19 @@ survey_wrangle_szoveg_buborek <- function(df, labels) {
     (length(unique(na.omit(labels$valasz_szovege))) > 1)
 
   df %>%
+    dplyr::mutate(n_total = dplyr::n_distinct(respondent_id)) %>%
     dplyr::filter(answer != "on") %>%
     tidyr::separate_longer_delim(cols = "answer", delim = ";") |>
     dplyr::filter(!(answer %in% c("NA", "NULL", "", "0", "."))) %>%
     dplyr::filter(!str_detect(answer, "^[^A-Za-z0-9]$")) %>%
-    dplyr::mutate(answer = stringr::str_to_title(stringr::str_squish(answer))) %>%
-    dplyr::count(answer, name = "count") %>%
+    dplyr::mutate(answer = stringr::str_squish(answer)) %>%
+    dplyr::count(kerdesszam, answer, n_total, name = "count") %>%
     dplyr::right_join(
-      labels
+      distinct(labels, kerdesszam, kerdes_szoveg)
       # , by = dplyr::join_by("kerdes", "kerdesszam", "kerdesbetu")
     ) %>%
     dplyr::mutate(
-      oszlop_szovege = as.character(oszlop_szovege),
-      valasz_szovege = as.character(valasz_szovege)
-    ) %>%
-    tidyr::replace_na(
-      list(
-        valasz_szovege = "",
-        oszlop_szovege = ""
-      )
+      valasz_szovege = "", oszlop_szovege = ""
     ) %>%
     dplyr::arrange(count) %>%
     dplyr::mutate(
@@ -403,7 +506,7 @@ survey_wrangle_szoveg_buborek_multiple <- function(df, labels) {
     dplyr::filter(answer != "on") %>%
     tidyr::separate_longer_delim(cols = "answer", delim = ";") |>
     dplyr::filter(!(answer %in% c("NA", "NULL", "", "0"))) %>%
-    dplyr::mutate(answer = stringr::str_to_title(stringr::str_squish(answer))) %>%
+    dplyr::mutate(answer = stringr::str_squish(answer)) %>%
     dplyr::count(kerdes, answer, name = "count") %>%
     dplyr::right_join(
       labels
@@ -490,6 +593,43 @@ survey_wrangle_regio_eloszlas <- function(df, labels) {
     summarise(
       count = sum(count, na.rm = TRUE),
       percentage = sum(percentage, na.rm = TRUE),
+      .groups = "drop"
+    )
+}
+#' Wrangle region distribution question
+#'
+#' @param df A tibble with columns respondent_id, answer, kerdes
+#' @param labels A tibble with question labels
+#' @return Not implemented
+
+survey_wrangle_iranyito_eloszlas <- function(df, labels) {
+  result <- df %>%
+    dplyr::transmute(
+      kerdes,
+      resp_count = dplyr::n_distinct(respondent_id),
+      respondent_id,
+      name = "iranyitoszam",
+      value = answer,
+      value_num = as.numeric(value)
+    ) %>%
+    tidyr::drop_na(value_num)
+
+  szotar <- teruleti_szotar |>
+    dplyr::select(-telepules_nev) |>
+    dplyr::mutate_all(as.character) |>
+    dplyr::mutate(regio = regio_nev) |>
+    tidyr::pivot_longer(-regio_nev) |>
+    dplyr::distinct()
+
+  result |>
+    dplyr::left_join(
+      szotar,
+      by = c("name", "value")
+    ) |>
+    dplyr::group_by(regio_nev) |>
+    dplyr::summarise(
+      count = dplyr::n_distinct(respondent_id, na.rm = TRUE),
+      percentage = count / max(resp_count, na.rm = T),
       .groups = "drop"
     )
 }
@@ -690,6 +830,32 @@ survey_wrangle_szam_col_egyeb <- function(df, labels) {
 
 survey_wrangle_table_oszlop <- function(df, labels) {
   stop("Not implemented")
+}
+#' Wrangle combobox question
+#'
+#' @param df A tibble with columns respondent_id, answer, kerdes
+#' @param labels A tibble with question labels
+#' @return Not implemented
+
+survey_wrangle_combobox <- function(df, labels) {
+  df %>%
+    dplyr::mutate(
+      orvos_db = n_distinct(respondent_id)
+    ) %>%
+    dplyr::count(kerdes, answer, orvos_db) %>%
+    dplyr::right_join(labels, by = join_by("kerdes", "answer" == "combobox_value")) %>%
+    tidyr::replace_na(list(n = 0)) %>%
+    dplyr::mutate(orvos_db = max(orvos_db, na.rm = TRUE)) %>%
+    dplyr::mutate(perc = n / orvos_db) %>%
+    dplyr::filter(valasz_tipusa == "Combobox") %>%
+    tidyr::drop_na(combobox_szoveg) %>%
+    dplyr::arrange(kerdes, answer) %>%
+    dplyr::mutate(
+      combobox_szoveg = stringr::str_wrap(combobox_szoveg, 30),
+      combobox_szoveg = forcats::fct_inorder(combobox_szoveg),
+      valasz_szovege = stringr::str_wrap(valasz_szovege, 50),
+      valasz_szovege = forcats::fct_inorder(valasz_szovege),
+    )
 }
 #' Wrangle discrete distribution question
 #'

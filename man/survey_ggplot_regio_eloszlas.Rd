@@ -4,10 +4,12 @@
 \alias{survey_ggplot_regio_eloszlas}
 \title{GGPlot template for region distribution survey question}
 \usage{
-survey_ggplot_regio_eloszlas(question)
+survey_ggplot_regio_eloszlas(question, language = "hu")
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 A ggplot object

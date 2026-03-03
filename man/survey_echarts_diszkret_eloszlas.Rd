@@ -4,10 +4,12 @@
 \alias{survey_echarts_diszkret_eloszlas}
 \title{ECharts template for discrete distribution survey question}
 \usage{
-survey_echarts_diszkret_eloszlas(question)
+survey_echarts_diszkret_eloszlas(question, language = "hu")
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 An echarts4r object

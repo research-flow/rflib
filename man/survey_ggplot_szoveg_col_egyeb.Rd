@@ -4,10 +4,12 @@
 \alias{survey_ggplot_szoveg_col_egyeb}
 \title{GGPlot template for other text column survey question}
 \usage{
-survey_ggplot_szoveg_col_egyeb(question)
+survey_ggplot_szoveg_col_egyeb(question, language = "hu")
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 A ggplot object

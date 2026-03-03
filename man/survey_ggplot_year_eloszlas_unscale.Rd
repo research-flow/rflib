@@ -4,10 +4,12 @@
 \alias{survey_ggplot_year_eloszlas_unscale}
 \title{GGPlot template for year distribution (unscaled) survey question}
 \usage{
-survey_ggplot_year_eloszlas_unscale(question)
+survey_ggplot_year_eloszlas_unscale(question, language = "hu")
 }
 \arguments{
 \item{question}{A list containing wrangled data and plot parameters}
+
+\item{language}{Language code for chart labels and formatting (default: "hu" for Hungarian)}
 }
 \value{
 A ggplot object
