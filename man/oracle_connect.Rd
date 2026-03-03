@@ -4,12 +4,12 @@
 \alias{oracle_connect}
 \title{Connect to RF Oracle schemes}
 \usage{
-oracle_connect(schema, setLocale = T)
+oracle_connect(schema = "RFLOW", setLocale = T)
 }
 \arguments{
 \item{schema}{Character string. Existing scheme in the RF Oracle system}
 
-\item{setLocale}{Boolean. If sys.setenv should be run tto set adequate Hungarian language options.}
+\item{setLocale}{Boolean. If sys.setenv should be run to set adequate Hungarian language options.}
 }
 \value{
 An ROracle connection OraConnection object.

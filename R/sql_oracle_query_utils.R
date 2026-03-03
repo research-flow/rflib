@@ -20,7 +20,6 @@
 #' @export
 oracle_select_all <- function(schema, table_name, connection = NULL) {
     # Validate inputs
-    # TODO correct this function by hand!!
     if (missing(schema) || is.null(schema) || nchar(trimws(schema)) == 0) {
         stop("Schema name is required and cannot be empty.")
     }
@@ -29,7 +28,7 @@ oracle_select_all <- function(schema, table_name, connection = NULL) {
     if (missing(connection) || is.null(connection)) {
         connection <- tryCatch(
             {
-                rflib::oracle_connect(schema)
+                rflib::oracle_connect()
             },
             error = function(e) {
                 stop(paste0("Could not establish connection using schema '", schema, "': ", e$message))
@@ -169,14 +168,25 @@ oracle_select_all <- function(schema, table_name, connection = NULL) {
 #' @importFrom DBI dbIsValid dbListTables
 #'
 #' @export
-oracle_list_tables <- function(connection, schema = NULL) {
+oracle_list_tables <- function(schema, connection = NULL) {
     # Validate connection
-    if (missing(connection) || is.null(connection)) {
-        stop("Connection parameter is required and cannot be NULL.")
+    if (missing(schema) || is.null(schema) || nchar(trimws(schema)) == 0) {
+        stop("Schema name is required and cannot be empty.")
     }
 
-    if (!DBI::dbIsValid(connection)) {
-        stop("Database connection is not valid. Please check your connection.")
+    # If connection is not provided, try to create it using the schema
+    if (missing(connection) || is.null(connection)) {
+        connection <- tryCatch(
+            {
+                rflib::oracle_connect()
+            },
+            error = function(e) {
+                stop(paste0("Could not establish connection using schema '", schema, "': ", e$message))
+            }
+        )
+    }
+    if (missing(connection) || is.null(connection)) {
+        stop("Connection parameter is required and cannot be NULL.")
     }
 
     # Get table list
@@ -218,18 +228,24 @@ oracle_list_tables <- function(connection, schema = NULL) {
 #' @importFrom stringr str_detect
 #'
 #' @export
-oracle_table_exists <- function(connection, table_name, schema = NULL) {
-    # Validate inputs
+oracle_table_exists <- function(schema, table_name, connection = NULL) {
+    if (missing(schema) || is.null(schema) || nchar(trimws(schema)) == 0) {
+        stop("Schema name is required and cannot be empty.")
+    }
+
+    # If connection is not provided, try to create it using the schema
+    if (missing(connection) || is.null(connection)) {
+        connection <- tryCatch(
+            {
+                rflib::oracle_connect()
+            },
+            error = function(e) {
+                stop(paste0("Could not establish connection using schema '", schema, "': ", e$message))
+            }
+        )
+    }
     if (missing(connection) || is.null(connection)) {
         stop("Connection parameter is required and cannot be NULL.")
-    }
-
-    if (missing(table_name) || is.null(table_name) || nchar(trimws(table_name)) == 0) {
-        stop("Table name is required and cannot be empty.")
-    }
-
-    if (!DBI::dbIsValid(connection)) {
-        stop("Database connection is not valid. Please check your connection.")
     }
 
     # Sanitize table name

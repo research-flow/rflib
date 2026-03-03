@@ -4,12 +4,12 @@
 #' `oracle_connect()` connects to RF schemes, with host, scheme name and password.
 #'
 #' @param schema Character string. Existing scheme in the RF Oracle system
-#' @param setLocale Boolean. If sys.setenv should be run tto set adequate Hungarian language options.
+#' @param setLocale Boolean. If sys.setenv should be run to set adequate Hungarian language options.
 #' @returns An ROracle connection OraConnection object.
 #'
 #' @export
-
-oracle_connect <- function(schema, setLocale = T) {
+#' 
+oracle_connect <- function(schema = "RFLOW", setLocale = T) {
   if (setLocale) {
     Sys.setenv(TZ = "CET")
     Sys.setenv(NLS_LANG = "HUNGARIAN_HUNGARY.AL32UTF8")

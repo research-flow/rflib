@@ -4,14 +4,14 @@
 \alias{oracle_table_exists}
 \title{Check table existence}
 \usage{
-oracle_table_exists(connection, table_name, schema = NULL)
+oracle_table_exists(schema, table_name, connection = NULL)
 }
 \arguments{
-\item{connection}{A valid database connection object}
+\item{schema}{Character string, optional. Schema name to check in.}
 
 \item{table_name}{Character string. Name of the table to check.}
 
-\item{schema}{Character string, optional. Schema name to check in.}
+\item{connection}{A valid database connection object}
 }
 \value{
 Logical. TRUE if table exists, FALSE otherwise.
