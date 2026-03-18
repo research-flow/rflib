@@ -239,123 +239,124 @@ survey_ggplot_resz_egesz_multiple <- function(question, language = "hu") {
 #' @return A ggplot or grid object
 survey_ggplot_col_with_number <- function(question, language = "hu") {
     bins_nonzero <- 5 # how many bins for >0 part
-    n_max <- 16
+n_max <- 16
 
-    df_hist <- question$wrangled %>%
-        dplyr::filter(n >= 5) %>%
-        dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max)) %>%
-        dplyr::mutate(answer = as.numeric(answer)) %>%
-        dplyr::group_by(kerdes, valasz_szovege) %>%
-        dplyr::group_modify(\(.x, .g) {
-            x_pos <- .x$answer[.x$answer > 0 & !is.na(.x$answer)]
-            max_x <- if (length(x_pos)) max(x_pos) else 0
-
-            # breaks for this kerdes only
-            br <- unique(round(pretty(c(0, max_x), n = bins_nonzero)))
-            br <- br[br >= 0]
-            if (length(br) < 2) br <- c(0, max_x)
-            if (max(br) < max_x) br <- c(br, max_x)
-
-            # labels like 1-20, 21-40...
-            lab <- paste0(br[-length(br)] + 1, "-", br[-1])
-
-            .x %>%
-                dplyr::mutate(
-                    bin = dplyr::case_when(
-                        answer == 0 ~ "0",
-                        answer > 0 ~ as.character(cut(answer,
-                            breaks = br, labels = lab,
-                            right = TRUE, include.lowest = TRUE
-                        )),
-                        TRUE ~ NA_character_
-                    )
-                ) %>%
-                dplyr::count(bin, name = "n") %>%
-                # 🔥 this forces "0" + all bins to exist in EACH facet (valasz_szovege) for THIS kerdes
-                tidyr::complete(
-                    bin = c("0", lab),
-                    fill = list(n = 0)
-                )
-        }) %>%
-        dplyr::ungroup() %>%
-        mutate(
-            bin_upper = as.numeric(str_extract(bin, "(\\d+)$", group = 1)),
-            bin = tidytext::reorder_within(bin, bin_upper, kerdes)
+df_hist <- question$wrangled %>%
+  tidyr::drop_na(answer_num) %>%
+  # dplyr::filter(count >= 5) %>%
+  dplyr::filter(kerdesbetu %in% head(sort(unique(.$kerdesbetu)), n_max)) %>%
+  dplyr::mutate(answer_num = as.numeric(answer_num)) %>%
+  dplyr::group_by(kerdes, valasz_szovege) %>%
+  dplyr::group_modify(\(.x, .g) {
+    x_pos <- .x$answer_num[.x$answer_num > 0 & !is.na(.x$answer_num)]
+    max_x <- if (length(x_pos)) max(x_pos) else 0
+    
+    # breaks for this kerdes only
+    br <- unique(round(pretty(c(0, max_x), n = bins_nonzero)))
+    br <- br[br >= 0]
+    if (length(br) < 2) br <- c(0, max_x)
+    if (max(br) < max_x) br <- c(br, max_x)
+    
+    # labels like 1-20, 21-40...
+    lab <- paste0(br[-length(br)] + 1, "-", br[-1])
+    
+    .x %>%
+      dplyr::mutate(
+        bin = dplyr::case_when(
+          answer_num == 0 ~ "0",
+          answer_num > 0 ~ as.character(cut(answer_num,
+                                            breaks = br, labels = lab,
+                                            right = TRUE, include.lowest = TRUE
+          )),
+          TRUE ~ NA_character_
         )
+      ) %>%
+      dplyr::count(bin, name = "n") %>%
+      # 🔥 this forces "0" + all bins to exist in EACH facet (valasz_szovege) for THIS kerdes
+      tidyr::complete(
+        bin = c("0", lab),
+        fill = list(n = 0)
+      )
+  }) %>%
+  dplyr::ungroup() %>%
+  mutate(
+    bin_upper = as.numeric(str_extract(bin, "(\\d+)$", group = 1)),
+    bin = tidytext::reorder_within(bin, bin_upper, kerdes)
+  )
 
-    gridExtra::grid.arrange(
-        gridExtra::arrangeGrob(
-            ggplot2::ggplot(df_hist, ggplot2::aes(x = bin, y = n)) +
-                ggplot2::geom_col(ggplot2::aes(alpha = n, fill = valasz_szovege), color = "black") +
-                ggplot2::facet_wrap(~valasz_szovege, scales = "free_x") +
-                tidytext::scale_x_reordered() +
-                ggplot2::scale_y_continuous(breaks = rflib::integer_breaks(), labels = scales::label_comma()) +
-                ggplot2::scale_alpha_continuous(range = c(0.45, 1)) +
-                ggplot2::scale_fill_manual(values = question$color_scale) +
-                ggplot2::guides(alpha = "none", fill = "none") +
-                ggplot2::labs(
-                    x = translate("txt_answer", language),
-                    y = translate("txt_resp_num", language),
-                    subtitle = question$group,
-                    caption = translate("resz_egesz_caption", language)
-                ) +
-                ggplot2::theme_minimal() +
-                ggplot2::theme(
-                    axis.text = ggplot2::element_text(size = 12),
-                    axis.title = ggplot2::element_text(size = 14),
-                    legend.title = ggplot2::element_text(size = 14),
-                    plot.background = ggplot2::element_rect(colour = NA, fill = NA, linewidth = 1),
-                    legend.text = ggplot2::element_text(size = 12),
-                    plot.margin = ggplot2::unit(c(0, 2, 0, 2), "cm"),
-                    axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
-                    strip.text = ggplot2::element_text(size = 12),
-                    panel.grid.minor = ggplot2::element_blank(),
-                    panel.grid.major.x = ggplot2::element_blank(),
-                    plot.caption = ggplot2::element_text(hjust = 0, face = "italic")
-                ),
-            question$wrangled %>%
-                distinct(kerdes, kerdesbetu, count, percentage, kerdes_szoveg, valasz_szovege) %>%
-                dplyr::arrange(kerdesbetu) %>%
-                dplyr::mutate(
-                    valasz_szovege =
-                        (stringr::str_wrap(valasz_szovege, 30))
-                ) %>%
-                dplyr::mutate(valasz_szovege = forcats::fct_inorder(valasz_szovege)) |>
-                ggplot2::ggplot(ggplot2::aes(x = percentage, y = valasz_szovege, fill = valasz_szovege)) +
-                ggplot2::geom_col(position = ggplot2::position_stack(), color = "black") +
-                ggplot2::geom_col(alpha = 0.3, ggplot2::aes(x = 1)) +
-                ggplot2::geom_text(
-                    ggplot2::aes(
-                        label =
-                            ifelse(percentage <= 0.02,
-                                "",
-                                str_c(
-                                    scales::percent(percentage, accuracy = 0.1),
-                                    " (",
-                                    scales::number(count, accuracy = 1L),
-                                    ")"
-                                )
-                            )
-                    ),
-                    size = 4.5, position = ggplot2::position_stack(vjust = 0.5),
-                    fontface = "bold", color = "black"
-                ) +
-                ggplot2::scale_x_continuous(labels = scales::percent) +
-                ggplot2::scale_y_discrete(limits = rev) +
-                ggplot2::scale_fill_manual(values = question$color_scale) +
-                ggplot2::guides(fill = "none") +
-                ggplot2::labs(
-                    x = translate("txt_resp_rate_count", language), y = NULL, fill = "",
-                    subtitle = question$group
-                ) +
-                ggplot2::theme_minimal() +
-                ggplot2::theme(
-                    plot.subtitle = ggplot2::element_text(size = 16),
-                    # plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
-                ),
-            nrow = 1, widths = c(3, 3)
-        )
-    )
+gridExtra::grid.arrange(
+  gridExtra::arrangeGrob(
+    ggplot2::ggplot(df_hist, ggplot2::aes(x = bin, y = n)) +
+      ggplot2::geom_col(ggplot2::aes(alpha = n, fill = valasz_szovege), color = "black") +
+      ggplot2::facet_wrap(~valasz_szovege, scales = "free_x") +
+      tidytext::scale_x_reordered() +
+      ggplot2::scale_y_continuous(breaks = rflib::integer_breaks(), labels = scales::label_comma()) +
+      ggplot2::scale_alpha_continuous(range = c(0.45, 1)) +
+      ggplot2::scale_fill_manual(values = question$color_scale) +
+      ggplot2::guides(alpha = "none", fill = "none") +
+      ggplot2::labs(
+        x = translate("txt_answer", language),
+        y = translate("txt_resp_num", language),
+        subtitle = question$group,
+        caption = translate("resz_egesz_caption", language)
+      ) +
+      ggplot2::theme_minimal() +
+      ggplot2::theme(
+        axis.text = ggplot2::element_text(size = 12),
+        axis.title = ggplot2::element_text(size = 14),
+        legend.title = ggplot2::element_text(size = 14),
+        plot.background = ggplot2::element_rect(colour = NA, fill = NA, linewidth = 1),
+        legend.text = ggplot2::element_text(size = 12),
+        plot.margin = ggplot2::unit(c(0, 2, 0, 2), "cm"),
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+        strip.text = ggplot2::element_text(size = 12),
+        panel.grid.minor = ggplot2::element_blank(),
+        panel.grid.major.x = ggplot2::element_blank(),
+        plot.caption = ggplot2::element_text(hjust = 0, face = "italic")
+      ),
+    question$wrangled %>%
+      distinct(kerdes, kerdesbetu, count, percentage, kerdes_szoveg, valasz_szovege) %>%
+      dplyr::arrange(kerdesbetu) %>%
+      dplyr::mutate(
+        valasz_szovege =
+          (stringr::str_wrap(valasz_szovege, 30))
+      ) %>%
+      dplyr::mutate(valasz_szovege = forcats::fct_inorder(valasz_szovege)) |>
+      ggplot2::ggplot(ggplot2::aes(x = percentage, y = valasz_szovege, fill = valasz_szovege)) +
+      ggplot2::geom_col(position = ggplot2::position_stack(), color = "black") +
+      ggplot2::geom_col(alpha = 0.3, ggplot2::aes(x = 1)) +
+      ggplot2::geom_text(
+        ggplot2::aes(
+          label =
+            ifelse(percentage <= 0.02,
+                   "",
+                   str_c(
+                     scales::percent(percentage, accuracy = 0.1),
+                     " (",
+                     scales::number(count, accuracy = 1L),
+                     ")"
+                   )
+            )
+        ),
+        size = 4.5, position = ggplot2::position_stack(vjust = 0.5),
+        fontface = "bold", color = "black"
+      ) +
+      ggplot2::scale_x_continuous(labels = scales::percent) +
+      ggplot2::scale_y_discrete(limits = rev) +
+      ggplot2::scale_fill_manual(values = question$color_scale) +
+      ggplot2::guides(fill = "none") +
+      ggplot2::labs(
+        x = translate("txt_resp_rate_count", language), y = NULL, fill = "",
+        subtitle = question$group
+      ) +
+      ggplot2::theme_minimal() +
+      ggplot2::theme(
+        plot.subtitle = ggplot2::element_text(size = 16),
+        # plot.background = ggplot2::element_rect(colour = "black", fill = NA, linewidth = 1)
+      ),
+    nrow = 1, widths = c(3, 3)
+  )
+)
 }
 #' GGPlot template for multiple part-whole survey question
 #'
