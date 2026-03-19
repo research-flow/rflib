@@ -250,6 +250,8 @@ df_hist <- question$wrangled %>%
   dplyr::group_modify(\(.x, .g) {
     x_pos <- .x$answer_num[.x$answer_num > 0 & !is.na(.x$answer_num)]
     max_x <- if (length(x_pos)) max(x_pos) else 0
+    avg <- if (length(x_pos)) mean(x_pos) else NA_real_
+    median <- if (length(x_pos)) median(x_pos) else NA_real_
     
     # breaks for this kerdes only
     br <- unique(round(pretty(c(0, max_x), n = bins_nonzero)))
@@ -276,6 +278,10 @@ df_hist <- question$wrangled %>%
       tidyr::complete(
         bin = c("0", lab),
         fill = list(n = 0)
+      ) %>%
+      mutate(
+        avg = avg,
+        median = median
       )
   }) %>%
   dplyr::ungroup() %>%
@@ -288,7 +294,7 @@ gridExtra::grid.arrange(
   gridExtra::arrangeGrob(
     ggplot2::ggplot(df_hist, ggplot2::aes(x = bin, y = n)) +
       ggplot2::geom_col(ggplot2::aes(alpha = n, fill = valasz_szovege), color = "black") +
-      ggplot2::facet_wrap(~valasz_szovege, scales = "free_x") +
+      ggplot2::facet_wrap(~str_c(valasz_szovege, "\n(", translate("txt_avg_prefix", language), ":", round(avg, 1), ", ", translate("txt_median_prefix", language), ":", round(median, 1), ")"), scales = "free_x") +
       tidytext::scale_x_reordered() +
       ggplot2::scale_y_continuous(breaks = rflib::integer_breaks(), labels = scales::label_comma()) +
       ggplot2::scale_alpha_continuous(range = c(0.45, 1)) +
