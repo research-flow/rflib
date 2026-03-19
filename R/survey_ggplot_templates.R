@@ -294,7 +294,7 @@ gridExtra::grid.arrange(
   gridExtra::arrangeGrob(
     ggplot2::ggplot(df_hist, ggplot2::aes(x = bin, y = n)) +
       ggplot2::geom_col(ggplot2::aes(alpha = n, fill = valasz_szovege), color = "black") +
-      ggplot2::facet_wrap(~str_c(valasz_szovege, "\n(", translate("txt_avg_prefix", language), round(avg, 1), ", ", translate("txt_median_prefix", language), round(median, 1), ")"), scales = "free_x") +
+      ggplot2::facet_wrap(~str_c(str_wrap(valasz_szovege, 30), "\n(", translate("txt_avg_prefix", language), round(avg, 1), ", ", translate("txt_median_prefix", language), round(median, 1), ")"), scales = "free_x") +
       tidytext::scale_x_reordered() +
       ggplot2::scale_y_continuous(breaks = rflib::integer_breaks(), labels = scales::label_comma()) +
       ggplot2::scale_alpha_continuous(range = c(0.45, 1)) +
