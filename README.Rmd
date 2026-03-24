@@ -22,7 +22,7 @@ Research Flow utility package (v2.0.0.0) for internal use, providing enhanced fu
 
 ## Installation
 
-You can install the development version of rflib from GitHub with:
+You can install the development version of rflib@dev_akos from GitHub with:
 
 ``` r
 # install.packages("devtools")
