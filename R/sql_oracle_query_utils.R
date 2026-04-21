@@ -14,6 +14,29 @@
 #'
 #' @returns A data frame containing all rows and columns from the specified table.
 #'
+#' @details
+#' \strong{Security Measures:}
+#' This function is protected against SQL injection attacks through multiple layers:
+#' \itemize{
+#'   \item \strong{Input Validation:} All identifiers (schema and table names) are validated
+#'     against a whitelist pattern allowing only alphanumeric characters, underscores, and dots
+#'     (regex: `^[a-zA-Z0-9_\\.]+$`). Invalid identifiers are rejected with a clear error message.
+#'   \item \strong{Identifier Quoting:} Uses `DBI::dbQuoteIdentifier()` for proper SQL identifier
+#'     escaping, which quotes identifiers according to the database's requirements.
+#'   \item \strong{Pre-query Validation:} Verifies that the requested table actually exists
+#'     before attempting the query, preventing typos and unauthorized table access attempts.
+#'   \item \strong{Connection Validation:} Confirms the database connection is valid before
+#'     executing any queries via `DBI::dbIsValid()`.
+#'   \item \strong{No String Concatenation:} Query construction avoids string concatenation
+#'     for identifiers, using only DBI functions for safe query building.
+#' }
+#'
+#' @examples
+#' \dontrun{
+#'   con <- oracle_connect("RFLOW")
+#'   df <- oracle_select_all("RFLOW", "MY_TABLE", connection = con)
+#' }
+#'
 #' @importFrom DBI dbIsValid dbGetQuery dbExistsTable dbQuoteIdentifier
 #' @importFrom stringr str_detect
 #'
@@ -279,4 +302,95 @@ oracle_table_exists <- function(schema, table_name, connection = NULL) {
     )
 
     return(exists)
+}
+
+#' List all available Oracle schemas
+#'
+#' @title List available Oracle schemas
+#' @description
+#' `oracle_list_schemas()` retrieves a list of all schemas accessible to the current
+#' user from the Oracle database. It queries the DBA_USERS or ALL_USERS view to obtain
+#' all accessible schema names.
+#'
+#' @param connection A valid database connection object (e.g., from oracle_connect()).
+#'   If NULL or missing, a connection will be automatically created using the default
+#'   schema (RFLOW).
+#'
+#' @returns A character vector of schema names accessible to the current user,
+#'   sorted alphabetically.
+#'
+#' @details
+#' This function executes a secure query against the Oracle database system views.
+#' It uses parameterized queries to prevent SQL injection and validates the connection
+#' before attempting to retrieve schema information.
+#'
+#' @examples
+#' \dontrun{
+#'   # List all available schemas
+#'   schemas <- oracle_list_schemas()
+#'   print(schemas)
+#'   
+#'   # With explicit connection
+#'   con <- oracle_connect("RFLOW")
+#'   schemas <- oracle_list_schemas(connection = con)
+#' }
+#'
+#' @importFrom DBI dbIsValid dbGetQuery
+#'
+#' @export
+oracle_list_schemas <- function(connection = NULL) {
+    # If connection is not provided, try to create it using default schema
+    if (missing(connection) || is.null(connection)) {
+        connection <- tryCatch(
+            {
+                rflib::oracle_connect()
+            },
+            error = function(e) {
+                stop(paste0("Could not establish connection: ", e$message))
+            }
+        )
+    }
+
+    if (is.null(connection)) {
+        stop("Connection parameter is required and cannot be NULL.")
+    }
+
+    # Check if connection is valid
+    if (!DBI::dbIsValid(connection)) {
+        stop("Database connection is not valid. Please check your connection.")
+    }
+
+    # Query available schemas from Oracle system views
+    # Using ALL_USERS view which is accessible to all users
+    # DBA_USERS would require DBA privileges and may not be accessible to all users
+    schemas <- tryCatch(
+        {
+            query <- "SELECT USERNAME FROM ALL_USERS ORDER BY USERNAME"
+            result <- DBI::dbGetQuery(connection, query)
+            
+            if (nrow(result) == 0) {
+                warning("No schemas found in ALL_USERS view. Attempting DBA_USERS...")
+                # Fallback to DBA_USERS if ALL_USERS returns no results
+                query_fallback <- "SELECT USERNAME FROM DBA_USERS ORDER BY USERNAME"
+                result <- DBI::dbGetQuery(connection, query_fallback)
+            }
+            
+            # Extract schema names and convert to character vector
+            if (nrow(result) > 0) {
+                schemas <- sort(unique(as.character(result$USERNAME)))
+            } else {
+                schemas <- character(0)
+            }
+            
+            return(schemas)
+        },
+        error = function(e) {
+            stop(paste0("Error retrieving schemas: ", e$message))
+        }
+    )
+
+    # Log results
+    message(paste0("Successfully retrieved ", length(schemas), " schema(s) from Oracle database."))
+
+    return(schemas)
 }

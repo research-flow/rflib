@@ -25,4 +25,27 @@ table existence, and protection against SQL injection attacks.
 }
 \details{
 Query all data from a table with security checks
+
+\strong{Security Measures:}
+This function is protected against SQL injection attacks through multiple layers:
+\itemize{
+\item \strong{Input Validation:} All identifiers (schema and table names) are validated
+against a whitelist pattern allowing only alphanumeric characters, underscores, and dots
+(regex: \verb{^[a-zA-Z0-9_\\\\.]+$}). Invalid identifiers are rejected with a clear error message.
+\item \strong{Identifier Quoting:} Uses \code{DBI::dbQuoteIdentifier()} for proper SQL identifier
+escaping, which quotes identifiers according to the database's requirements.
+\item \strong{Pre-query Validation:} Verifies that the requested table actually exists
+before attempting the query, preventing typos and unauthorized table access attempts.
+\item \strong{Connection Validation:} Confirms the database connection is valid before
+executing any queries via \code{DBI::dbIsValid()}.
+\item \strong{No String Concatenation:} Query construction avoids string concatenation
+for identifiers, using only DBI functions for safe query building.
+}
+}
+\examples{
+\dontrun{
+  con <- oracle_connect("RFLOW")
+  df <- oracle_select_all("RFLOW", "MY_TABLE", connection = con)
+}
+
 }
