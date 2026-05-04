@@ -67,6 +67,7 @@ survey_load_answers <- function(path) {
   # Pivot longer using RFAZON as unique id
   df_long <- df %>%
     dplyr::rename(respondent_id = dplyr::all_of(rfazon_col)) %>%
+    dplyr::mutate_all(as.character) %>%
     tidyr::pivot_longer(
       cols = -"respondent_id",
       names_to = "question",
