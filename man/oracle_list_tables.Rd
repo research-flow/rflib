@@ -4,13 +4,15 @@
 \alias{oracle_list_tables}
 \title{List available tables}
 \usage{
-oracle_list_tables(schema, connection = NULL)
+oracle_list_tables(schema, connection = NULL, subset = NULL)
 }
 \arguments{
 \item{schema}{Character string, optional. Schema name to list tables from.
 If NULL, lists tables from the current schema.}
 
 \item{connection}{A valid database connection object}
+
+\item{subset}{A regex expression to filter for relevant table names}
 }
 \value{
 A character vector of table names.

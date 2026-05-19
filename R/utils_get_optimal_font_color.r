@@ -7,8 +7,22 @@
 #' @return A character vector of "black" or "white" indicating the optimal font color for each input
 #' @export
 get_optimal_font_color <- function(hex_colors) {
+    # Convert a named R color or hex string to a 6-digit hex string
+    to_hex <- function(color) {
+        if (grepl("^#?[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$", color)) {
+            return(color)
+        }
+        # Try to resolve as a named R color
+        resolved <- tryCatch(
+            grDevices::col2rgb(color),
+            error = function(e) stop(paste0("Unknown color: '", color, "'"))
+        )
+        sprintf("#%02X%02X%02X", resolved[1], resolved[2], resolved[3])
+    }
+
     # Function to compute optimal font color for a single hex value
     compute_font_color <- function(hex_color) {
+        hex_color <- to_hex(hex_color)
         # Remove the hash symbol if present
         hex_color <- gsub("#", "", hex_color)
 

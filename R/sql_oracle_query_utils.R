@@ -161,8 +161,9 @@ oracle_select_all <- function(schema, table_name, connection = NULL) {
             start_time <- Sys.time()
             result_ret <- DBI::dbGetQuery(connection, query)
             end_time <- Sys.time()
+            result_ret_tibble <- dplyr::as_tibble(result_ret) 
             message(sprintf("Query executed in %f seconds", as.numeric(difftime(end_time, start_time, units = "secs"))))
-            return(result_ret)
+            return(result_ret_tibble)
         },
         error = function(e) {
             stop(paste0("Error executing query: ", e$message))
@@ -182,16 +183,17 @@ oracle_select_all <- function(schema, table_name, connection = NULL) {
 #' `oracle_list_tables()` returns a list of all tables available in the current
 #' schema or a specified schema.
 #'
-#' @param connection A valid database connection object
 #' @param schema Character string, optional. Schema name to list tables from.
 #'   If NULL, lists tables from the current schema.
+#' @param connection A valid database connection object
+#' @param subset A regex expression to filter for relevant table names
 #'
 #' @returns A character vector of table names.
 #'
 #' @importFrom DBI dbIsValid dbListTables
 #'
 #' @export
-oracle_list_tables <- function(schema, connection = NULL) {
+oracle_list_tables <- function(schema, connection = NULL, subset = NULL) {
     # Validate connection
     if (missing(schema) || is.null(schema) || nchar(trimws(schema)) == 0) {
         stop("Schema name is required and cannot be empty.")
@@ -230,6 +232,14 @@ oracle_list_tables <- function(schema, connection = NULL) {
             stop(paste0("Error listing tables: ", e$message))
         }
     )
+
+    # Apply subset filter if provided
+    if (!is.null(subset)) {
+        if (!is.character(subset) || length(subset) != 1) {
+            stop("Subset parameter must be a single character string.")
+        }
+        tables <- stringr::str_subset(tables, subset)
+    }
 
     return(tables)
 }
