@@ -404,64 +404,63 @@ oracle_list_schemas <- function(connection = NULL) {
 
     return(schemas)
 }
-#' Get the structure (columns and types) of one or more Oracle tables
+#' Get raw column metadata for one or more Oracle tables
 #'
-#' @title Describe Oracle table structure
+#' @title Describe Oracle table structure (raw catalog columns)
 #' @description
-#' `oracle_describe_tables()` returns the column names and data types for one
-#' or more tables in a given Oracle schema. Tables can be selected either by
-#' an exact name (via `table_name`) or by a regex `subset` applied to the
-#' list of tables in the schema (as returned by `oracle_list_tables()`). If
-#' neither is supplied, every table in the schema is described.
+#' `oracle_describe_tables()` returns raw column metadata — schema, table,
+#' column name, and native type — for one or more tables in a given Oracle
+#' schema, sourced in a single query against Oracle's `ALL_TAB_COLUMNS`
+#' system view. Tables can be selected by an exact name (via `table_name`),
+#' by a regex `subset` matched server-side via `REGEXP_LIKE`, or, if neither
+#' is supplied, every table in the schema is included.
 #'
 #' @param schema Character string. Schema name to describe tables from. Required.
-#' @param subset Character string, optional. A regex expression used to filter
-#'   table names (passed through to `oracle_list_tables()`). Ignored if
-#'   `table_name` is supplied.
+#' @param subset Character string, optional. An Oracle-flavored regular
+#'   expression (`REGEXP_LIKE` syntax) matched against table names directly
+#'   in the database. Ignored if `table_name` is supplied.
 #' @param table_name Character vector, optional. One or more exact table names
-#'   to describe. If supplied, `subset` is ignored and only these tables are
-#'   described (each must exist in `schema`).
+#'   to describe. If supplied, `subset` is ignored.
 #' @param connection A valid database connection object (e.g., from
 #'   `oracle_connect()`). If NULL, a connection is created automatically.
 #'
-#' @returns A tibble with columns `TABLE`, `COLNAME`, `COLTYPE` — one row per
-#'   column, per table.
+#' @returns A tibble with columns `schema_name`, `table_name`, `name`,
+#'   `field.type`, `buffer_length` — one row per column, per matched table.
 #'
 #' @details
+#' \strong{Why `ALL_TAB_COLUMNS` instead of `odbc::odbcConnectionColumns()`:}
+#' As of odbc >= 1.5.0, `odbcConnectionColumns()` is deprecated in favor of
+#' `DBI::dbListFields()`, which only returns column names — no type/size
+#' information. Querying `ALL_TAB_COLUMNS` directly avoids depending on an
+#' R-package-level helper that could be removed in a future `odbc` release;
+#' it's a plain SQL query against Oracle's own metadata, independent of
+#' which R package or driver version is in use.
+#'
 #' \strong{Security Measures:}
 #' \itemize{
 #'   \item Schema and table identifiers are validated against a whitelist
-#'     pattern allowing only alphanumeric characters, underscores, and dots
-#'     (regex: `^[a-zA-Z0-9_\\.]+$`).
-#'   \item Identifiers are quoted via `DBI::dbQuoteIdentifier()`; no
-#'     user-supplied value is concatenated unescaped into SQL.
-#'   \item Table existence is confirmed via `oracle_table_exists()` before
-#'     querying.
-#'   \item Column metadata is obtained via `DBI::dbColumnInfo()` on a
-#'     zero-row (`WHERE ROWNUM = 0`) query, so no actual table data is ever
-#'     fetched.
+#'     pattern allowing only alphanumeric characters, underscores, and dots.
+#'   \item `OWNER`, `TABLE_NAME`, and `subset` values are escaped with
+#'     `DBI::dbQuoteString()` — never concatenated raw into SQL.
 #' }
-#' A failure on any single table (e.g. it disappears mid-run, or a privilege
-#' issue) produces a warning and is skipped rather than aborting the whole
-#' batch.
 #'
 #' @examples
 #' \dontrun{
 #'   con <- oracle_connect("RFLOW")
 #'
-#'   # Describe every table in the schema
-#'   str_all <- oracle_describe_tables("RFLOW", connection = con)
+#'   # Every table in the schema
+#'   all_cols <- oracle_describe_tables("RFLOW", connection = con)
 #'
-#'   # Describe tables matching a regex
-#'   str_subset <- oracle_describe_tables("RFLOW", subset = "^ORDERS_", connection = con)
+#'   # Tables matching a regex (matched server-side)
+#'   subset_cols <- oracle_describe_tables("RFLOW", subset = "^ORDERS_", connection = con)
 #'
-#'   # Describe a single, specific table
-#'   str_one <- oracle_describe_tables("RFLOW", table_name = "MY_TABLE", connection = con)
+#'   # A single, specific table
+#'   one_table <- oracle_describe_tables("RFLOW", table_name = "MY_TABLE", connection = con)
 #' }
 #'
-#' @importFrom DBI dbIsValid dbQuoteIdentifier dbSendQuery dbColumnInfo dbClearResult
+#' @importFrom DBI dbIsValid dbQuoteString dbGetQuery
 #' @importFrom stringr str_detect
-#' @importFrom dplyr bind_rows as_tibble
+#' @importFrom dplyr as_tibble rename
 #'
 #' @export
 oracle_describe_tables <- function(schema, subset = NULL, table_name = NULL, connection = NULL) {
@@ -492,82 +491,89 @@ oracle_describe_tables <- function(schema, subset = NULL, table_name = NULL, con
         stop("Database connection is not valid. Please check your connection.")
     }
 
-    # Resolve which tables to describe
+    owner_quoted <- DBI::dbQuoteString(connection, toupper(schema))
+
+    # Build the WHERE clause for table selection: exact names, regex, or all.
     if (!is.null(table_name)) {
         if (!is.character(table_name) || length(table_name) == 0) {
             stop("table_name must be a non-empty character vector.")
         }
-        tables <- trimws(table_name)
-        bad <- tables[!stringr::str_detect(tables, "^[a-zA-Z0-9_\\.]+$")]
+        table_name <- trimws(table_name)
+        bad <- table_name[!stringr::str_detect(table_name, "^[a-zA-Z0-9_\\.]+$")]
         if (length(bad) > 0) {
             stop(paste0(
                 "Invalid table name(s): ", paste(bad, collapse = ", "),
                 ". Table names can only contain letters, numbers, underscores, and dots."
             ))
         }
-    } else {
-        tables <- oracle_list_tables(schema = schema, connection = connection, subset = subset)
-    }
-
-    if (length(tables) == 0) {
-        warning("No tables found matching the given criteria.")
-        return(dplyr::as_tibble(data.frame(
-            TABLE = character(0), COLNAME = character(0), COLTYPE = character(0),
-            stringsAsFactors = FALSE
-        )))
-    }
-
-    describe_one <- function(tbl) {
-        exists <- tryCatch(
-            oracle_table_exists(schema = schema, table_name = tbl, connection = connection),
-            error = function(e) FALSE
+        tables_quoted <- vapply(
+            toupper(table_name),
+            function(t) DBI::dbQuoteString(connection, t),
+            character(1)
         )
-        if (!isTRUE(exists)) {
-            warning(paste0("Table '", tbl, "' does not exist in schema '", schema, "'. Skipping."))
-            return(NULL)
+        table_clause <- paste0("TABLE_NAME IN (", paste(tables_quoted, collapse = ", "), ")")
+    } else if (!is.null(subset)) {
+        if (!is.character(subset) || length(subset) != 1) {
+            stop("subset must be a single character string.")
         }
-      
-        col_info <- tryCatch(
-            {
-                query_raw <- odbc::odbcConnectionColumns(connection, name = tbl)
-                query <- transmute(query_raw, SCHEMA = schema_name, TABLE = table_name, COLNAME = name, 
-                COLTYPE = field.type, COLSIZE = buffer_length)
-                query
-            },
-            error = function(e) {
-                warning(paste0("Could not retrieve structure for table '", tbl, "': ", e$message))
-                NULL
-            }
-        )
-
-        if (is.null(col_info) || nrow(col_info) == 0) {
-            return(NULL)
-        }
-
-        # dbColumnInfo column names vary slightly by driver; 'name' and
-        # 'type' (or 'field.type') are the common ones.
-
-        dplyr::as_tibble(data.frame(
-            SCHEMA,
-            TABLE,
-            COLNAME,
-            COLTYPE,
-            COLSIZE,
-            stringsAsFactors = FALSE
-        ))
-    }
-
-    results <- lapply(tables, describe_one)
-    result <- dplyr::bind_rows(results)
-
-    if (nrow(result) == 0) {
-        warning("No table structures could be retrieved.")
+        subset_quoted <- DBI::dbQuoteString(connection, subset)
+        table_clause <- paste0("REGEXP_LIKE(TABLE_NAME, ", subset_quoted, ")")
     } else {
-        message(paste0(
-            "Successfully retrieved structure for ", length(unique(result$TABLE)),
-            " table(s), ", nrow(result), " column(s) total."
-        ))
+        table_clause <- "1 = 1"
     }
+
+    query <- paste0(
+        "SELECT OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH, COLUMN_ID ",
+        "FROM ALL_TAB_COLUMNS ",
+        "WHERE OWNER = ", owner_quoted, " ",
+        "AND ", table_clause, " ",
+        "ORDER BY TABLE_NAME, COLUMN_ID"
+    )
+
+    cols_raw <- tryCatch(
+        DBI::dbGetQuery(connection, query),
+        error = function(e) {
+            stop(paste0("Error retrieving table structure from ALL_TAB_COLUMNS: ", e$message))
+        }
+    )
+
+    empty_result <- dplyr::as_tibble(data.frame(
+        schema_name = character(0), table_name = character(0), name = character(0),
+        `field.type` = character(0), buffer_length = numeric(0),
+        check.names = FALSE, stringsAsFactors = FALSE
+    ))
+
+    if (nrow(cols_raw) == 0) {
+        warning("No column metadata found for the requested table(s)/pattern in schema '",
+                schema, "'. Check that the schema, table name(s), or subset regex are correct ",
+                "and that you have visibility into those tables.")
+        return(empty_result)
+    }
+
+    if (!is.null(table_name)) {
+        missing_tables <- setdiff(toupper(table_name), unique(cols_raw$TABLE_NAME))
+        if (length(missing_tables) > 0) {
+            warning(paste0(
+                "The following table(s) were not found (or are not visible) in schema '",
+                schema, "': ", paste(missing_tables, collapse = ", ")
+            ))
+        }
+    }
+
+    result <- dplyr::as_tibble(data.frame(
+        schema_name = cols_raw$OWNER,
+        table_name = cols_raw$TABLE_NAME,
+        name = cols_raw$COLUMN_NAME,
+        `field.type` = cols_raw$DATA_TYPE,
+        buffer_length = cols_raw$DATA_LENGTH,
+        check.names = FALSE,
+        stringsAsFactors = FALSE
+    ))
+
+    message(paste0(
+        "Successfully retrieved structure for ", length(unique(result$table_name)),
+        " table(s), ", nrow(result), " column(s) total."
+    ))
 
     return(result)
 }

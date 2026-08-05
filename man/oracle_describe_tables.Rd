@@ -2,7 +2,7 @@
 % Please edit documentation in R/sql_oracle_query_utils.R
 \name{oracle_describe_tables}
 \alias{oracle_describe_tables}
-\title{Describe Oracle table structure}
+\title{Describe Oracle table structure (raw catalog columns)}
 \usage{
 oracle_describe_tables(
   schema,
@@ -14,60 +14,59 @@ oracle_describe_tables(
 \arguments{
 \item{schema}{Character string. Schema name to describe tables from. Required.}
 
-\item{subset}{Character string, optional. A regex expression used to filter
-table names (passed through to \code{oracle_list_tables()}). Ignored if
-\code{table_name} is supplied.}
+\item{subset}{Character string, optional. An Oracle-flavored regular
+expression (\code{REGEXP_LIKE} syntax) matched against table names directly
+in the database. Ignored if \code{table_name} is supplied.}
 
 \item{table_name}{Character vector, optional. One or more exact table names
-to describe. If supplied, \code{subset} is ignored and only these tables are
-described (each must exist in \code{schema}).}
+to describe. If supplied, \code{subset} is ignored.}
 
 \item{connection}{A valid database connection object (e.g., from
 \code{oracle_connect()}). If NULL, a connection is created automatically.}
 }
 \value{
-A tibble with columns \code{TABLE}, \code{COLNAME}, \code{COLTYPE} — one row per
-column, per table.
+A tibble with columns \code{schema_name}, \code{table_name}, \code{name},
+\code{field.type}, \code{buffer_length} — one row per column, per matched table.
 }
 \description{
-\code{oracle_describe_tables()} returns the column names and data types for one
-or more tables in a given Oracle schema. Tables can be selected either by
-an exact name (via \code{table_name}) or by a regex \code{subset} applied to the
-list of tables in the schema (as returned by \code{oracle_list_tables()}). If
-neither is supplied, every table in the schema is described.
+\code{oracle_describe_tables()} returns raw column metadata — schema, table,
+column name, and native type — for one or more tables in a given Oracle
+schema, sourced in a single query against Oracle's \code{ALL_TAB_COLUMNS}
+system view. Tables can be selected by an exact name (via \code{table_name}),
+by a regex \code{subset} matched server-side via \code{REGEXP_LIKE}, or, if neither
+is supplied, every table in the schema is included.
 }
 \details{
-Get the structure (columns and types) of one or more Oracle tables
+Get raw column metadata for one or more Oracle tables
+
+\strong{Why \code{ALL_TAB_COLUMNS} instead of \code{odbc::odbcConnectionColumns()}:}
+As of odbc >= 1.5.0, \code{odbcConnectionColumns()} is deprecated in favor of
+\code{DBI::dbListFields()}, which only returns column names — no type/size
+information. Querying \code{ALL_TAB_COLUMNS} directly avoids depending on an
+R-package-level helper that could be removed in a future \code{odbc} release;
+it's a plain SQL query against Oracle's own metadata, independent of
+which R package or driver version is in use.
 
 \strong{Security Measures:}
 \itemize{
 \item Schema and table identifiers are validated against a whitelist
-pattern allowing only alphanumeric characters, underscores, and dots
-(regex: \verb{^[a-zA-Z0-9_\\\\.]+$}).
-\item Identifiers are quoted via \code{DBI::dbQuoteIdentifier()}; no
-user-supplied value is concatenated unescaped into SQL.
-\item Table existence is confirmed via \code{oracle_table_exists()} before
-querying.
-\item Column metadata is obtained via \code{DBI::dbColumnInfo()} on a
-zero-row (\verb{WHERE ROWNUM = 0}) query, so no actual table data is ever
-fetched.
+pattern allowing only alphanumeric characters, underscores, and dots.
+\item \code{OWNER}, \code{TABLE_NAME}, and \code{subset} values are escaped with
+\code{DBI::dbQuoteString()} — never concatenated raw into SQL.
 }
-A failure on any single table (e.g. it disappears mid-run, or a privilege
-issue) produces a warning and is skipped rather than aborting the whole
-batch.
 }
 \examples{
 \dontrun{
   con <- oracle_connect("RFLOW")
 
-  # Describe every table in the schema
-  str_all <- oracle_describe_tables("RFLOW", connection = con)
+  # Every table in the schema
+  all_cols <- oracle_describe_tables("RFLOW", connection = con)
 
-  # Describe tables matching a regex
-  str_subset <- oracle_describe_tables("RFLOW", subset = "^ORDERS_", connection = con)
+  # Tables matching a regex (matched server-side)
+  subset_cols <- oracle_describe_tables("RFLOW", subset = "^ORDERS_", connection = con)
 
-  # Describe a single, specific table
-  str_one <- oracle_describe_tables("RFLOW", table_name = "MY_TABLE", connection = con)
+  # A single, specific table
+  one_table <- oracle_describe_tables("RFLOW", table_name = "MY_TABLE", connection = con)
 }
 
 }
