@@ -526,20 +526,13 @@ oracle_describe_tables <- function(schema, subset = NULL, table_name = NULL, con
             warning(paste0("Table '", tbl, "' does not exist in schema '", schema, "'. Skipping."))
             return(NULL)
         }
-
-        query <- paste0(
-            "SELECT * FROM ",
-            DBI::dbQuoteIdentifier(connection, schema), ".",
-            DBI::dbQuoteIdentifier(connection, tbl),
-            " WHERE ROWNUM = 0"
-        )
-
+      
         col_info <- tryCatch(
             {
-                res <- DBI::dbSendQuery(connection, query)
-                info <- DBI::dbColumnInfo(res)
-                DBI::dbClearResult(res)
-                info
+                query_raw <- odbc::odbcConnectionColumns(connection, name = tbl)
+                query <- transmute(query_raw, SCHEMA = schema_name, TABLE = table_name, COLNAME = name, 
+                COLTYPE = field.type, COLSIZE = buffer_length)
+                query
             },
             error = function(e) {
                 warning(paste0("Could not retrieve structure for table '", tbl, "': ", e$message))
@@ -553,13 +546,13 @@ oracle_describe_tables <- function(schema, subset = NULL, table_name = NULL, con
 
         # dbColumnInfo column names vary slightly by driver; 'name' and
         # 'type' (or 'field.type') are the common ones.
-        colname_col <- intersect(c("name", "field_name"), names(col_info))[1]
-        coltype_col <- intersect(c("type", "field.type", "field_type"), names(col_info))[1]
 
         dplyr::as_tibble(data.frame(
-            TABLE = tbl,
-            COLNAME = as.character(col_info[[colname_col]]),
-            COLTYPE = as.character(col_info[[coltype_col]]),
+            SCHEMA,
+            TABLE,
+            COLNAME,
+            COLTYPE,
+            COLSIZE,
             stringsAsFactors = FALSE
         ))
     }
