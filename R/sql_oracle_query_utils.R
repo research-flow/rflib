@@ -404,3 +404,177 @@ oracle_list_schemas <- function(connection = NULL) {
 
     return(schemas)
 }
+#' Get the structure (columns and types) of one or more Oracle tables
+#'
+#' @title Describe Oracle table structure
+#' @description
+#' `oracle_describe_tables()` returns the column names and data types for one
+#' or more tables in a given Oracle schema. Tables can be selected either by
+#' an exact name (via `table_name`) or by a regex `subset` applied to the
+#' list of tables in the schema (as returned by `oracle_list_tables()`). If
+#' neither is supplied, every table in the schema is described.
+#'
+#' @param schema Character string. Schema name to describe tables from. Required.
+#' @param subset Character string, optional. A regex expression used to filter
+#'   table names (passed through to `oracle_list_tables()`). Ignored if
+#'   `table_name` is supplied.
+#' @param table_name Character vector, optional. One or more exact table names
+#'   to describe. If supplied, `subset` is ignored and only these tables are
+#'   described (each must exist in `schema`).
+#' @param connection A valid database connection object (e.g., from
+#'   `oracle_connect()`). If NULL, a connection is created automatically.
+#'
+#' @returns A tibble with columns `TABLE`, `COLNAME`, `COLTYPE` — one row per
+#'   column, per table.
+#'
+#' @details
+#' \strong{Security Measures:}
+#' \itemize{
+#'   \item Schema and table identifiers are validated against a whitelist
+#'     pattern allowing only alphanumeric characters, underscores, and dots
+#'     (regex: `^[a-zA-Z0-9_\\.]+$`).
+#'   \item Identifiers are quoted via `DBI::dbQuoteIdentifier()`; no
+#'     user-supplied value is concatenated unescaped into SQL.
+#'   \item Table existence is confirmed via `oracle_table_exists()` before
+#'     querying.
+#'   \item Column metadata is obtained via `DBI::dbColumnInfo()` on a
+#'     zero-row (`WHERE ROWNUM = 0`) query, so no actual table data is ever
+#'     fetched.
+#' }
+#' A failure on any single table (e.g. it disappears mid-run, or a privilege
+#' issue) produces a warning and is skipped rather than aborting the whole
+#' batch.
+#'
+#' @examples
+#' \dontrun{
+#'   con <- oracle_connect("RFLOW")
+#'
+#'   # Describe every table in the schema
+#'   str_all <- oracle_describe_tables("RFLOW", connection = con)
+#'
+#'   # Describe tables matching a regex
+#'   str_subset <- oracle_describe_tables("RFLOW", subset = "^ORDERS_", connection = con)
+#'
+#'   # Describe a single, specific table
+#'   str_one <- oracle_describe_tables("RFLOW", table_name = "MY_TABLE", connection = con)
+#' }
+#'
+#' @importFrom DBI dbIsValid dbQuoteIdentifier dbSendQuery dbColumnInfo dbClearResult
+#' @importFrom stringr str_detect
+#' @importFrom dplyr bind_rows as_tibble
+#'
+#' @export
+oracle_describe_tables <- function(schema, subset = NULL, table_name = NULL, connection = NULL) {
+    # Validate schema
+    if (missing(schema) || is.null(schema) || nchar(trimws(schema)) == 0) {
+        stop("Schema name is required and cannot be empty.")
+    }
+    schema <- trimws(schema)
+    if (!stringr::str_detect(schema, "^[a-zA-Z0-9_\\.]+$")) {
+        stop("Invalid schema name. Schema names can only contain letters, numbers, underscores, and dots.")
+    }
+
+    # If connection is not provided, try to create it using the schema
+    if (missing(connection) || is.null(connection)) {
+        connection <- tryCatch(
+            {
+                rflib::oracle_connect()
+            },
+            error = function(e) {
+                stop(paste0("Could not establish connection using schema '", schema, "': ", e$message))
+            }
+        )
+    }
+    if (is.null(connection)) {
+        stop("Connection parameter is required and cannot be NULL.")
+    }
+    if (!DBI::dbIsValid(connection)) {
+        stop("Database connection is not valid. Please check your connection.")
+    }
+
+    # Resolve which tables to describe
+    if (!is.null(table_name)) {
+        if (!is.character(table_name) || length(table_name) == 0) {
+            stop("table_name must be a non-empty character vector.")
+        }
+        tables <- trimws(table_name)
+        bad <- tables[!stringr::str_detect(tables, "^[a-zA-Z0-9_\\.]+$")]
+        if (length(bad) > 0) {
+            stop(paste0(
+                "Invalid table name(s): ", paste(bad, collapse = ", "),
+                ". Table names can only contain letters, numbers, underscores, and dots."
+            ))
+        }
+    } else {
+        tables <- oracle_list_tables(schema = schema, connection = connection, subset = subset)
+    }
+
+    if (length(tables) == 0) {
+        warning("No tables found matching the given criteria.")
+        return(dplyr::as_tibble(data.frame(
+            TABLE = character(0), COLNAME = character(0), COLTYPE = character(0),
+            stringsAsFactors = FALSE
+        )))
+    }
+
+    describe_one <- function(tbl) {
+        exists <- tryCatch(
+            oracle_table_exists(schema = schema, table_name = tbl, connection = connection),
+            error = function(e) FALSE
+        )
+        if (!isTRUE(exists)) {
+            warning(paste0("Table '", tbl, "' does not exist in schema '", schema, "'. Skipping."))
+            return(NULL)
+        }
+
+        query <- paste0(
+            "SELECT * FROM ",
+            DBI::dbQuoteIdentifier(connection, schema), ".",
+            DBI::dbQuoteIdentifier(connection, tbl),
+            " WHERE ROWNUM = 0"
+        )
+
+        col_info <- tryCatch(
+            {
+                res <- DBI::dbSendQuery(connection, query)
+                info <- DBI::dbColumnInfo(res)
+                DBI::dbClearResult(res)
+                info
+            },
+            error = function(e) {
+                warning(paste0("Could not retrieve structure for table '", tbl, "': ", e$message))
+                NULL
+            }
+        )
+
+        if (is.null(col_info) || nrow(col_info) == 0) {
+            return(NULL)
+        }
+
+        # dbColumnInfo column names vary slightly by driver; 'name' and
+        # 'type' (or 'field.type') are the common ones.
+        colname_col <- intersect(c("name", "field_name"), names(col_info))[1]
+        coltype_col <- intersect(c("type", "field.type", "field_type"), names(col_info))[1]
+
+        dplyr::as_tibble(data.frame(
+            TABLE = tbl,
+            COLNAME = as.character(col_info[[colname_col]]),
+            COLTYPE = as.character(col_info[[coltype_col]]),
+            stringsAsFactors = FALSE
+        ))
+    }
+
+    results <- lapply(tables, describe_one)
+    result <- dplyr::bind_rows(results)
+
+    if (nrow(result) == 0) {
+        warning("No table structures could be retrieved.")
+    } else {
+        message(paste0(
+            "Successfully retrieved structure for ", length(unique(result$TABLE)),
+            " table(s), ", nrow(result), " column(s) total."
+        ))
+    }
+
+    return(result)
+}

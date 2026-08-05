@@ -16,14 +16,14 @@ long_palette <- function(n = NULL) {
         # Original JCO colors (hardcoded to avoid ggsci dependency)
         "#0073C2FF",
         "#EFC000FF",
-        "#868686FF",
+        "#7E6148",
+        "#228B22",
         "#CD534CFF",
         "#003C67FF",
         "#8F7700FF",
         "#3B3B3BFF",
         "#A73030FF",
         "#4A6990FF",
-        "#228B22", # green4 in hex
 
         # Strategic color ordering for maximum distinction when plotting many categories
         # Colors follow the sophisticated aesthetic of the JCO palette
